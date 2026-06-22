@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== MODO TESTE (rápido, para validar) =====
+    // ATENÇÃO: PÚBLICO — qualquer pessoa com a URL pode ler/gravar.
+    // Bom só para testar. Antes de usar pra valer, troque pelo bloco de produção abaixo.
+    match /b3_config/{doc} {
+      allow read, write: if true;
+    }
+
+    // ===== PRODUÇÃO (recomendado) — exige login =====
+    // Comente o bloco de teste acima e use este (precisa do Firebase Auth ligado,
+    // que o b3 flow já usa).
+    // match /b3_config/{doc} {
+    //   allow read, write: if request.auth != null;
+    // }
+  }
+}
