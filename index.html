@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>b3 Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#0a0a0b;color:#f1f5f9;min-height:100vh;padding:44px 24px;}
+.wrap{max-width:920px;margin:0 auto;}
+.brand{display:flex;align-items:center;gap:14px;}
+.mark{width:48px;height:48px;border-radius:14px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(135deg,#7C3AED,#2563EB 55%,#06B6D4);box-shadow:0 8px 28px rgba(37,99,235,.38);}
+.mark span{font-family:'Inter';font-weight:800;font-size:21px;color:#fff;letter-spacing:-1px;}
+h1{font-size:32px;font-weight:800;letter-spacing:-.5px;line-height:1;}
+h1 b{background:linear-gradient(135deg,#a78bfa,#2563EB 55%,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tagline{color:#a1a1aa;font-size:14px;margin-top:6px;}
+.eco{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#c4b5fd;background:rgba(124,58,237,.12);border:1px solid #2d2d35;border-radius:999px;padding:4px 11px;margin-top:14px;}
+.eco i{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#06B6D4);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:30px;}
+a.tool{position:relative;display:block;text-decoration:none;background:#18181b;border:1px solid #27272a;border-radius:18px;padding:22px;transition:all .18s;}
+a.tool:hover{border-color:#2563EB;transform:translateY(-3px);box-shadow:0 14px 38px rgba(37,99,235,.18);}
+.tool .ic{font-size:28px;}
+.tool h2{font-size:18px;font-weight:700;color:#f1f5f9;margin:10px 0 4px;letter-spacing:-.3px;}
+.tool h2 b{background:linear-gradient(135deg,#a78bfa,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tool p{font-size:12.5px;color:#a1a1aa;line-height:1.5;}
+.tool .tag{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-radius:999px;padding:3px 9px;margin-top:13px;}
+.tag.ready{color:#86efac;background:rgba(34,197,94,.12);border:1px solid #1e3a2a;}
+.tag.soon{color:#fcd34d;background:rgba(245,158,11,.1);border:1px solid #3a311a;}
+.foot{margin-top:32px;font-size:12px;color:#52525b;border-top:1px solid #27272a;padding-top:16px;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="mark"><span>b3</span></div>
+    <div>
+      <h1>b3 <b>Ops</b></h1>
+      <div class="tagline">Central de operações da Rosa Baby — embalagem, preço e mercado.</div>
+    </div>
+  </div>
+  <div class="eco"><i></i>ecossistema b3 flow</div>
+
+  <div class="grid">
+    <a class="tool" href="ferramentas/b3-box.html">
+      <div class="ic">📦</div><h2>b3 <b>Box</b></h2>
+      <p>Empacotador 3D: monta o pedido (1 ou vários produtos) e mostra a caixa mestre, com encaixe girável e qual caixa do estoque usar.</p>
+      <span class="tag ready">pronto</span>
+    </a>
+    <a class="tool" href="ferramentas/calculadora-de-precos.html">
+      <div class="ic">💰</div><h2>b3 <b>Price</b></h2>
+      <p>Precificação por marketplace: margem, custos fixos, lucro líquido e ponto de equilíbrio.</p>
+      <span class="tag soon">a refinar</span>
+    </a>
+    <a class="tool" href="ferramentas/radar-de-produtos.html">
+      <div class="ic">📈</div><h2>b3 <b>Radar</b></h2>
+      <p>Pesquisa de mercado, viabilidade, montagem de kit e importação da Shopee.</p>
+      <span class="tag soon">a refinar</span>
+    </a>
+  </div>
+
+  <div class="foot">
+    Extensão de coleta da Shopee em <code>extensao-radar-shopee/</code> · deploy em <code>COMO-SUBIR.md</code>.<br>
+    App à parte, no padrão do <b>b3 flow</b> (Vercel + Firestore, mm e gramas) — pronto pra migrar quando validado.
+  </div>
+</div>
+</body>
+</html>
