@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Radar de Produtos · Rosa Baby</title>
+</head>
+<body>
+<div id="app"></div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper: #F6F1F3;
+    --card: #FFFFFF;
+    --ink: #271E2C;
+    --ink-soft: #6B5E6E;
+    --rose: #E0457B;
+    --rose-deep: #B82E60;
+    --rose-tint: #FCEAF1;
+    --line: #EBE1E6;
+    --good: #1F9E6E;
+    --good-bg: #E4F5EE;
+    --warn: #C98A19;
+    --warn-bg: #FBF1DC;
+    --bad: #C44A4A;
+    --bad-bg: #FBE7E7;
+    --shopee: #EE4D2D;
+    --ml: #2D5BFF;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(39,30,44,.05), 0 8px 24px rgba(39,30,44,.06);
+  }
+
+  #app {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    line-height: 1.45;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  /* Header */
+  .hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .mark {
+    width: 42px; height: 42px; border-radius: 12px; flex: none;
+    background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+    display: grid; place-items: center; color: #fff; font-family: 'Space Grotesk'; font-weight: 700; font-size: 20px;
+    box-shadow: 0 4px 14px rgba(184,46,96,.35);
+  }
+  h1 { font-family: 'Space Grotesk'; font-weight: 700; font-size: 22px; letter-spacing: -.02em; }
+  .sub { color: var(--ink-soft); font-size: 13px; margin-top: 2px; max-width: 560px; }
+  .note {
+    font-size: 12px; color: var(--ink-soft); background: var(--rose-tint);
+    border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; margin: 14px 0 18px;
+  }
+  .note b { color: var(--rose-deep); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tab {
+    font-family: 'Space Grotesk'; font-weight: 600; font-size: 13.5px;
+    padding: 9px 15px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink-soft); cursor: pointer; transition: .15s;
+  }
+  .tab:hover { border-color: var(--rose); color: var(--rose-deep); }
+  .tab.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .panel { display: none; }
+  .panel.on { display: block; animation: fade .2s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* Controls */
+  .ctrls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  label.lbl { font-size: 11px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .04em; }
+  select, input {
+    font-family: 'Inter'; font-size: 14px; color: var(--ink);
+    border: 1px solid var(--line); background: var(--card);
+    padding: 9px 11px; border-radius: 10px; outline: none; transition: .15s;
+  }
+  select:focus, input:focus { border-color: var(--rose); box-shadow: 0 0 0 3px var(--rose-tint); }
+
+  /* Product cards */
+  .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .pcard {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 16px 18px; display: grid;
+    grid-template-columns: 1fr auto; gap: 8px 16px; align-items: start;
+  }
+  .pcard h3 { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+  .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .chip {
+    font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 999px;
+    background: var(--paper); color: var(--ink-soft); border: 1px solid var(--line);
+  }
+  .chip.m { background: var(--rose-tint); color: var(--rose-deep); border-color: #f3d3e0; }
+  .stats { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+  .stat .k { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .03em; }
+  .stat .v { font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; margin-top: 1px; }
+  .score-wrap { text-align: right; min-width: 96px; }
+  .score {
+    font-family: 'Space Grotesk'; font-weight: 700; font-size: 30px; line-height: 1;
+  }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px;
+    border-radius: 999px; margin-top: 6px; letter-spacing: .02em;
+  }
+  .b-good { background: var(--good-bg); color: var(--good); }
+  .b-warn { background: var(--warn-bg); color: var(--warn); }
+  .b-bad  { background: var(--bad-bg); color: var(--bad); }
+  .ring { width: 6px; border-radius: 6px 0 0 6px; align-self: stretch; grid-row: 1 / 3; margin: -16px 0 -16px -18px; }
+
+  .notes { font-size: 12.5px; color: var(--ink-soft); margin-top: 10px; grid-column: 1 / -1; border-top: 1px dashed var(--line); padding-top: 10px; }
+  .empty { text-align: center; color: var(--ink-soft); padding: 40px; font-size: 14px; }
+
+  /* Calculator */
+  .calc-grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+  .box h2 { font-family: 'Space Grotesk'; font-size: 15px; margin-bottom: 14px; }
+  .inrow { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .inrow input, .inrow select { width: 100%; }
+  .plat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .plat { border-radius: var(--radius); padding: 16px; color: #fff; }
+  .plat.s { background: linear-gradient(135deg, #ff6b3d, var(--shopee)); }
+  .plat.l { background: linear-gradient(135deg, #4d77ff, var(--ml)); }
+  .plat .name { font-family: 'Space Grotesk'; font-weight: 700; font-size: 14px; opacity: .95; }
+  .plat .big { font-family: 'Space Grotesk'; font-weight: 700; font-size: 30px; margin: 6px 0 2px; }
+  .plat .pct { font-size: 13px; opacity: .9; }
+  .breakdown { margin-top: 14px; border-top: 1px solid rgba(255,255,255,.25); padding-top: 12px; font-size: 12.5px; }
+  .breakdown .l { display: flex; justify-content: space-between; padding: 2px 0; }
+  .verdict { margin-top: 16px; font-size: 13px; padding: 12px 14px; border-radius: 10px; background: var(--rose-tint); color: var(--ink); border: 1px solid #f3d3e0; }
+  .verdict b { color: var(--rose-deep); }
+
+  /* Pricing calculator */
+  .calc2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .seg { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .seg button {
+    font-family: 'Space Grotesk'; font-weight: 600; font-size: 12.5px; cursor: pointer;
+    padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink-soft);
+  }
+  .seg button:hover { border-color: var(--rose); color: var(--rose-deep); }
+  .seg button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .frow { display: grid; grid-template-columns: 1fr 92px; gap: 8px; align-items: center; padding: 5px 0; }
+  .frow label { font-size: 13px; color: var(--ink); }
+  .frow input { padding: 7px 9px; text-align: right; }
+  .ftot { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); margin-top: 8px; padding-top: 10px; font-size: 13px; }
+  .ftot b { font-family: 'Space Grotesk'; font-size: 18px; }
+  .addfc { display: flex; gap: 8px; margin-top: 10px; }
+  .addfc input { flex: 1; }
+  .res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 4px; }
+  .res { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .res .k { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-soft); }
+  .res .v { font-family: 'Space Grotesk'; font-weight: 700; font-size: 23px; margin-top: 3px; line-height: 1.1; }
+  .res .v small { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .res.hi { background: linear-gradient(135deg, var(--rose), var(--rose-deep)); border: none; color: #fff; }
+  .res.hi .k, .res.hi .v small { color: rgba(255,255,255,.8); }
+  .res.pos .v { color: var(--good); }
+  .res.neg .v { color: var(--bad); }
+  .xfc { background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: 15px; padding: 0 4px; }
+  .xfc:hover { color: var(--bad); }
+  @media (max-width: 820px){ .calc2 { grid-template-columns: 1fr; } }
+
+  /* Kit builder */
+  .kit-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+  .kit-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .kit-row .nm { flex: 1; font-size: 14px; }
+  .kit-row .pr { font-family: 'Space Grotesk'; font-weight: 600; font-size: 13px; color: var(--ink-soft); }
+  .qty { display: flex; align-items: center; gap: 6px; }
+  .qbtn { width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 15px; font-weight: 600; color: var(--ink); }
+  .qbtn:hover { border-color: var(--rose); color: var(--rose); }
+  .qn { width: 26px; text-align: center; font-family: 'Space Grotesk'; font-weight: 600; }
+  .kit-total { position: sticky; top: 16px; }
+  .gauge { font-family: 'Space Grotesk'; font-weight: 700; font-size: 34px; }
+  .bar { height: 10px; border-radius: 6px; background: var(--paper); overflow: hidden; margin: 12px 0 6px; }
+  .bar > div { height: 100%; border-radius: 6px; transition: .3s; }
+
+  /* Add form */
+  .add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .add-grid .full { grid-column: 1 / -1; }
+  .btn {
+    font-family: 'Space Grotesk'; font-weight: 600; font-size: 14px; color: #fff;
+    background: var(--rose); border: none; padding: 11px 20px; border-radius: 10px; cursor: pointer; transition: .15s;
+  }
+  .btn:hover { background: var(--rose-deep); }
+  .btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--bad); color: var(--bad); background: transparent; }
+  .del { font-size: 12px; color: var(--ink-soft); cursor: pointer; background: none; border: none; text-decoration: underline; }
+  .del:hover { color: var(--bad); }
+  .toast { font-size: 13px; color: var(--good); margin-top: 10px; }
+
+  @media (max-width: 820px) {
+    .calc-grid, .kit-grid { grid-template-columns: 1fr; }
+    .pcard { grid-template-columns: 1fr; }
+    .score-wrap { text-align: left; }
+    .ring { grid-row: auto; margin: -16px -18px 4px; width: auto; height: 6px; border-radius: 6px 6px 0 0; }
+    .add-grid { grid-template-columns: 1fr; }
+    .kit-total { position: static; }
+  }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 18px 14px 64px; }
+    h1 { font-size: 19px; }
+    .mark { width: 38px; height: 38px; font-size: 18px; border-radius: 11px; }
+    .sub { font-size: 12.5px; }
+    .note { font-size: 11.5px; padding: 8px 11px; }
+
+    .tabs { gap: 5px; margin-bottom: 14px; }
+    .tab { font-size: 12.5px; padding: 8px 12px; }
+
+    .ctrls { gap: 8px; }
+    .field { flex: 1 1 140px; }
+    .ctrls select { width: 100%; }
+
+    .box { padding: 15px; }
+    .pcard { padding: 14px; }
+    .ring { margin: -14px -14px 4px; }
+    .stats { gap: 14px; }
+    .stat .v { font-size: 14px; }
+
+    /* score number + selo lado a lado, compacto */
+    .score-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; margin-top: 4px; }
+    .score { font-size: 26px; }
+    .badge { margin-top: 0; }
+
+    .res-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .res { padding: 12px 13px; }
+    .res .v { font-size: 19px; }
+
+    .seg button { font-size: 12px; padding: 7px 10px; }
+    .frow { grid-template-columns: 1fr 78px; }
+    .frow label { font-size: 12.5px; }
+
+    .plat-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 360px) {
+    .res-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- storage (sanctioned API w/ in-memory fallback) ----------
+  var mem = {};
+  var store = {
+    async get(k){
+      try { if(window.storage){ var r=await window.storage.get(k); return r?r.value:null; } } catch(e){}
+      try { var lv=localStorage.getItem(k); if(lv!=null) return lv; } catch(e){}
+      return mem[k]||null;
+    },
+    async set(k,v){
+      try { if(window.storage){ await window.storage.set(k,v); return; } } catch(e){}
+      try { localStorage.setItem(k,v); return; } catch(e){}
+      mem[k]=v;
+    }
+  };
+
+  // ---------- seed data (estimativas da pesquisa de mercado) ----------
+  // sales = vendas/dia estimadas | ease 1-5 = facilidade de venda online
+  // time = minutos para produzir 1 anúncio (kit conta como 1)
+  var SEED = [
+    {id:'s1', name:'Kit 10 chaveiros acrílico personalizado', machine:'CO2 / Acrílico', material:'Acrílico', pMin:39, pMax:50, cMin:5, cMax:10, time:20, sales:14, ease:5, notes:'Isca de relevância + ticket de kit. Custo baixíssimo por peça, ótima margem. Puxa a loja inteira.'},
+    {id:'s2', name:'Placa decorativa MDF 60x40 com foto', machine:'CO2', material:'MDF', pMin:54, pMax:70, cMin:12, cMax:20, time:8, sales:9, ease:4, notes:'Campeã de volume na Shopee. Frete fica caro no ML por ser grande e pesada.'},
+    {id:'s3', name:'Placa / troféu acrílico corte laser', machine:'CO2 / Acrílico', material:'Acrílico', pMin:53, pMax:75, cMin:10, cMax:18, time:10, sales:7, ease:4, notes:'Percepção premium. Melhor no ML pelo ticket mais alto.'},
+    {id:'s4', name:'Quadro decorativo formatura MDF', machine:'CO2', material:'MDF', pMin:59, pMax:70, cMin:15, cMax:25, time:10, sales:6, ease:4, notes:'Sazonal forte (dez–mar). Antecipar produção ~45 dias antes.'},
+    {id:'s5', name:'Garrafa térmica gravada (fiber laser)', machine:'Fiber', material:'Aço inox', pMin:50, pMax:80, cMin:15, cMax:30, time:5, sales:8, ease:5, notes:'Gravação rápida e durável. Ótimo para brinde corporativo e ML.'},
+    {id:'s6', name:'Copo térmico gravado (fiber laser)', machine:'Fiber', material:'Aço inox', pMin:50, pMax:80, cMin:15, cMax:30, time:5, sales:8, ease:5, notes:'Mesma linha da garrafa. Vende muito em kit corporativo / casamento.'},
+    {id:'s7', name:'Kit tábua de churrasco + garfo e faca gravado', machine:'CO2', material:'Madeira / Bambu', pMin:60, pMax:100, cMin:20, cMax:38, time:14, sales:5, ease:4, notes:'Ticket alto natural, presente masculino (Dia dos Pais). Gravação CO2 na tábua e no cabo.'},
+    {id:'s8', name:'Porta-joias personalizado', machine:'CO2 / Acrílico', material:'MDF / Acrílico', pMin:40, pMax:90, cMin:15, cMax:30, time:15, sales:6, ease:4, notes:'Item do catálogo Rosa Baby. Bom para 15 anos, madrinhas, Dia das Mães.'},
+    {id:'s9', name:'Personalização UV em garrafa/copo (Mimaki)', machine:'UV Mimaki', material:'Vidro / Plástico', pMin:50, pMax:95, cMin:12, cMax:28, time:8, sales:6, ease:4, notes:'Impressão colorida em rígido sem prensa. Margem muito alta, diferencia da concorrência.'},
+    {id:'s10', name:'Patch 3D UV (DTF UV) — vendido em kit', machine:'UV Mimaki', material:'DTF UV', pMin:50, pMax:90, cMin:8, cMax:20, time:12, sales:7, ease:4, notes:'Unitário R$15–30; só atinge o ticket em kit (3–5 un). Margem ~80%.'},
+    {id:'s11', name:'Lâmpada / luminária LED acrílico personalizada', machine:'CO2 / Acrílico', material:'Acrílico', pMin:80, pMax:120, cMin:25, cMax:40, time:18, sales:4, ease:3, notes:'Ticket mais alto, exige montagem (+15 min). Bom upsell dentro da loja.'},
+    {id:'s12', name:'Quadro acrílico cristal 12x12 personalizado', machine:'CO2 / Acrílico', material:'Acrílico', pMin:60, pMax:80, cMin:10, cMax:18, time:8, sales:6, ease:4, notes:'+500 vendas validadas no ML. Pequeno = frete barato, margem boa.'}
+  ];
+
+  var KEY = 'rb_custom_products_v1';
+  var custom = [];
+  var products = [];
+
+  // ---------- scoring ----------
+  function avg(a,b){ return (a+b)/2; }
+  function netMarginPct(p, plat){
+    var price = avg(p.pMin,p.pMax), cost = avg(p.cMin,p.cMax);
+    var comm = plat==='s' ? price*0.20 : price*0.18;
+    var ship = plat==='s' ? 8 : 15;          // frete+embalagem médio
+    var net = price - cost - comm - ship;
+    return net/price*100;
+  }
+  function score(p){
+    var t = p.time;
+    var speed = Math.max(0, Math.min(100, 100 - (t-3)*2));      // <=3min ~100, 60min ~0
+    var margin = Math.max(0, Math.min(100, netMarginPct(p,'s')*1.25)); // 80% -> 100
+    var ease = (p.ease||3)*20;
+    return Math.round(0.40*speed + 0.35*margin + 0.25*ease);
+  }
+  function tier(s){
+    if(s>=70) return {cls:'b-good', ring:'var(--good)', label:'Produzir primeiro'};
+    if(s>=40) return {cls:'b-warn', ring:'var(--warn)', label:'Avaliar'};
+    return {cls:'b-bad', ring:'var(--bad)', label:'Evitar'};
+  }
+  function brl(n){ return 'R$ ' + n.toFixed(0); }
+
+  // ---------- rendering ----------
+  var root = document.getElementById('app');
+
+  function shell(){
+    root.innerHTML = `
+    <div class="wrap">
+      <div class="hd">
+        <div class="brand">
+          <div class="mark">RB</div>
+          <div>
+            <h1>Radar de Produtos · Rosa Baby</h1>
+            <div class="sub">Pesquisa de mercado e viabilidade para personalizados de R$50–100 que cabem nas suas máquinas: fiber, CO2, UV Mimaki e corte de acrílico.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">
+        <b>Sobre os números:</b> preços, vendas/dia e facilidade são <b>estimativas</b> da pesquisa de mercado (Shopee + ML), não dados ao vivo. Use como direção. Cadastre o que você pesquisar na aba <b>Adicionar</b> — fica salvo no app.
+      </div>
+
+      <div class="tabs">
+        <button class="tab on" data-tab="cat">Catálogo &amp; Score</button>
+        <button class="tab" data-tab="calc">Calculadora de margem</button>
+        <button class="tab" data-tab="kit">Montar kit (R$50–100)</button>
+        <button class="tab" data-tab="add">Adicionar produto</button>
+        <button class="tab" data-tab="import">Importar da Shopee</button>
+      </div>
+
+      <div class="panel on" id="p-cat"></div>
+      <div class="panel" id="p-calc"></div>
+      <div class="panel" id="p-kit"></div>
+      <div class="panel" id="p-add"></div>
+      <div class="panel" id="p-import"></div>
+    </div>`;
+
+    root.querySelectorAll('.tab').forEach(function(t){
+      t.onclick = function(){
+        root.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+        t.classList.add('on');
+        root.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+        document.getElementById('p-'+t.dataset.tab).classList.add('on');
+      };
+    });
+
+    renderCat(); renderCalc(); renderKit(); renderAdd(); renderImport();
+  }
+
+  // ---- Catálogo ----
+  var filterMachine='all', filterMat='all', sortBy='score';
+  function renderCat(){
+    var p = document.getElementById('p-cat');
+    var machines = ['all'].concat(uniq(products.map(x=>x.machine)));
+    var mats = ['all'].concat(uniq(products.map(x=>x.material)));
+    p.innerHTML = `
+      <div class="ctrls">
+        <div class="field"><label class="lbl">Máquina</label>${sel('fm', machines, filterMachine)}</div>
+        <div class="field"><label class="lbl">Material</label>${sel('ft', mats, filterMat)}</div>
+        <div class="field"><label class="lbl">Ordenar por</label>
+          <select id="fs">
+            <option value="score"${sortBy==='score'?' selected':''}>Score de viabilidade</option>
+            <option value="margin"${sortBy==='margin'?' selected':''}>Maior margem (Shopee)</option>
+            <option value="sales"${sortBy==='sales'?' selected':''}>Mais vendas/dia</option>
+            <option value="speed"${sortBy==='speed'?' selected':''}>Produção mais rápida</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid" id="cards"></div>`;
+    p.querySelector('#fm').onchange = e=>{filterMachine=e.target.value; drawCards();};
+    p.querySelector('#ft').onchange = e=>{filterMat=e.target.value; drawCards();};
+    p.querySelector('#fs').onchange = e=>{sortBy=e.target.value; drawCards();};
+    drawCards();
+  }
+  function drawCards(){
+    var list = products.filter(p=>
+      (filterMachine==='all'||p.machine===filterMachine) &&
+      (filterMat==='all'||p.material===filterMat));
+    list.forEach(p=>{p._s=score(p);});
+    list.sort((a,b)=>{
+      if(sortBy==='margin') return netMarginPct(b,'s')-netMarginPct(a,'s');
+      if(sortBy==='sales') return b.sales-a.sales;
+      if(sortBy==='speed') return a.time-b.time;
+      return b._s-a._s;
+    });
+    var c = document.getElementById('cards');
+    if(!list.length){ c.innerHTML = '<div class="empty">Nenhum produto com esses filtros.</div>'; return; }
+    c.innerHTML = list.map(function(p){
+      var t = tier(p._s);
+      var mS = netMarginPct(p,'s'), mL = netMarginPct(p,'l');
+      var tag = p.real ? ' <span style="font-size:11px;color:var(--shopee);font-weight:600">• Shopee (real)</span>'
+                       : (p.custom ? ' <span style="font-size:11px;color:var(--rose);font-weight:600">• meu</span>' : '');
+      var statsHtml;
+      if (p.real) {
+        statsHtml =
+          '<div class="stat"><div class="k">Preço</div><div class="v">'+brl(p.pMin)+'</div></div>'+
+          '<div class="stat"><div class="k">Total vendido</div><div class="v">'+(p.soldTotal!=null?p.soldTotal:'—')+'</div></div>'+
+          '<div class="stat"><div class="k">Vendas/dia</div><div class="v">'+(p.sales!=null?'~'+p.sales:'—')+'</div></div>'+
+          '<div class="stat"><div class="k">Criado em</div><div class="v" style="font-size:13px">'+(p.createdDate||'—')+'</div></div>';
+      } else {
+        statsHtml =
+          '<div class="stat"><div class="k">Margem Shopee</div><div class="v">'+mS.toFixed(0)+'%</div></div>'+
+          '<div class="stat"><div class="k">Margem ML</div><div class="v">'+mL.toFixed(0)+'%</div></div>'+
+          '<div class="stat"><div class="k">Vendas/dia (est.)</div><div class="v">~'+p.sales+'</div></div>'+
+          '<div class="stat"><div class="k">Produção</div><div class="v">'+p.time+' min</div></div>';
+      }
+      var link = p.real && p.url ? ' · <a href="'+esc(p.url)+'" target="_blank" rel="noopener" style="color:var(--shopee);font-weight:600;text-decoration:none">ver anúncio ↗</a>' : '';
+      return `<div class="pcard">
+        <div class="ring" style="background:${t.ring}"></div>
+        <div>
+          <h3>${esc(p.name)}${tag}</h3>
+          <div class="meta">
+            <span class="chip m">${esc(p.machine)}</span>
+            <span class="chip">${esc(p.material)}</span>
+            <span class="chip">${brl(p.pMin)}–${brl(p.pMax)}</span>
+          </div>
+          <div class="stats">${statsHtml}</div>
+        </div>
+        <div class="score-wrap">
+          <div class="score" style="color:${t.ring}">${p._s}</div>
+          <div class="badge ${t.cls}">${t.label}</div>
+        </div>
+        <div class="notes">${esc(p.notes)}${link}${p.custom?` <button class="del" data-del="${p.id}">remover</button>`:''}</div>
+      </div>`;
+    }).join('');
+    c.querySelectorAll('[data-del]').forEach(b=> b.onclick=()=>delCustom(b.dataset.del));
+  }
+
+  // ---- Calculadora de precificação (baseada na planilha) ----
+  var FIXED_LABELS = ['Aluguel','Combustível','Contabilidade','INSS','Impostos Municipais',
+    'Material de Escritório','Prestação de Serviço','Pró-labore','Publicidade e Marketing',
+    'Retirada de Lucro','Sistemas','Taxas Bancárias','Telefone','Vale Alimentação','Vale Transporte'];
+  var CKEY = 'rb_calc_v1';
+  var cState = null;
+
+  function defaultCalc(){
+    var fixed = {}; FIXED_LABELS.forEach(function(l){ fixed[l]=''; });
+    return { price:'', cost:'', comm:20, taxaFixa:'', imposto:'', frete:'', embalagem:'', qtd:'', fixed:fixed, mkt:'s' };
+  }
+  function n(x){ var v=parseFloat(x); return isFinite(v)?v:0; }
+  function money(v){ return (v<0?'– R$ ':'R$ ') + Math.abs(v).toFixed(2); }
+
+  function renderCalc(){
+    var p = document.getElementById('p-calc');
+    var fixedRows = FIXED_LABELS.map(function(l){
+      return `<div class="frow"><label>${l}</label><input type="number" data-fc="${l}" placeholder="0" value="${cState.fixed[l]!=null?cState.fixed[l]:''}"></div>`;
+    }).join('');
+    var custom = Object.keys(cState.fixed).filter(function(k){ return FIXED_LABELS.indexOf(k)<0; });
+    var customRows = custom.map(function(l){
+      return `<div class="frow"><label>${esc(l)} <button class="xfc" data-rmfc="${esc(l)}">×</button></label><input type="number" data-fc="${esc(l)}" placeholder="0" value="${cState.fixed[l]!=null?cState.fixed[l]:''}"></div>`;
+    }).join('');
+
+    p.innerHTML = `
+      <div class="calc2">
+        <div>
+          <div class="box" style="margin-bottom:16px">
+            <h2>Produto — por unidade</h2>
+            <div class="inrow"><label class="lbl">Carregar preço/custo do catálogo</label>
+              <select id="csel"><option value="">— manual —</option>${products.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>
+            </div>
+            <div class="inrow"><label class="lbl">Preço de venda (R$)</label><input id="c_price" type="number" placeholder="0" value="${cState.price}"></div>
+            <div class="inrow"><label class="lbl">Custo do produto (R$)</label><input id="c_cost" type="number" placeholder="0" value="${cState.cost}"></div>
+            <div class="inrow"><label class="lbl">Comissão do marketplace (%)</label>
+              <div class="seg">
+                <button data-mkt="s"${cState.mkt==='s'?' class="on"':''}>Shopee 20%</button>
+                <button data-mkt="l"${cState.mkt==='l'?' class="on"':''}>Mercado Livre 16%</button>
+                <button data-mkt="c"${cState.mkt==='c'?' class="on"':''}>Outro</button>
+              </div>
+              <input id="c_comm" type="number" placeholder="0" value="${cState.comm}">
+            </div>
+            <div class="inrow"><label class="lbl">Taxa fixa por venda (R$)</label><input id="c_taxa" type="number" placeholder="0" value="${cState.taxaFixa}"></div>
+            <div class="inrow"><label class="lbl">Imposto / Nota Fiscal (%)</label><input id="c_imp" type="number" placeholder="0" value="${cState.imposto}"></div>
+            <div class="inrow"><label class="lbl">Frete grátis absorvido (R$)</label><input id="c_frete" type="number" placeholder="0" value="${cState.frete}"></div>
+            <div class="inrow"><label class="lbl">Embalagem (R$)</label><input id="c_emb" type="number" placeholder="0" value="${cState.embalagem}"></div>
+          </div>
+          <div class="box">
+            <h2>Projeção do mês</h2>
+            <div class="inrow"><label class="lbl">Quantidade de vendas no mês</label><input id="c_qtd" type="number" placeholder="0" value="${cState.qtd}"></div>
+          </div>
+        </div>
+
+        <div class="box">
+          <h2>Custos fixos do mês</h2>
+          <div id="fclist">${fixedRows}${customRows}</div>
+          <div class="addfc">
+            <input id="c_newfc" placeholder="adicionar outro custo fixo">
+            <button class="btn" id="c_addfc" style="padding:8px 14px">+</button>
+          </div>
+          <div class="ftot"><span>Total de custos fixos</span><b id="c_ftot">R$ 0,00</b></div>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:16px">
+        <h2>Resultado</h2>
+        <div class="res-grid">
+          <div class="res"><div class="k">Margem bruta</div><div class="v" id="r_bruta">—</div></div>
+          <div class="res hi"><div class="k">Lucro por unidade</div><div class="v" id="r_unid">—</div></div>
+          <div class="res"><div class="k">Margem de contribuição</div><div class="v" id="r_contrib">—</div></div>
+          <div class="res"><div class="k">Faturamento do mês</div><div class="v" id="r_fat">—</div></div>
+        </div>
+        <div class="res-grid" style="margin-top:12px">
+          <div class="res"><div class="k">Lucro de contribuição (mês)</div><div class="v" id="r_contribtot">—</div></div>
+          <div class="res" id="r_liqbox"><div class="k">Lucro líquido final (mês)</div><div class="v" id="r_liq">—</div></div>
+          <div class="res"><div class="k">Margem líquida final</div><div class="v" id="r_margliq">—</div></div>
+          <div class="res"><div class="k">Ponto de equilíbrio</div><div class="v" id="r_be">—</div></div>
+        </div>
+        <div class="verdict" id="c_verdict" style="margin-top:16px"></div>
+      </div>`;
+
+    // catalog prefill
+    p.querySelector('#csel').onchange = function(e){
+      var prod = products.find(x=>x.id===e.target.value);
+      if(prod){
+        cState.price = Math.round(avg(prod.pMin,prod.pMax));
+        cState.cost = Math.round(avg(prod.cMin,prod.cMax));
+        p.querySelector('#c_price').value = cState.price;
+        p.querySelector('#c_cost').value = cState.cost;
+        recompute();
+      }
+    };
+    // marketplace presets
+    p.querySelectorAll('[data-mkt]').forEach(function(b){
+      b.onclick = function(){
+        cState.mkt = b.dataset.mkt;
+        if(b.dataset.mkt==='s'){ cState.comm = 20; p.querySelector('#c_comm').value = 20; }
+        if(b.dataset.mkt==='l'){ cState.comm = 16; p.querySelector('#c_comm').value = 16; }
+        p.querySelectorAll('[data-mkt]').forEach(x=>x.classList.remove('on'));
+        b.classList.add('on');
+        recompute();
+      };
+    });
+    // bind product inputs
+    var map = {c_price:'price', c_cost:'cost', c_comm:'comm', c_taxa:'taxaFixa', c_imp:'imposto', c_frete:'frete', c_emb:'embalagem', c_qtd:'qtd'};
+    Object.keys(map).forEach(function(id){
+      p.querySelector('#'+id).oninput = function(e){
+        cState[map[id]] = e.target.value;
+        if(id==='c_comm') cState.mkt='c', p.querySelectorAll('[data-mkt]').forEach(x=>x.classList.toggle('on', x.dataset.mkt==='c'));
+        recompute();
+      };
+    });
+    // fixed cost inputs
+    bindFixed(p);
+    // add custom fixed cost
+    p.querySelector('#c_addfc').onclick = function(){
+      var nm = p.querySelector('#c_newfc').value.trim();
+      if(!nm || cState.fixed[nm]!=null) { p.querySelector('#c_newfc').value=''; return; }
+      cState.fixed[nm] = '';
+      saveCalc(); renderCalc();
+    };
+    p.querySelector('#c_newfc').addEventListener('keydown', function(e){ if(e.key==='Enter') p.querySelector('#c_addfc').click(); });
+
+    recompute();
+  }
+
+  function bindFixed(p){
+    p.querySelectorAll('[data-fc]').forEach(function(inp){
+      inp.oninput = function(){ cState.fixed[inp.dataset.fc] = inp.value; recompute(); };
+    });
+    p.querySelectorAll('[data-rmfc]').forEach(function(b){
+      b.onclick = function(){ delete cState.fixed[b.dataset.rmfc]; saveCalc(); renderCalc(); };
+    });
+  }
+
+  function recompute(){
+    var price=n(cState.price), cost=n(cState.cost), comm=n(cState.comm),
+        taxa=n(cState.taxaFixa), imp=n(cState.imposto), frete=n(cState.frete),
+        emb=n(cState.embalagem), qtd=n(cState.qtd);
+
+    var lucroUnid = price - cost - price*comm/100 - taxa - price*imp/100 - frete - emb;
+    var margBruta = price>0 ? (price-cost)/price*100 : 0;
+    var margContrib = price>0 ? lucroUnid/price*100 : 0;
+    var fat = price*qtd;
+    var contribTot = lucroUnid*qtd;
+    var custosFixos = 0;
+    Object.keys(cState.fixed).forEach(function(k){ custosFixos += n(cState.fixed[k]); });
+    var liq = contribTot - custosFixos;
+    var margLiq = fat>0 ? liq/fat*100 : 0;
+    var be = lucroUnid>0 ? Math.ceil(custosFixos/lucroUnid) : null;
+
+    function set(id,val){ var el=document.getElementById(id); if(el) el.innerHTML=val; }
+    set('c_ftot', 'R$ '+custosFixos.toFixed(2));
+    set('r_bruta', price>0 ? margBruta.toFixed(1)+'<small>%</small>' : '—');
+    set('r_unid', price>0 ? money(lucroUnid) : '—');
+    set('r_contrib', price>0 ? margContrib.toFixed(1)+'<small>%</small>' : '—');
+    set('r_fat', qtd>0 ? money(fat) : '—');
+    set('r_contribtot', (price>0&&qtd>0) ? money(contribTot) : '—');
+    set('r_liq', (qtd>0) ? money(liq) : '—');
+    set('r_margliq', (fat>0) ? margLiq.toFixed(1)+'<small>%</small>' : '—');
+    set('r_be', be!=null ? be+'<small> un/mês</small>' : '—');
+
+    var liqbox = document.getElementById('r_liqbox');
+    if(liqbox){ liqbox.className = 'res' + (qtd>0 ? (liq>=0?' pos':' neg') : ''); }
+
+    var vEl = document.getElementById('c_verdict');
+    if(vEl){
+      var msg;
+      if(price<=0){ msg='Preencha o preço de venda e o custo para ver os números.'; }
+      else if(lucroUnid<0){ msg='⚠ <b>Cada venda dá prejuízo.</b> Suba o preço, reduza o custo ou negocie taxas antes de anunciar.'; }
+      else if(qtd<=0){ msg='Cada peça lucra <b>'+money(lucroUnid)+'</b>. Informe quantas você vende no mês para ver o lucro líquido após os custos fixos.'; }
+      else if(liq<0){ msg='No volume atual o mês fecha <b>negativo</b>. Você precisa vender <b>'+(be||'—')+' un/mês</b> só para cobrir os custos fixos.'; }
+      else { msg='✓ Mês positivo: <b>'+money(liq)+'</b> de lucro líquido ('+margLiq.toFixed(1)+'%). Ponto de equilíbrio: <b>'+(be||'—')+' un/mês</b>.'; }
+      vEl.innerHTML = msg;
+    }
+    saveCalc();
+  }
+
+  var saveTimer=null;
+  function saveCalc(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){ store.set(CKEY, JSON.stringify(cState)); }, 400);
+  }
+
+  // ---- Montar kit ----
+  var kit = {};
+  function renderKit(){
+    var p = document.getElementById('p-kit');
+    p.innerHTML = `
+      <div class="kit-grid">
+        <div class="box">
+          <h2>Escolha os itens do kit</h2>
+          <div id="kitlist"></div>
+        </div>
+        <div class="box kit-total">
+          <div class="lbl">Total do kit</div>
+          <div class="gauge" id="ktot">R$ 0</div>
+          <div class="bar"><div id="kbar" style="width:0%;background:var(--rose)"></div></div>
+          <div style="font-size:12px;color:var(--ink-soft)">Alvo: R$50–100</div>
+          <div id="kmsg" style="font-size:13px;margin-top:14px"></div>
+        </div>
+      </div>`;
+    document.getElementById('kitlist').innerHTML = products.map(function(x){
+      var pr = Math.round(avg(x.pMin,x.pMax));
+      return `<div class="kit-row">
+        <div class="nm">${esc(x.name)}<div class="pr">${brl(pr)} un.</div></div>
+        <div class="qty">
+          <button class="qbtn" data-m="${x.id}">−</button>
+          <span class="qn" id="q-${x.id}">0</span>
+          <button class="qbtn" data-p="${x.id}">+</button>
+        </div>
+      </div>`;
+    }).join('');
+    p.querySelectorAll('[data-p]').forEach(b=> b.onclick=()=>{kit[b.dataset.p]=(kit[b.dataset.p]||0)+1; kitUpd();});
+    p.querySelectorAll('[data-m]').forEach(b=> b.onclick=()=>{kit[b.dataset.m]=Math.max(0,(kit[b.dataset.m]||0)-1); kitUpd();});
+    kitUpd();
+  }
+  function kitUpd(){
+    var total=0;
+    products.forEach(function(x){
+      var q = kit[x.id]||0;
+      var el = document.getElementById('q-'+x.id);
+      if(el) el.textContent = q;
+      total += q * Math.round(avg(x.pMin,x.pMax));
+    });
+    document.getElementById('ktot').textContent = brl(total);
+    var pct = Math.min(100, total/100*100);
+    var bar = document.getElementById('kbar');
+    bar.style.width = pct+'%';
+    var col = total>=50 && total<=100 ? 'var(--good)' : (total>100?'var(--warn)':'var(--rose)');
+    bar.style.background = col;
+    var msg = total===0 ? 'Adicione itens para montar o kit.' :
+              total<50 ? 'Faltam '+brl(50-total)+' para entrar na faixa.' :
+              total<=100 ? '✓ No alvo de ticket. Ótimo kit para anunciar.' :
+              'Acima de R$100 — bom para ML / brinde corporativo de ticket alto.';
+    document.getElementById('kmsg').innerHTML = '<span style="color:'+col+';font-weight:600">'+msg+'</span>';
+  }
+
+  // ---- Adicionar ----
+  function renderAdd(){
+    var p = document.getElementById('p-add');
+    p.innerHTML = `
+      <div class="box">
+        <h2>Cadastrar produto pesquisado</h2>
+        <div class="add-grid">
+          <div class="inrow full"><label class="lbl">Nome do produto</label><input id="a_name" placeholder="ex: Taça gravada fiber personalizada"></div>
+          <div class="inrow"><label class="lbl">Máquina</label>
+            <select id="a_machine">
+              <option>Fiber</option><option>CO2</option><option>UV Mimaki</option>
+              <option>CO2 / Acrílico</option><option>Outra</option>
+            </select></div>
+          <div class="inrow"><label class="lbl">Material</label><input id="a_material" placeholder="ex: Vidro, Acrílico, MDF, Aço"></div>
+          <div class="inrow"><label class="lbl">Preço mín. (R$)</label><input id="a_pmin" type="number" value="50"></div>
+          <div class="inrow"><label class="lbl">Preço máx. (R$)</label><input id="a_pmax" type="number" value="80"></div>
+          <div class="inrow"><label class="lbl">Custo mín. (R$)</label><input id="a_cmin" type="number" value="12"></div>
+          <div class="inrow"><label class="lbl">Custo máx. (R$)</label><input id="a_cmax" type="number" value="25"></div>
+          <div class="inrow"><label class="lbl">Tempo de produção (min)</label><input id="a_time" type="number" value="10"></div>
+          <div class="inrow"><label class="lbl">Vendas/dia estimadas</label><input id="a_sales" type="number" value="5"></div>
+          <div class="inrow full"><label class="lbl">Facilidade de venda online</label>
+            <select id="a_ease"><option value="5">Muito alta (5)</option><option value="4" selected>Alta (4)</option><option value="3">Média (3)</option><option value="2">Baixa (2)</option><option value="1">Muito baixa (1)</option></select></div>
+          <div class="inrow full"><label class="lbl">Observações</label><input id="a_notes" placeholder="onde vende melhor, sazonalidade, concorrência..."></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:14px">
+          <button class="btn" id="a_save">Salvar produto</button>
+          <span class="toast" id="a_toast"></span>
+        </div>
+      </div>`;
+    p.querySelector('#a_save').onclick = saveCustom;
+  }
+  async function saveCustom(){
+    var name = v('a_name').trim();
+    if(!name){ document.getElementById('a_toast').textContent=''; document.getElementById('a_name').focus(); return; }
+    var p = {
+      id:'c'+Date.now(), custom:true, name:name,
+      machine:v('a_machine'), material:v('a_material').trim()||'—',
+      pMin:+v('a_pmin'), pMax:+v('a_pmax'), cMin:+v('a_cmin'), cMax:+v('a_cmax'),
+      time:+v('a_time'), sales:+v('a_sales'), ease:+v('a_ease'),
+      notes:v('a_notes').trim()||'Cadastrado por você.'
+    };
+    custom.push(p); rebuild();
+    await store.set(KEY, JSON.stringify(custom));
+    var t = document.getElementById('a_toast'); t.textContent = '✓ Salvo. Veja na aba Catálogo.';
+    setTimeout(()=>{ t.textContent=''; }, 3000);
+    ['a_name','a_material','a_notes'].forEach(id=>{document.getElementById(id).value='';});
+    renderCat(); renderCalc(); renderKit();
+  }
+  async function delCustom(id){
+    custom = custom.filter(x=>x.id!==id); rebuild();
+    await store.set(KEY, JSON.stringify(custom));
+    renderCat(); renderCalc(); renderKit();
+  }
+
+  // ---- Importar da Shopee (cola JSON da extensao) ----
+  function renderImport(){
+    var p = document.getElementById('p-import');
+    p.innerHTML = `
+      <div class="box">
+        <h2>Importar dados reais da extensão Radar Shopee</h2>
+        <p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px">
+          Na Shopee, use a extensão para buscar e <b>Copiar JSON</b>. Cole aqui embaixo e clique em Importar.
+          Os produtos entram no catálogo com preço, total vendido, data de criação e vendas/dia reais.
+        </p>
+        <textarea id="imp_box" placeholder='Cole o JSON aqui, ex: [ { "nome": "...", "preco": 74.9, "totalVendido": 530, "criadoEm": "10/03/2025", "vendasPorDia": 1.2 } ]'
+          style="width:100%;min-height:160px;font-family:monospace;font-size:12.5px;border:1px solid var(--line);border-radius:10px;padding:12px;resize:vertical;outline:none"></textarea>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
+          <button class="btn" id="imp_go">Importar</button>
+          <button class="btn ghost" id="imp_clear">Limpar campo</button>
+          <span class="toast" id="imp_toast"></span>
+        </div>
+        <div class="note" style="margin-top:16px">
+          Itens importados entram com um <b>custo estimado</b> (30% do preço) só para o cálculo de score —
+          ajuste o custo real na Calculadora antes de decidir o preço.
+        </div>
+      </div>`;
+    p.querySelector('#imp_go').onclick = doImport;
+    p.querySelector('#imp_clear').onclick = function(){ document.getElementById('imp_box').value=''; document.getElementById('imp_toast').textContent=''; };
+  }
+  async function doImport(){
+    var t = document.getElementById('imp_toast');
+    var raw = v('imp_box').trim();
+    if(!raw){ t.style.color='var(--bad)'; t.textContent='Cole o JSON primeiro.'; return; }
+    var arr;
+    try { arr = JSON.parse(raw); } catch(e){ t.style.color='var(--bad)'; t.textContent='JSON inválido — copie de novo da extensão.'; return; }
+    if(!Array.isArray(arr)){ arr = [arr]; }
+    var added = 0;
+    arr.forEach(function(r){
+      if(!r || !r.nome) return;
+      var price = +r.preco || 0;
+      var cost = Math.round(price*0.30);
+      var notes = 'Dados reais Shopee';
+      if(r.totalVendido!=null) notes += ' · '+r.totalVendido+' vendidos';
+      if(r.criadoEm) notes += ' desde '+r.criadoEm;
+      if(r.qtdAvaliacoes) notes += ' · ★'+(r.avaliacao||'')+' ('+r.qtdAvaliacoes+')';
+      if(r.loja) notes += ' · '+r.loja;
+      custom.push({
+        id:'r'+Date.now()+Math.floor(Math.random()*9999),
+        custom:true, real:true,
+        name:String(r.nome).slice(0,140),
+        machine:'Shopee', material:'—',
+        pMin:Math.round(price)||1, pMax:Math.round(price)||1,
+        cMin:cost, cMax:cost,
+        time:10, ease:3,
+        sales: r.vendasPorDia!=null ? Math.round(r.vendasPorDia) : (r.totalVendido!=null?0:0),
+        soldTotal: r.totalVendido!=null?r.totalVendido:null,
+        createdDate: r.criadoEm||null,
+        url: r.url||null,
+        notes: notes
+      });
+      added++;
+    });
+    if(!added){ t.style.color='var(--bad)'; t.textContent='Não encontrei produtos válidos no JSON.'; return; }
+    rebuild();
+    await store.set(KEY, JSON.stringify(custom));
+    t.style.color='var(--good)'; t.textContent='✓ '+added+' produto(s) importado(s). Veja no Catálogo (marca laranja).';
+    document.getElementById('imp_box').value='';
+    renderCat(); renderCalc(); renderKit();
+  }
+
+  // ---------- helpers ----------
+  function rebuild(){ products = SEED.concat(custom); }
+  function uniq(a){ return a.filter((x,i)=>a.indexOf(x)===i); }
+  function sel(id, opts, cur){ return '<select id="'+id+'">'+opts.map(o=>`<option value="${o}"${o===cur?' selected':''}>${o==='all'?'Todas':esc(o)}</option>`).join('')+'</select>'; }
+  function v(id){ return document.getElementById(id).value; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  // ---------- boot ----------
+  (async function(){
+    var saved = await store.get(KEY);
+    if(saved){ try { custom = JSON.parse(saved)||[]; } catch(e){ custom=[]; } }
+    var sc = await store.get(CKEY);
+    cState = defaultCalc();
+    if(sc){ try { var o=JSON.parse(sc); if(o){ Object.assign(cState, o); if(!cState.fixed) cState.fixed = defaultCalc().fixed; } } catch(e){} }
+    rebuild(); shell();
+  })();
+})();
+</script>
+
+</body>
+</html>

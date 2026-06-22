@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Preços - Rosa Baby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#0a0a0b;color:#f1f5f9;min-height:100vh;padding:24px;}
+.container{max-width:1100px;margin:0 auto;}
+header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid #27272a;}
+header h1{font-size:28px;font-weight:700;background:linear-gradient(135deg,#a78bfa,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+header p{color:#a1a1aa;font-size:14px;margin-top:2px;}
+.badge{background:#27272a;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;color:#a1a1aa;border:1px solid #3f3f46;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+.card{background:#18181b;border-radius:16px;padding:24px;border:1px solid #27272a;margin-bottom:20px;}
+.card h2{font-size:17px;font-weight:600;color:#f1f5f9;display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.card .sub{color:#a1a1aa;font-size:13px;margin-bottom:16px;}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.form-group label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;color:#a1a1aa;}
+input{background:#0f0f11;border:1px solid #27272a;border-radius:8px;padding:10px 12px;color:#f1f5f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;width:100%;}
+input:focus{border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.2);}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+input[type="number"]{-moz-appearance:textfield;}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.seg button{font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;padding:7px 12px;border-radius:8px;border:1px solid #27272a;background:#0f0f11;color:#a1a1aa;transition:all .15s;}
+.seg button:hover{border-color:#7c3aed;color:#c4b5fd;}
+.seg button.on{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+.frow{display:grid;grid-template-columns:1fr 96px;gap:10px;align-items:center;padding:5px 0;}
+.frow label{font-size:13px;color:#e4e4e7;}
+.frow input{text-align:right;padding:7px 10px;}
+.ftot{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid #27272a;margin-top:10px;padding-top:12px;font-size:13px;color:#a1a1aa;}
+.ftot b{font-size:18px;color:#f1f5f9;}
+.addfc{display:flex;gap:8px;margin-top:12px;}
+.addfc input{flex:1;}
+.btn{padding:9px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;}
+.btn-primary{background:#7c3aed;color:#fff;}
+.btn-primary:hover{background:#6d28d9;}
+.xfc{background:none;border:none;color:#52525b;cursor:pointer;font-size:15px;padding:0 4px;}
+.xfc:hover{color:#ef4444;}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.res{background:#0f0f11;border:1px solid #27272a;border-radius:12px;padding:15px 16px;}
+.res .k{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#a1a1aa;}
+.res .v{font-weight:700;font-size:22px;margin-top:4px;line-height:1.1;}
+.res .v small{font-size:13px;font-weight:600;color:#a1a1aa;}
+.res.hi{background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;}
+.res.hi .k{color:rgba(255,255,255,.8);}
+.res.pos .v{color:#22c55e;}
+.res.neg .v{color:#ef4444;}
+.verdict{margin-top:18px;font-size:13px;padding:13px 15px;border-radius:10px;background:#1c1c20;border:1px solid #2d2d35;color:#e4e4e7;line-height:1.5;}
+.verdict b{color:#c4b5fd;}
+.toast{position:fixed;bottom:24px;right:24px;background:#18181b;color:#f1f5f9;padding:12px 20px;border-radius:12px;border:1px solid #27272a;box-shadow:0 8px 32px rgba(0,0,0,.5);font-size:13px;font-weight:500;z-index:100;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+@media(max-width:768px){.grid2{grid-template-columns:1fr;}header h1{font-size:22px;}.card{padding:16px;}}
+@media(max-width:380px){.res-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div><h1>💰 Calculadora de Preços</h1><p>Rosa Baby · Precificação para marketplaces</p></div>
+  <span class="badge">v1.0 · Client-side</span>
+</header>
+
+<div class="grid2">
+  <div>
+    <div class="card">
+      <h2><span>🏷️</span> Produto — por unidade</h2>
+      <div class="sub">Preencha com a realidade do seu produto.</div>
+      <div class="form-group"><label>Preço de venda (R$)</label><input id="price" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Custo do produto (R$)</label><input id="cost" type="number" placeholder="0"></div>
+      <div class="form-group">
+        <label>Comissão do marketplace (%)</label>
+        <div class="seg">
+          <button data-mkt="s">Shopee 20%</button>
+          <button data-mkt="l">Mercado Livre 16%</button>
+          <button data-mkt="c">Outro</button>
+        </div>
+        <input id="comm" type="number" placeholder="0">
+      </div>
+      <div class="form-group"><label>Taxa fixa por venda (R$)</label><input id="taxa" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Imposto / Nota Fiscal (%)</label><input id="imp" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Frete grátis absorvido (R$)</label><input id="frete" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Embalagem (R$)</label><input id="emb" type="number" placeholder="0"></div>
+    </div>
+    <div class="card">
+      <h2><span>📅</span> Projeção do mês</h2>
+      <div class="form-group"><label>Quantidade de vendas no mês</label><input id="qtd" type="number" placeholder="0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span>🏠</span> Custos fixos do mês</h2>
+    <div class="sub">Despesas mensais do negócio.</div>
+    <div id="fclist"></div>
+    <div class="addfc">
+      <input id="newfc" placeholder="adicionar outro custo fixo">
+      <button class="btn btn-primary" id="addfc">+</button>
+    </div>
+    <div class="ftot"><span>Total de custos fixos</span><b id="ftot">R$ 0,00</b></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2><span>📊</span> Resultado</h2>
+  <div class="res-grid" style="margin-bottom:12px">
+    <div class="res"><div class="k">Margem bruta</div><div class="v" id="r_bruta">—</div></div>
+    <div class="res hi"><div class="k">Lucro por unidade</div><div class="v" id="r_unid">—</div></div>
+    <div class="res"><div class="k">Margem de contribuição</div><div class="v" id="r_contrib">—</div></div>
+    <div class="res"><div class="k">Faturamento do mês</div><div class="v" id="r_fat">—</div></div>
+  </div>
+  <div class="res-grid">
+    <div class="res"><div class="k">Lucro de contribuição (mês)</div><div class="v" id="r_contribtot">—</div></div>
+    <div class="res" id="r_liqbox"><div class="k">Lucro líquido final (mês)</div><div class="v" id="r_liq">—</div></div>
+    <div class="res"><div class="k">Margem líquida final</div><div class="v" id="r_margliq">—</div></div>
+    <div class="res"><div class="k">Ponto de equilíbrio</div><div class="v" id="r_be">—</div></div>
+  </div>
+  <div class="verdict" id="verdict"></div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   PERSISTÊNCIA — ponto único.
+   MIGRAÇÃO b3 flow: troque o corpo de db.load/db.save por
+   leitura/escrita no Firestore. O resto do código não muda.
+   ============================================================ */
+const STORAGE_KEY='rosa_baby_pricing_v1';
+const db={
+  load(fallback){ try{ const v=localStorage.getItem(STORAGE_KEY); return v?JSON.parse(v):fallback; }catch(e){ return fallback; } },
+  save(val){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(val)); }catch(e){} }
+};
+
+const FIXED_LABELS=['Aluguel','Combustível','Contabilidade','INSS','Impostos Municipais',
+  'Material de Escritório','Prestação de Serviço','Pró-labore','Publicidade e Marketing',
+  'Retirada de Lucro','Sistemas','Taxas Bancárias','Telefone','Vale Alimentação','Vale Transporte'];
+
+function defaultState(){
+  const fixed={}; FIXED_LABELS.forEach(l=>fixed[l]='');
+  return {price:'',cost:'',comm:20,taxa:'',imp:'',frete:'',emb:'',qtd:'',fixed:fixed,mkt:'s'};
+}
+
+let S=db.load(defaultState());
+if(!S.fixed) S.fixed=defaultState().fixed;
+
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+function num(x){ if(typeof x==='string'&&x.includes(','))x=x.replace(',','.'); const v=parseFloat(x); return isFinite(v)?v:0; }
+function money(v){ return (v<0?'– R$ ':'R$ ')+Math.abs(v).toFixed(2); }
+function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+let toastTimer=null;
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2500); }
+
+/* ---------- render custos fixos ---------- */
+function renderFixed(){
+  const order=FIXED_LABELS.concat(Object.keys(S.fixed).filter(k=>FIXED_LABELS.indexOf(k)<0));
+  $('fclist').innerHTML=order.map(l=>{
+    const isCustom=FIXED_LABELS.indexOf(l)<0;
+    const rm=isCustom?` <button class="xfc" data-rmfc="${esc(l)}">×</button>`:'';
+    return `<div class="frow"><label>${esc(l)}${rm}</label><input type="number" data-fc="${esc(l)}" placeholder="0" value="${S.fixed[l]!=null?S.fixed[l]:''}"></div>`;
+  }).join('');
+  $('fclist').querySelectorAll('[data-fc]').forEach(inp=>{
+    inp.oninput=()=>{ S.fixed[inp.dataset.fc]=inp.value; recompute(); };
+  });
+  $('fclist').querySelectorAll('[data-rmfc]').forEach(b=>{
+    b.onclick=()=>{ delete S.fixed[b.dataset.rmfc]; save(); renderFixed(); recompute(); };
+  });
+}
+
+/* ---------- bindings ---------- */
+function bindInputs(){
+  const map={price:'price',cost:'cost',comm:'comm',taxa:'taxa',imp:'imp',frete:'frete',emb:'emb',qtd:'qtd'};
+  Object.keys(map).forEach(id=>{
+    const el=$(id); el.value=S[map[id]];
+    el.oninput=()=>{
+      S[map[id]]=el.value;
+      if(id==='comm'){ S.mkt='c'; markMkt(); }
+      recompute();
+    };
+  });
+  document.querySelectorAll('[data-mkt]').forEach(b=>{
+    b.onclick=()=>{
+      S.mkt=b.dataset.mkt;
+      if(b.dataset.mkt==='s'){ S.comm=20; $('comm').value=20; }
+      if(b.dataset.mkt==='l'){ S.comm=16; $('comm').value=16; }
+      markMkt(); recompute();
+    };
+  });
+  markMkt();
+  $('addfc').onclick=()=>{
+    const nm=$('newfc').value.trim();
+    if(!nm){ return; }
+    if(S.fixed[nm]!=null){ toast('Esse custo já existe'); $('newfc').value=''; return; }
+    S.fixed[nm]=''; $('newfc').value=''; save(); renderFixed(); recompute();
+  };
+  $('newfc').addEventListener('keydown',e=>{ if(e.key==='Enter') $('addfc').click(); });
+}
+function markMkt(){ document.querySelectorAll('[data-mkt]').forEach(x=>x.classList.toggle('on',x.dataset.mkt===S.mkt)); }
+
+/* ---------- cálculo (modelo da planilha) ---------- */
+function recompute(){
+  const price=num(S.price),cost=num(S.cost),comm=num(S.comm),taxa=num(S.taxa),
+        imp=num(S.imp),frete=num(S.frete),emb=num(S.emb),qtd=num(S.qtd);
+
+  const lucroUnid = price - cost - price*comm/100 - taxa - price*imp/100 - frete - emb;
+  const margBruta = price>0 ? (price-cost)/price*100 : 0;
+  const margContrib = price>0 ? lucroUnid/price*100 : 0;
+  const fat = price*qtd;
+  const contribTot = lucroUnid*qtd;
+  let custosFixos=0; Object.keys(S.fixed).forEach(k=>custosFixos+=num(S.fixed[k]));
+  const liq = contribTot - custosFixos;
+  const margLiq = fat>0 ? liq/fat*100 : 0;
+  const be = lucroUnid>0 ? Math.ceil(custosFixos/lucroUnid) : null;
+
+  const set=(id,v)=>{ $(id).innerHTML=v; };
+  set('ftot','R$ '+custosFixos.toFixed(2));
+  set('r_bruta', price>0 ? margBruta.toFixed(1)+'<small>%</small>' : '—');
+  set('r_unid', price>0 ? money(lucroUnid) : '—');
+  set('r_contrib', price>0 ? margContrib.toFixed(1)+'<small>%</small>' : '—');
+  set('r_fat', qtd>0 ? money(fat) : '—');
+  set('r_contribtot', (price>0&&qtd>0) ? money(contribTot) : '—');
+  set('r_liq', qtd>0 ? money(liq) : '—');
+  set('r_margliq', fat>0 ? margLiq.toFixed(1)+'<small>%</small>' : '—');
+  set('r_be', be!=null ? be+'<small> un/mês</small>' : '—');
+  $('r_liqbox').className='res'+(qtd>0?(liq>=0?' pos':' neg'):'');
+
+  let msg;
+  if(price<=0) msg='Preencha o preço de venda e o custo para ver os números.';
+  else if(lucroUnid<0) msg='⚠ <b>Cada venda dá prejuízo.</b> Suba o preço, reduza o custo ou negocie as taxas.';
+  else if(qtd<=0) msg='Cada peça lucra <b>'+money(lucroUnid)+'</b>. Informe quantas você vende no mês para ver o lucro líquido.';
+  else if(liq<0) msg='No volume atual o mês fecha <b>negativo</b>. Você precisa vender <b>'+(be||'—')+' un/mês</b> só para cobrir os custos fixos.';
+  else msg='✓ Mês positivo: <b>'+money(liq)+'</b> de lucro líquido ('+margLiq.toFixed(1)+'%). Ponto de equilíbrio: <b>'+(be||'—')+' un/mês</b>.';
+  $('verdict').innerHTML=msg;
+
+  save();
+}
+
+let saveTimer=null;
+function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(()=>db.save(S),400); }
+
+/* ---------- boot ---------- */
+renderFixed();
+bindInputs();
+recompute();
+})();
+</script>
+</body>
+</html>
