@@ -1,0 +1,55 @@
+#rb-fab{
+  position:fixed; right:18px; bottom:18px; z-index:2147483646;
+  font-family:'Segoe UI',system-ui,sans-serif; font-weight:700; font-size:14px;
+  color:#fff; background:linear-gradient(135deg,#E0457B,#B82E60);
+  border:none; border-radius:999px; padding:11px 20px; cursor:pointer;
+  box-shadow:0 6px 18px rgba(184,46,96,.45);
+}
+#rb-fab:hover{ filter:brightness(1.05); }
+
+#rb-panel{
+  position:fixed; right:18px; bottom:72px; z-index:2147483647; display:none;
+  flex-direction:column; width:360px; max-height:74vh; overflow:hidden;
+  font-family:'Segoe UI',system-ui,sans-serif; color:#271E2C;
+  background:#fff; border:1px solid #EBE1E6; border-radius:16px;
+  box-shadow:0 16px 50px rgba(39,30,44,.28);
+}
+#rb-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px; background:#271E2C; color:#fff; font-weight:600; font-size:14px;
+}
+#rb-x{ background:none; border:none; color:#fff; font-size:20px; cursor:pointer; line-height:1; }
+#rb-body{ padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+
+#rb-search{ display:flex; gap:8px; }
+#rb-kw{
+  flex:1; font-size:13px; padding:9px 11px; border:1px solid #EBE1E6;
+  border-radius:9px; outline:none;
+}
+#rb-kw:focus{ border-color:#E0457B; box-shadow:0 0 0 3px #FCEAF1; }
+#rb-actions{ display:flex; gap:8px; }
+
+.rb-btn{
+  font-family:inherit; font-weight:600; font-size:13px; color:#fff;
+  background:#E0457B; border:none; padding:9px 14px; border-radius:9px; cursor:pointer; white-space:nowrap;
+}
+.rb-btn:hover{ background:#B82E60; }
+.rb-btn.ghost{ background:transparent; color:#6B5E6E; border:1px solid #EBE1E6; flex:1; }
+.rb-btn.ghost:hover{ border-color:#E0457B; color:#B82E60; background:transparent; }
+
+#rb-status{ font-size:12.5px; color:#6B5E6E; min-height:16px; }
+#rb-status.ok{ color:#1F9E6E; }
+#rb-status.err{ color:#C44A4A; }
+
+#rb-list{ display:flex; flex-direction:column; gap:6px; }
+.rb-item{
+  display:flex; gap:9px; align-items:flex-start; padding:9px;
+  border:1px solid #EBE1E6; border-radius:10px; cursor:pointer;
+}
+.rb-item:hover{ border-color:#E0457B; }
+.rb-item input{ margin-top:3px; accent-color:#E0457B; }
+.rb-nm{ font-size:13px; font-weight:600; line-height:1.25; }
+.rb-mt{ font-size:12px; color:#6B5E6E; margin-top:3px; }
+
+#rb-export{ display:flex; align-items:center; gap:8px; border-top:1px solid #EBE1E6; padding-top:10px; }
+#rb-count{ font-size:12px; color:#6B5E6E; margin-left:auto; }

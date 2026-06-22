@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Radar Shopee · Rosa Baby",
+  "version": "1.1.0",
+  "description": "Pesquisa produtos na Shopee e coleta preco, total vendido, data de criacao do anuncio e vendas/dia para o app Radar de Produtos.",
+  "host_permissions": ["*://shopee.com.br/*"],
+  "permissions": ["tabs"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Radar Shopee · Rosa Baby",
+    "default_icon": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" }
+  },
+  "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
+  "content_scripts": [
+    {
+      "matches": ["*://shopee.com.br/*"],
+      "js": ["content.js"],
+      "css": ["panel.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
