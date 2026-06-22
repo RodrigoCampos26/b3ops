@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>b3 Box</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#0a0a0b;color:#f1f5f9;min-height:100vh;padding:24px;}
+.wrap{max-width:780px;margin:0 auto;}
+h1{font-size:24px;font-weight:700;background:linear-gradient(135deg,#a78bfa,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.lead{color:#a1a1aa;font-size:13px;margin:2px 0 22px;}
+.card{background:#18181b;border:1px solid #27272a;border-radius:16px;padding:22px;margin-bottom:20px;}
+.card h2{font-size:16px;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:4px;}
+.card .sub{color:#a1a1aa;font-size:13px;margin-bottom:16px;}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#a1a1aa;margin-bottom:7px;}
+label.fl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;color:#a1a1aa;display:block;margin-bottom:5px;}
+input,select{background:#0f0f11;border:1px solid #27272a;border-radius:8px;padding:10px 12px;color:#f1f5f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color .2s;}
+input:focus,select:focus{border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.2);}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
+.add-row{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:end;}
+.btn{padding:10px 16px;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-primary{background:#7c3aed;color:#fff;}.btn-primary:hover{background:#6d28d9;}
+.btn-cyan{background:transparent;color:#06b6d4;border:2px solid #06b6d4;}.btn-cyan:hover{background:rgba(6,182,212,.12);}
+.btn-ghost{background:transparent;color:#a1a1aa;border:1px solid #27272a;}.btn-ghost:hover{background:#27272a;color:#f1f5f9;}
+.item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #27272a;}
+.item:last-child{border-bottom:none;}
+.dot{width:12px;height:12px;border-radius:3px;flex:none;}
+.item .nm{flex:1;font-size:14px;font-weight:500;}
+.item .dm{font-size:12px;color:#a1a1aa;}
+.item .qt{font-size:13px;color:#c4b5fd;font-weight:600;white-space:nowrap;}
+.item .rm{background:none;border:none;color:#52525b;font-size:18px;cursor:pointer;}.item .rm:hover{color:#ef4444;}
+.empty{color:#52525b;font-size:13px;padding:14px 0;text-align:center;}
+.box-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;}
+.box-row input{padding:8px 10px;text-align:center;font-size:13px;}
+.box-row .rm{background:none;border:none;color:#52525b;font-size:17px;cursor:pointer;}.box-row .rm:hover{color:#ef4444;}
+.box-head{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#52525b;margin-bottom:5px;padding:0 2px;}
+.box-add{display:flex;gap:8px;margin-top:6px;}.box-add input{flex:1;text-align:center;padding:8px;}
+.mini-btn{background:transparent;color:#06b6d4;border:1px solid #06b6d4;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}.mini-btn:hover{background:rgba(6,182,212,.12);}
+.opt{display:flex;align-items:center;gap:9px;font-size:13px;color:#e4e4e7;cursor:pointer;}
+.opt input{width:auto;accent-color:#7c3aed;}
+.foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px;}
+.foot .eff{display:flex;align-items:center;gap:8px;font-size:13px;color:#a1a1aa;}.foot .eff input{width:64px;text-align:center;}
+.cnt{font-size:12px;color:#52525b;margin-left:auto;}
+.result{display:none;}.result.show{display:block;animation:fade .25s;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;}}
+.master{background:linear-gradient(135deg,#7c3aed,#5b21b6);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;}
+.master.warn{background:linear-gradient(135deg,#b45309,#92400e);}
+.master .t{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.85);}
+.master .dims{font-size:28px;font-weight:800;margin:5px 0 2px;}
+.master .dims small{font-size:14px;font-weight:600;opacity:.85;}
+.master .sub{font-size:12px;color:rgba(255,255,255,.92);}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px;}
+.mcell{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px;text-align:center;}
+.mcell .l{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:#a1a1aa;}
+.mcell .v{font-size:18px;font-weight:700;margin-top:3px;}.mcell .v small{font-size:10px;color:#a1a1aa;font-weight:500;}
+.viz{background:#0f0f11;border:1px solid #27272a;border-radius:12px;padding:10px;display:flex;justify-content:center;}
+.legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;}
+.legend .lg{display:flex;align-items:center;gap:6px;font-size:12px;color:#d4d4d8;}
+.note{font-size:12px;color:#a1a1aa;background:#1c1c20;border:1px solid #2d2d35;border-radius:10px;padding:11px 13px;margin-top:14px;line-height:1.5;}
+.note b{color:#c4b5fd;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(124,58,237,.3);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(max-width:560px){.add-row{grid-template-columns:1fr 70px auto;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>📦 b3 Box</h1>
+<p class="lead">b3 Ops · empacotador 3D — adicione os produtos do pedido (1 ou vários) e veja a caixa mestre, em mm</p>
+
+<div class="card">
+  <h2><span>🛒</span> Montar o pedido</h2>
+  <div class="sub">Produtos vêm do cadastro.</div>
+  <div class="add-row">
+    <div><label class="fl">Produto</label><select id="prodSel"></select></div>
+    <div><label class="fl">Qtd</label><input type="number" id="qtd" value="1" min="1"></div>
+    <button class="btn btn-cyan" id="btnAdd">+ Adicionar</button>
+  </div>
+  <div style="margin-top:18px"><div class="section-label">Itens do pedido</div><div id="orderList"><div class="empty">Nenhum item ainda.</div></div></div>
+</div>
+
+<div class="card">
+  <div class="section-label">Caixas mestre que você tem (estoque)</div>
+  <div class="box-head"><span>Comp. (mm)</span><span>Larg. (mm)</span><span>Alt. (mm)</span><span></span></div>
+  <div id="boxList"></div>
+  <div class="box-add">
+    <input type="number" id="nbC" placeholder="comp"><input type="number" id="nbL" placeholder="larg"><input type="number" id="nbA" placeholder="alt">
+    <button class="mini-btn" id="addBox">+ caixa</button>
+  </div>
+  <div class="foot">
+    <label class="opt"><input type="checkbox" id="rotate" checked> Permitir girar as peças</label>
+    <div class="eff">Aproveitamento <input type="number" id="eff" value="66">%</div>
+  </div>
+</div>
+
+<div class="foot" style="margin-bottom:20px">
+  <button class="btn btn-ghost" id="btnClear">Limpar pedido</button>
+  <button class="btn btn-primary" id="btnCalc">Calcular caixa mestre</button>
+  <span class="cnt" id="cnt">0 itens</span>
+</div>
+
+<div class="card result" id="result">
+  <h2><span>📐</span> Resultado</h2>
+  <div class="master" id="master">
+    <div class="t" id="mT">Caixa mestre</div>
+    <div class="dims" id="mDims">—</div>
+    <div class="sub" id="mSub"></div>
+  </div>
+  <div class="mgrid">
+    <div class="mcell"><div class="l">Peso total</div><div class="v" id="mPeso">—</div></div>
+    <div class="mcell"><div class="l">Volume produtos</div><div class="v" id="mVolP">—</div></div>
+    <div class="mcell"><div class="l">Volume caixa</div><div class="v" id="mVolB">—</div></div>
+    <div class="mcell"><div class="l">Aproveitamento</div><div class="v" id="mFill">—</div></div>
+  </div>
+  <div class="viz"><div id="viz3d" style="width:360px;max-width:100%;height:300px;"></div></div>
+  <div id="vizHint" style="font-size:11px;color:#52525b;text-align:center;margin-top:6px;"></div>
+  <div class="legend" id="legend"></div>
+  <div class="note" id="mNote"></div>
+</div>
+</div>
+
+<script>
+  /* COLE AQUI a config do seu projeto Firebase (Console > Configurações > Apps Web).
+     A apiKey web é pública por design; a segurança vem das Regras do Firestore.
+     Deixe {} para rodar só com localStorage (offline/local). */
+  window.FIREBASE_CONFIG = {
+    apiKey: "AIzaSyADBo2Ft7VEPwRsqBDveVOByOE99CnWj-w",
+    authDomain: "b3ops-ab662.firebaseapp.com",
+    projectId: "b3ops-ab662",
+    storageBucket: "b3ops-ab662.firebasestorage.app",
+    messagingSenderId: "695969657587",
+    appId: "1:695969657587:web:d79c4f0e6766bda0db3d86"
+  };
+</script>
+<script type="module">
+'use strict';
+const $=id=>document.getElementById(id);
+
+/* ============================================================
+   DADOS — Firestore (com config) OU localStorage (fallback).
+   Produto: { nome, comprimentoMm, larguraMm, alturaMm, pesoGramas }
+   Caixa:   { comprimentoMm, larguraMm, alturaMm }
+   Firestore: documentos 'b3_config/produtos' e 'b3_config/caixas_mestre'
+   com campo { lista: [...] }. MIGRAÇÃO: viram coleções próprias no b3 flow.
+   ============================================================ */
+const SEED_PROD=[
+  {nome:'Porta Joia', comprimentoMm:90, larguraMm:90, alturaMm:45, pesoGramas:110},
+  {nome:'Troféu Gol de Placa', comprimentoMm:150, larguraMm:100, alturaMm:250, pesoGramas:300},
+  {nome:'Medalha Personalizada', comprimentoMm:50, larguraMm:50, alturaMm:3, pesoGramas:20},
+  {nome:'Brinde Corporativo', comprimentoMm:100, larguraMm:70, alturaMm:30, pesoGramas:80},
+  {nome:'Kit Festa 15 Anos', comprimentoMm:300, larguraMm:200, alturaMm:150, pesoGramas:500}
+];
+const SEED_BOX=[{comprimentoMm:620,larguraMm:510,alturaMm:420},{comprimentoMm:540,larguraMm:510,alturaMm:410}];
+
+let FS=null;
+const CFG=window.FIREBASE_CONFIG;
+if(CFG && CFG.projectId){
+  try{
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    const { getFirestore, doc, getDoc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    const app=initializeApp(CFG); FS={ db:getFirestore(app), doc, getDoc, setDoc };
+    console.log('[Rosa Baby] Firestore ligado.');
+  }catch(e){ console.warn('[Rosa Baby] Firebase não carregou, usando localStorage:', e); }
+}
+const Store={
+  async list(key, seed){
+    if(FS){ try{
+      const snap=await FS.getDoc(FS.doc(FS.db,'b3_config',key));
+      if(snap.exists() && Array.isArray(snap.data().lista)) return snap.data().lista;
+      await FS.setDoc(FS.doc(FS.db,'b3_config',key),{lista:seed}); return seed.slice();
+    }catch(e){ console.warn('[Rosa Baby] Firestore list falhou:', e); } }
+    try{ const d=localStorage.getItem('b3_'+key); if(d){ const l=JSON.parse(d); if(Array.isArray(l)&&l.length) return l; } }catch(e){}
+    try{ localStorage.setItem('b3_'+key, JSON.stringify(seed)); }catch(e){}
+    return seed.slice();
+  },
+  async save(key, arr){
+    if(FS){ try{ await FS.setDoc(FS.doc(FS.db,'b3_config',key),{lista:arr}); return; }catch(e){ console.warn('[Rosa Baby] Firestore save falhou:', e); } }
+    try{ localStorage.setItem('b3_'+key, JSON.stringify(arr)); }catch(e){}
+  }
+};
+function saveBoxes(){ Store.save('caixas_mestre', boxes); }
+
+let registry=await Store.list('produtos', SEED_PROD);
+let boxes=await Store.list('caixas_mestre', SEED_BOX);
+let order=[];
+const PALETTE=['#a78bfa','#06b6d4','#22c55e','#f59e0b','#ef4444','#ec4899','#7c3aed','#14b8a6','#f472b6','#84cc16'];
+
+function num(x){ if(typeof x==='string'&&x.includes(','))x=x.replace(',','.'); const v=parseFloat(x); return isFinite(v)?v:0; }
+function rd(v,d){ const f=Math.pow(10,d||0); return Math.round(v*f)/f; }
+function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function dims(b){ return {l:b.comprimentoMm, w:b.larguraMm, h:b.alturaMm}; }
+
+/* ---- UI: cadastro/pedido ---- */
+function fillSelect(){
+  if(!registry.length){ $('prodSel').innerHTML='<option value="">(cadastro vazio)</option>'; return; }
+  $('prodSel').innerHTML=registry.map((p,i)=>`<option value="${i}">${esc(p.nome)} — ${p.comprimentoMm}×${p.larguraMm}×${p.alturaMm} mm</option>`).join('');
+}
+function addItem(){
+  const i=parseInt($('prodSel').value); if(isNaN(i)||!registry[i]) return;
+  const p=registry[i], qtd=Math.max(1,Math.floor(num($('qtd').value))||1);
+  const ex=order.find(o=>o.nome===p.nome);
+  if(ex){ ex.qtd+=qtd; } else { order.push({nome:p.nome,l:p.comprimentoMm,w:p.larguraMm,h:p.alturaMm,pesoG:p.pesoGramas,qtd,c:PALETTE[order.length%PALETTE.length]}); }
+  renderOrder();
+}
+function renderOrder(){
+  const c=$('orderList');
+  if(!order.length){ c.innerHTML='<div class="empty">Nenhum item ainda.</div>'; $('cnt').textContent='0 itens'; return; }
+  c.innerHTML=order.map((o,i)=>`<div class="item"><span class="dot" style="background:${o.c}"></span>
+    <div><div class="nm">${esc(o.nome)}</div><div class="dm">${o.l}×${o.w}×${o.h} mm · ${o.pesoG} g</div></div>
+    <div class="qt">${o.qtd}×</div><button class="rm" data-i="${i}">×</button></div>`).join('');
+  c.querySelectorAll('.rm').forEach(b=> b.onclick=()=>{ order.splice(+b.dataset.i,1); order.forEach((o,k)=>o.c=PALETTE[k%PALETTE.length]); renderOrder(); });
+  const totUn=order.reduce((a,b)=>a+b.qtd,0);
+  $('cnt').textContent=order.length+' produto(s) · '+totUn+' un';
+}
+function renderBoxes(){
+  $('boxList').innerHTML=boxes.map((b,i)=>`<div class="box-row">
+    <input type="number" data-bi="${i}" data-f="comprimentoMm" value="${b.comprimentoMm}"><input type="number" data-bi="${i}" data-f="larguraMm" value="${b.larguraMm}"><input type="number" data-bi="${i}" data-f="alturaMm" value="${b.alturaMm}">
+    <button class="rm" data-rmb="${i}">×</button></div>`).join('');
+  $('boxList').querySelectorAll('input').forEach(inp=>{ inp.oninput=()=>{ boxes[+inp.dataset.bi][inp.dataset.f]=num(inp.value); saveBoxes(); }; });
+  $('boxList').querySelectorAll('[data-rmb]').forEach(b=>{ b.onclick=()=>{ boxes.splice(+b.dataset.rmb,1); saveBoxes(); renderBoxes(); }; });
+}
+$('addBox').onclick=()=>{ const comprimentoMm=num($('nbC').value),larguraMm=num($('nbL').value),alturaMm=num($('nbA').value); if(comprimentoMm<=0||larguraMm<=0||alturaMm<=0)return; boxes.push({comprimentoMm,larguraMm,alturaMm}); saveBoxes(); renderBoxes(); $('nbC').value='';$('nbL').value='';$('nbA').value=''; };
+
+/* ============================================================
+   EMPACOTADOR 3D — heurística de pontos-extremos (canto fundo-baixo-esquerda).
+   Coloca cada peça na melhor orientação permitida, do fundo pra cima. Determinístico.
+   ============================================================ */
+function orientations(d,rot){
+  if(!rot) return [[d[0],d[1],d[2]]];
+  return [[d[0],d[1],d[2]],[d[0],d[2],d[1]],[d[1],d[0],d[2]],[d[1],d[2],d[0]],[d[2],d[0],d[1]],[d[2],d[1],d[0]]];
+}
+function fitsBox(d,b){ const s=d.slice().sort((x,y)=>x-y),bs=[b.l,b.w,b.h].sort((x,y)=>x-y); return s[0]<=bs[0]&&s[1]<=bs[1]&&s[2]<=bs[2]; }
+function pack(units, box, rot){
+  const placed=[]; let eps=[[0,0,0]]; const E=1e-6;
+  for(const u of units){
+    eps.sort((a,b)=> a[2]-b[2]||a[1]-b[1]||a[0]-b[0]);
+    const oris=orientations([u.l,u.w,u.h],rot);
+    let done=false;
+    for(const e of eps){
+      for(const o of oris){
+        if(e[0]+o[0]<=box.l+E && e[1]+o[1]<=box.w+E && e[2]+o[2]<=box.h+E){
+          let ok=true;
+          for(const q of placed){
+            if(e[0]<q.x+q.l-E && e[0]+o[0]>q.x+E && e[1]<q.y+q.w-E && e[1]+o[1]>q.y+E && e[2]<q.z+q.h-E && e[2]+o[2]>q.z+E){ ok=false; break; }
+          }
+          if(ok){
+            const pb={x:e[0],y:e[1],z:e[2],l:o[0],w:o[1],h:o[2],c:u.c};
+            placed.push(pb);
+            eps=eps.filter(p=>!(p[0]===e[0]&&p[1]===e[1]&&p[2]===e[2]));
+            const cand=[[pb.x+pb.l,pb.y,pb.z],[pb.x,pb.y+pb.w,pb.z],[pb.x,pb.y,pb.z+pb.h]];
+            cand.forEach(c=>{ if(!eps.some(p=>p[0]===c[0]&&p[1]===c[1]&&p[2]===c[2])) eps.push(c); });
+            done=true; break;
+          }
+        }
+      }
+      if(done) break;
+    }
+    if(!done) return {ok:false, placed};
+  }
+  return {ok:true, placed};
+}
+
+/* ---- fallback estático (SVG) ---- */
+function shade(hex,amt){ let c=hex.replace('#',''); let r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16); r=Math.max(0,Math.min(255,r+amt));g=Math.max(0,Math.min(255,g+amt));b=Math.max(0,Math.min(255,b+amt)); return 'rgb('+r+','+g+','+b+')'; }
+function drawPackSVG(box, placed){
+  const VW=360,VH=280;
+  const s=200/Math.max(box.l,box.w,box.h), kx=0.5, ky=0.28;
+  function pr(x,y,z){ return [x*s+y*s*kx, -z*s-y*s*ky]; }
+  const allX=[], allY=[];
+  [[0,0,0],[box.l,0,0],[0,box.w,0],[0,0,box.h],[box.l,box.w,box.h],[box.l,box.w,0],[box.l,0,box.h],[0,box.w,box.h]].forEach(p=>{ const q=pr(p[0],p[1],p[2]); allX.push(q[0]); allY.push(q[1]); });
+  const minX=Math.min(...allX),maxX=Math.max(...allX),minY=Math.min(...allY),maxY=Math.max(...allY);
+  const ox=(VW-(maxX-minX))/2-minX, oy=(VH-(maxY-minY))/2-minY;
+  function P(x,y,z){ const q=pr(x,y,z); return (q[0]+ox).toFixed(1)+','+(q[1]+oy).toFixed(1); }
+  function faces(b,col){
+    const x=b.x,y=b.y,z=b.z,l=b.l,w=b.w,h=b.h;
+    const top=[P(x,y,z+h),P(x+l,y,z+h),P(x+l,y+w,z+h),P(x,y+w,z+h)].join(' ');
+    const front=[P(x,y,z),P(x+l,y,z),P(x+l,y,z+h),P(x,y,z+h)].join(' ');
+    const right=[P(x+l,y,z),P(x+l,y+w,z),P(x+l,y+w,z+h),P(x+l,y,z+h)].join(' ');
+    return '<polygon points="'+front+'" fill="'+col+'" stroke="rgba(0,0,0,.25)" stroke-width=".5"/>'
+         +'<polygon points="'+right+'" fill="'+shade(col,-30)+'" stroke="rgba(0,0,0,.25)" stroke-width=".5"/>'
+         +'<polygon points="'+top+'" fill="'+shade(col,28)+'" stroke="rgba(0,0,0,.25)" stroke-width=".5"/>';
+  }
+  const cage='<polygon points="'+[P(0,0,0),P(box.l,0,0),P(box.l,0,box.h),P(0,0,box.h)].join(' ')+'" fill="none" stroke="#3f3f46" stroke-width="1"/>'
+    +'<polygon points="'+[P(0,0,box.h),P(box.l,0,box.h),P(box.l,box.w,box.h),P(0,box.w,box.h)].join(' ')+'" fill="none" stroke="#3f3f46" stroke-width="1"/>'
+    +'<polygon points="'+[P(box.l,0,0),P(box.l,box.w,0),P(box.l,box.w,box.h),P(box.l,0,box.h)].join(' ')+'" fill="none" stroke="#3f3f46" stroke-width="1"/>';
+  const cap=180;
+  const sorted=placed.slice().sort((a,b)=> (a.x+a.y+a.z)-(b.x+b.y+b.z)).slice(0,cap);
+  let body=''; sorted.forEach(b=> body+=faces(b,b.c));
+  $('viz3d').innerHTML='<svg width="100%" height="300" viewBox="0 0 360 280" style="display:block;margin:auto">'+cage+body+'</svg>';
+  const vh=$('vizHint'); if(vh) vh.textContent='visual estático (o 3D interativo carrega quando online)';
+  return placed.length>cap;
+}
+function renderViz(box, placed){
+  window.__pack={box, placed};
+  if(window.render3D){ try{ window.render3D(box, placed); return false; }catch(e){ console.warn('3D falhou, usando SVG:', e); } }
+  return drawPackSVG(box, placed);
+}
+
+/* ---- cálculo principal ---- */
+function calcular(){
+  if(!order.length){ return; }
+  const rot=$('rotate').checked;
+  const eff=Math.max(0.1,Math.min(0.99,(num($('eff').value)||66)/100));
+  let units=[], totalVol=0, totalPesoG=0;
+  order.forEach(o=>{ for(let i=0;i<o.qtd;i++) units.push({l:o.l,w:o.w,h:o.h,c:o.c}); totalVol+=o.l*o.w*o.h*o.qtd; totalPesoG+=o.pesoG*o.qtd; });
+  units.sort((a,b)=> (b.l*b.w*b.h)-(a.l*a.w*a.h));
+  const totUn=units.length;
+
+  const sortedBoxes=boxes.map(b=>({b,d:dims(b),vol:b.comprimentoMm*b.larguraMm*b.alturaMm})).sort((a,b)=>a.vol-b.vol);
+  const tooMany = totUn>700;
+
+  let chosen=null, chosenDims=null, packed=null;
+  for(const {b,d,vol} of sortedBoxes){
+    if(totalVol > vol*eff) continue;
+    if(!order.every(o=>fitsBox([o.l,o.w,o.h],d))) continue;
+    if(tooMany){ chosen=b; chosenDims=d; packed={ok:true,placed:[],approx:true}; break; }
+    const res=pack(units,d,rot);
+    if(res.ok){ chosen=b; chosenDims=d; packed=res; break; }
+  }
+
+  const master=$('master');
+  if(chosen){
+    master.className='master';
+    $('mT').textContent='Caixa mestre recomendada';
+    $('mDims').innerHTML=chosen.comprimentoMm+' × '+chosen.larguraMm+' × '+chosen.alturaMm+' <small>mm</small>';
+    $('mSub').textContent='comporta as '+totUn+' un do pedido, embaladas juntas';
+    const boxVol=chosen.comprimentoMm*chosen.larguraMm*chosen.alturaMm;
+    $('mPeso').innerHTML=rd(totalPesoG/1000,2)+'<small> kg</small>';
+    $('mVolP').innerHTML=rd(totalVol/1e6,2)+'<small> L</small>';
+    $('mVolB').innerHTML=rd(boxVol/1e6,2)+'<small> L</small>';
+    $('mFill').innerHTML=rd(totalVol/boxVol*100,0)+'<small>%</small>';
+    let truncated=false;
+    if(packed.placed && packed.placed.length){ truncated=renderViz(chosenDims,packed.placed); }
+    else { if(window.clear3D)window.clear3D(); $('viz3d').innerHTML=''; window.__pack=null; }
+    $('legend').innerHTML=order.map(o=>`<div class="lg"><span class="dot" style="background:${o.c}"></span>${esc(o.nome)} (${o.qtd})</div>`).join('');
+    $('mNote').innerHTML='<b>Empacotamento 3D.</b> As peças foram encaixadas peça por peça, '+(rot?'girando para a melhor posição':'sem girar')+', respeitando ~'+Math.round(eff*100)+'% de aproveitamento real.'
+      +(packed.approx?' Pedido grande ('+totUn+' un): validado por volume (sem desenho detalhado).':'')
+      +(truncated?' Desenho mostrando parte das peças para não poluir.':'');
+  } else {
+    const big=sortedBoxes[sortedBoxes.length-1];
+    master.className='master warn';
+    if(big && order.every(o=>fitsBox([o.l,o.w,o.h],big.d))){
+      const capVol=big.vol*eff;
+      const n=Math.ceil(totalVol/capVol);
+      $('mT').textContent='Precisa de mais de uma caixa';
+      $('mDims').innerHTML=n+' × ('+big.b.comprimentoMm+'×'+big.b.larguraMm+'×'+big.b.alturaMm+') <small>mm</small>';
+      $('mSub').textContent='o pedido não cabe numa caixa só do estoque';
+      $('mPeso').innerHTML=rd(totalPesoG/1000,2)+'<small> kg</small>';
+      $('mVolP').innerHTML=rd(totalVol/1e6,2)+'<small> L</small>';
+      $('mVolB').innerHTML=rd(big.vol/1e6,2)+'<small> L</small>';
+      $('mFill').innerHTML='—';
+      if(window.clear3D)window.clear3D(); $('viz3d').innerHTML=''; window.__pack=null; $('legend').innerHTML='';
+      $('mNote').innerHTML='<b>Divisão em '+n+' caixas.</b> Estimativa por volume com ~'+Math.round(eff*100)+'% de aproveitamento. Cadastre uma caixa maior se quiser tudo num volume só.';
+    } else {
+      $('mT').textContent='Não coube';
+      $('mDims').textContent='—';
+      $('mSub').textContent='algum produto é maior que todas as caixas cadastradas';
+      ['mPeso','mVolP','mVolB','mFill'].forEach(id=>$(id).textContent='—');
+      if(window.clear3D)window.clear3D(); $('viz3d').innerHTML=''; window.__pack=null; $('legend').innerHTML='';
+      $('mNote').innerHTML='Cadastre uma caixa que comporte o maior produto do pedido.';
+    }
+  }
+  $('result').classList.add('show');
+  $('result').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ---- eventos ---- */
+$('btnAdd').onclick=addItem;
+$('qtd').addEventListener('keydown',e=>{ if(e.key==='Enter') addItem(); });
+$('btnCalc').onclick=()=>{ $('btnCalc').innerHTML='<span class="spinner"></span>Calculando...'; setTimeout(()=>{ try{ calcular(); } finally { $('btnCalc').textContent='Calcular caixa mestre'; } },30); };
+$('btnClear').onclick=()=>{ order=[]; renderOrder(); $('result').classList.remove('show'); if(window.clear3D)window.clear3D(); };
+
+fillSelect(); renderOrder(); renderBoxes();
+</script>
+
+<!-- 3D interativo (gira com o mouse, igual fatiador). Carrega Three.js da CDN;
+     se estiver offline, cai no desenho estático automaticamente. -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+let st=null;
+window.clear3D=function(){
+  if(!st) return;
+  cancelAnimationFrame(st.raf);
+  try{ st.controls.dispose(); st.renderer.dispose(); }catch(e){}
+  if(st.renderer.domElement.parentNode) st.renderer.domElement.parentNode.removeChild(st.renderer.domElement);
+  st=null;
+};
+window.render3D=function(box, placed){
+  const cont=document.getElementById('viz3d'); if(!cont) return;
+  window.clear3D();
+  cont.innerHTML='';
+  const W=cont.clientWidth||360, H=cont.clientHeight||300;
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0f0f11);
+  const cam=new THREE.PerspectiveCamera(45, W/H, 0.1, 1000000);
+  const renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(W,H); renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  cont.appendChild(renderer.domElement);
+  const controls=new OrbitControls(cam, renderer.domElement);
+  controls.enableDamping=true; controls.dampingFactor=0.08;
+  scene.add(new THREE.AmbientLight(0xffffff,0.7));
+  const dir=new THREE.DirectionalLight(0xffffff,0.75); dir.position.set(1,2,1.4); scene.add(dir);
+  const g=new THREE.Group();
+  const boxGeo=new THREE.BoxGeometry(box.l, box.h, box.w);
+  const cage=new THREE.LineSegments(new THREE.EdgesGeometry(boxGeo), new THREE.LineBasicMaterial({color:0x71717a}));
+  cage.position.set(box.l/2, box.h/2, box.w/2); g.add(cage);
+  const cap=Math.min(placed.length, 1500);
+  const drawEdges=cap<=350;
+  for(let i=0;i<cap;i++){
+    const p=placed[i];
+    const geo=new THREE.BoxGeometry(p.l, p.h, p.w);
+    const mesh=new THREE.Mesh(geo, new THREE.MeshLambertMaterial({color:new THREE.Color(p.c)}));
+    mesh.position.set(p.x+p.l/2, p.z+p.h/2, p.y+p.w/2);
+    g.add(mesh);
+    if(drawEdges){
+      const ed=new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({color:0x000000, transparent:true, opacity:0.22}));
+      ed.position.copy(mesh.position); g.add(ed);
+    }
+  }
+  g.position.set(-box.l/2, -box.h/2, -box.w/2);
+  scene.add(g);
+  const maxd=Math.max(box.l,box.w,box.h);
+  cam.position.set(maxd*1.3, maxd*1.05, maxd*1.7);
+  controls.target.set(0,0,0); controls.update();
+  st={renderer,controls,raf:0};
+  (function loop(){ st.raf=requestAnimationFrame(loop); controls.update(); renderer.render(scene,cam); })();
+  const hint=document.getElementById('vizHint'); if(hint) hint.textContent='arraste para girar · scroll para aproximar · botão direito move';
+};
+if(window.__pack){ try{ window.render3D(window.__pack.box, window.__pack.placed); }catch(e){} }
+</script>
+</body>
+</html>
