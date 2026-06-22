@@ -23,13 +23,15 @@ Abra o `index.html` para o menu com todas as ferramentas.
 
 Dados reais usados para calibrar o cálculo de caixas:
 
-Unidades padronizadas em **mm** e peso em **gramas** (esquema do b3 flow).
+Unidades em **mm** e peso em **gramas** (esquema do b3 flow). O aproveitamento
+(quanto o produto enche a caixa) é **por produto** — rígido empilhável ~85-90%, solto ~65%.
 
-- **Porta-joia**: 90 × 90 × 45 mm · 110 g/un
-  - 240 un → caixa **620 × 510 × 420 mm**
-  - 200 un → caixa **540 × 510 × 410 mm**
-- **Aproveitamento médio calibrado: ~66%** (as caixas enchem ~66% do volume; o resto é folga real).
-- Terceira caixa mestre: *a cadastrar.*
+**Produtos calibrados (dados reais):**
+- Porta-joia 90×90×45 mm · 110 g · aprov. **66%** — 240un→620×510×420, 200un→540×510×410, 100un→520×270×410
+- Fone i9s 78×78×57 mm · 75 g · aprov. **85%** — 100un→420×330×295
+- Caixa de som Altomex AL 6888 72×73×80 mm · 183 g · aprov. **88%** — caixa 375×375×332 (~97un/cx, previsto)
+
+**Caixas mestre cadastradas (mm):** 620×510×420 · 540×510×410 · 520×270×410 · 420×330×295 · 375×375×332
 
 O cálculo combina: encaixe geométrico (grade de peças na melhor orientação) **limitado** pelo
 aproveitamento real. Quanto mais exemplos reais (produto → caixa usada), melhor a calibração por tipo.
