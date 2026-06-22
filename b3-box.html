@@ -3,15 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>b3 Box</title>
+<title>B3 Box</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter',sans-serif;background:#0a0a0b;color:#f1f5f9;min-height:100vh;padding:24px;}
-.wrap{max-width:780px;margin:0 auto;}
+.wrap{max-width:840px;margin:0 auto;}
+.top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;}
 h1{font-size:24px;font-weight:700;background:linear-gradient(135deg,#a78bfa,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.lead{color:#a1a1aa;font-size:13px;margin:2px 0 22px;}
+.badge{background:#27272a;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;color:#a1a1aa;border:1px solid #3f3f46;}
+.lead{color:#a1a1aa;font-size:13px;margin:2px 0 18px;}
+.tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid #27272a;}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:#a1a1aa;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:10px 14px;cursor:pointer;transition:all .15s;margin-bottom:-1px;}
+.tab:hover{color:#e4e4e7;}
+.tab.on{color:#c4b5fd;border-bottom-color:#7c3aed;}
+.panel{display:none;}.panel.on{display:block;animation:fade .2s;}
+@keyframes fade{from{opacity:0;transform:translateY(5px);}to{opacity:1;}}
 .card{background:#18181b;border:1px solid #27272a;border-radius:16px;padding:22px;margin-bottom:20px;}
 .card h2{font-size:16px;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:4px;}
 .card .sub{color:#a1a1aa;font-size:13px;margin-bottom:16px;}
@@ -40,28 +48,34 @@ input[type=number]{-moz-appearance:textfield;}
 .box-head{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#52525b;margin-bottom:5px;padding:0 2px;}
 .box-add{display:flex;gap:8px;margin-top:6px;}.box-add input{flex:1;text-align:center;padding:8px;}
 .mini-btn{background:transparent;color:#06b6d4;border:1px solid #06b6d4;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}.mini-btn:hover{background:rgba(6,182,212,.12);}
-.prod-head,.prod-row,.prod-add{display:grid;grid-template-columns:1.7fr .85fr .85fr .85fr .85fr .8fr auto;gap:6px;align-items:center;}
-.prod-head{font-size:10px;text-transform:uppercase;letter-spacing:.35px;color:#52525b;margin-bottom:5px;padding:0 2px;}
-.prod-row{margin-bottom:7px;}
-.prod-row input,.prod-add input{padding:7px 8px;font-size:12px;text-align:center;}
-.prod-row input.nm,.prod-add input.nm{text-align:left;}
-.prod-add{margin-top:8px;}
-.prod-row .rm{background:none;border:none;color:#52525b;font-size:17px;cursor:pointer;}.prod-row .rm:hover{color:#ef4444;}
-.hint{font-size:11.5px;color:#71717a;margin-top:8px;line-height:1.5;}
-.opt{display:flex;align-items:center;gap:9px;font-size:13px;color:#e4e4e7;cursor:pointer;}
-.opt input{width:auto;accent-color:#7c3aed;}
+.prod-card{background:#0f0f11;border:1px solid #27272a;border-radius:12px;padding:14px;margin-bottom:10px;}
+.prod-card .ph{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.prod-card .ph input.nm{font-size:14px;font-weight:600;padding:8px 10px;}
+.prod-card .ph .rm{background:none;border:none;color:#52525b;font-size:18px;cursor:pointer;flex:none;}.prod-card .ph .rm:hover{color:#ef4444;}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.pgrid .f label{font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;display:block;margin-bottom:3px;}
+.pgrid .f input{padding:7px 8px;font-size:13px;text-align:center;}
+.prow2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;align-items:end;}
+.prow2 .f label{font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;display:block;margin-bottom:3px;}
+.orient-seg{display:flex;gap:4px;}
+.orient-seg button{flex:1;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;padding:7px 4px;border-radius:7px;border:1px solid #27272a;background:#0f0f11;color:#a1a1aa;transition:all .15s;}
+.orient-seg button.on{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+.prod-add-card{background:#0f0f11;border:1px dashed #3f3f46;border-radius:12px;padding:14px;margin-top:4px;}
+.hint{font-size:11.5px;color:#71717a;margin-top:10px;line-height:1.5;}
+.hint b{color:#a78bfa;}
 .foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px;}
-.foot .eff{display:flex;align-items:center;gap:8px;font-size:13px;color:#a1a1aa;}.foot .eff input{width:64px;text-align:center;}
 .cnt{font-size:12px;color:#52525b;margin-left:auto;}
-.result{display:none;}.result.show{display:block;animation:fade .25s;}
-@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;}}
 .master{background:linear-gradient(135deg,#7c3aed,#5b21b6);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;}
 .master.warn{background:linear-gradient(135deg,#b45309,#92400e);}
+.master.empty-state{background:#18181b;border:1px dashed #3f3f46;}
 .master .t{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.85);}
+.master.empty-state .t{color:#71717a;}
 .master .dims{font-size:28px;font-weight:800;margin:5px 0 2px;}
+.master.empty-state .dims{color:#52525b;font-size:20px;}
 .master .dims small{font-size:14px;font-weight:600;opacity:.85;}
-.master .sub{font-size:12px;color:rgba(255,255,255,.92);}
-.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px;}
+.master .sub2{font-size:12px;color:rgba(255,255,255,.92);}
+.master.empty-state .sub2{color:#52525b;}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px;}
 .mcell{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px;text-align:center;}
 .mcell .l{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:#a1a1aa;}
 .mcell .v{font-size:18px;font-weight:700;margin-top:3px;}.mcell .v small{font-size:10px;color:#a1a1aa;font-weight:500;}
@@ -72,82 +86,124 @@ input[type=number]{-moz-appearance:textfield;}
 .note b{color:#c4b5fd;}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(124,58,237,.3);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes spin{to{transform:rotate(360deg);}}
-@media(max-width:560px){.add-row{grid-template-columns:1fr 70px auto;}}
+.calib{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px 14px;margin-top:14px;}
+.calib .ct{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#a78bfa;font-weight:600;margin-bottom:8px;}
+.calib .crow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.calib .crow label{font-size:12px;color:#d4d4d8;flex:1;}
+.calib .crow input[type=range]{flex:2;accent-color:#7c3aed;padding:0;}
+.calib .crow .val{font-size:13px;font-weight:700;color:#c4b5fd;width:42px;text-align:right;}
+.calib .chint{font-size:11px;color:#71717a;line-height:1.5;}
+@media(max-width:560px){.add-row{grid-template-columns:1fr 70px auto;}.pgrid{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>📦 b3 Box</h1>
-<p class="lead">b3 Ops · empacotador 3D — adicione os produtos do pedido (1 ou vários) e veja a caixa mestre, em mm</p>
-
-<div class="card">
-  <h2><span>🛒</span> Montar o pedido</h2>
-  <div class="sub">Produtos vêm do cadastro.</div>
-  <div class="add-row">
-    <div><label class="fl">Produto</label><select id="prodSel"></select></div>
-    <div><label class="fl">Qtd</label><input type="number" id="qtd" value="1" min="1"></div>
-    <button class="btn btn-cyan" id="btnAdd">+ Adicionar</button>
+<div class="top">
+  <div>
+    <h1>📦 B3 Box</h1>
+    <p class="lead">B3 Ops · empacotador 3D — monte o pedido e veja a caixa mestre certa, em mm</p>
   </div>
-  <div style="margin-top:18px"><div class="section-label">Itens do pedido</div><div id="orderList"><div class="empty">Nenhum item ainda.</div></div></div>
+  <span class="badge" id="dataBadge">carregando…</span>
 </div>
 
-<div class="card">
-  <div class="section-label">Produtos cadastrados</div>
-  <div class="prod-head"><span>Nome</span><span>Comp.</span><span>Larg.</span><span>Alt.</span><span>Peso g</span><span>Aprov.%</span><span></span></div>
-  <div id="prodList"></div>
-  <div class="prod-add">
-    <input class="nm" type="text" id="npNome" placeholder="nome">
-    <input type="number" id="npC" placeholder="comp"><input type="number" id="npL" placeholder="larg"><input type="number" id="npA" placeholder="alt">
-    <input type="number" id="npP" placeholder="peso"><input type="number" id="npAp" placeholder="%" value="80">
-    <button class="mini-btn" id="addProd">+ produto</button>
-  </div>
-  <div class="hint">Medidas em <b>mm</b>, peso em <b>g</b>. <b>Aprov.%</b> = quanto o produto enche a caixa de verdade: rígido/empilhável (fone, caixa de som) ~85-90%; solto (porta-joia) ~65%.</div>
+<div class="tabs">
+  <button class="tab on" data-panel="caixa">Caixa 3D</button>
+  <button class="tab" data-panel="produtos">Produtos</button>
+  <button class="tab" data-panel="caixas">Caixas mestre</button>
 </div>
 
-<div class="card">
-  <div class="section-label">Caixas mestre que você tem (estoque)</div>
-  <div class="box-head"><span>Comp. (mm)</span><span>Larg. (mm)</span><span>Alt. (mm)</span><span></span></div>
-  <div id="boxList"></div>
-  <div class="box-add">
-    <input type="number" id="nbC" placeholder="comp"><input type="number" id="nbL" placeholder="larg"><input type="number" id="nbA" placeholder="alt">
-    <button class="mini-btn" id="addBox">+ caixa</button>
+<!-- ===================== PAINEL: CAIXA 3D (principal) ===================== -->
+<div class="panel on" id="panel-caixa">
+  <div class="card">
+    <h2><span>🛒</span> Monte o pedido</h2>
+    <div class="sub">Escolha os produtos e quantidades. A caixa se redimensiona sozinha.</div>
+    <div class="add-row">
+      <div><label class="fl">Produto</label><select id="prodSel"></select></div>
+      <div><label class="fl">Qtd</label><input type="number" id="qtd" value="1" min="1"></div>
+      <button class="btn btn-cyan" id="btnAdd">+ Adicionar</button>
+    </div>
+    <div style="margin-top:16px"><div class="section-label">Itens do pedido</div><div id="orderList"><div class="empty">Nenhum item ainda.</div></div></div>
+    <div class="foot">
+      <button class="btn btn-ghost" id="btnClear">Limpar</button>
+      <span class="cnt" id="cnt">0 itens</span>
+    </div>
   </div>
-  <div class="foot">
-    <label class="opt"><input type="checkbox" id="rotate" checked> Permitir girar as peças</label>
-    <div class="eff">Aprov. padrão <input type="number" id="eff" value="80">%</div>
+
+  <div class="card" id="resultCard">
+    <h2><span>📐</span> Caixa mestre</h2>
+    <div class="master empty-state" id="master">
+      <div class="t" id="mT">Aguardando o pedido</div>
+      <div class="dims" id="mDims">—</div>
+      <div class="sub2" id="mSub">Adicione produtos acima para montar a caixa.</div>
+    </div>
+    <div class="mgrid" id="mgrid" style="display:none">
+      <div class="mcell"><div class="l">Peso total</div><div class="v" id="mPeso">—</div></div>
+      <div class="mcell"><div class="l">Volume produtos</div><div class="v" id="mVolP">—</div></div>
+      <div class="mcell"><div class="l">Volume caixa</div><div class="v" id="mVolB">—</div></div>
+      <div class="mcell"><div class="l">Ocupação</div><div class="v" id="mFill">—</div></div>
+    </div>
+    <div class="viz" id="vizWrap" style="display:none"><div id="viz3d" style="width:380px;max-width:100%;height:320px;"></div></div>
+    <div id="vizHint" style="font-size:11px;color:#52525b;text-align:center;margin-top:6px;"></div>
+    <div class="legend" id="legend"></div>
+    <div class="note" id="mNote" style="display:none"></div>
+
+    <div class="calib" id="calibBox" style="display:none">
+      <div class="ct">⚙ Ajuste fino do aproveitamento</div>
+      <div id="calibRows"></div>
+      <div class="chint">Mexa no aproveitamento de cada produto até a caixa bater com a que você usa de verdade. O ajuste é salvo no cadastro do produto.</div>
+    </div>
   </div>
 </div>
 
-<div class="foot" style="margin-bottom:20px">
-  <button class="btn btn-ghost" id="btnClear">Limpar pedido</button>
-  <button class="btn btn-primary" id="btnCalc">Calcular caixa mestre</button>
-  <span class="cnt" id="cnt">0 itens</span>
+<!-- ===================== PAINEL: PRODUTOS ===================== -->
+<div class="panel" id="panel-produtos">
+  <div class="card">
+    <h2><span>🏷️</span> Produtos cadastrados</h2>
+    <div class="sub">Medidas em <b>mm</b>, peso em <b>g</b>. O que estiver aqui aparece no seletor da Caixa 3D.</div>
+    <div id="prodList"></div>
+    <div class="prod-add-card">
+      <div class="section-label">Cadastrar novo produto</div>
+      <div class="ph" style="margin-bottom:10px"><input class="nm" type="text" id="npNome" placeholder="nome do produto"></div>
+      <div class="pgrid">
+        <div class="f"><label>Comp. mm</label><input type="number" id="npC" placeholder="0"></div>
+        <div class="f"><label>Larg. mm</label><input type="number" id="npL" placeholder="0"></div>
+        <div class="f"><label>Alt. mm</label><input type="number" id="npA" placeholder="0"></div>
+        <div class="f"><label>Peso g</label><input type="number" id="npP" placeholder="0"></div>
+      </div>
+      <div class="prow2">
+        <div class="f"><label>Aproveitamento %</label><input type="number" id="npAp" value="85"></div>
+        <div class="f"><label>Orientação</label>
+          <div class="orient-seg" id="npOri">
+            <button data-o="livre" class="on">Pode girar</button>
+            <button data-o="fixa">Sempre em pé</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px"><button class="btn btn-primary" id="addProd">+ Cadastrar produto</button></div>
+    </div>
+    <div class="hint"><b>Aproveitamento</b> = quanto o produto enche a caixa de verdade. Rígido e empilhável (fone, caixa de som) ~90%; solto, com folga entre peças (porta-joia) ~85%. <b>Sempre em pé</b> trava a peça na vertical (não deita) — use quando o produto só pode ir numa posição.</div>
+  </div>
 </div>
 
-<div class="card result" id="result">
-  <h2><span>📐</span> Resultado</h2>
-  <div class="master" id="master">
-    <div class="t" id="mT">Caixa mestre</div>
-    <div class="dims" id="mDims">—</div>
-    <div class="sub" id="mSub"></div>
+<!-- ===================== PAINEL: CAIXAS MESTRE ===================== -->
+<div class="panel" id="panel-caixas">
+  <div class="card">
+    <h2><span>📥</span> Caixas mestre que você tem</h2>
+    <div class="sub">Os tamanhos padrão do seu estoque. O B3 Box sempre escolhe a menor que comporta o pedido.</div>
+    <div class="box-head"><span>Comp. (mm)</span><span>Larg. (mm)</span><span>Alt. (mm)</span><span></span></div>
+    <div id="boxList"></div>
+    <div class="box-add">
+      <input type="number" id="nbC" placeholder="comp"><input type="number" id="nbL" placeholder="larg"><input type="number" id="nbA" placeholder="alt">
+      <button class="mini-btn" id="addBox">+ caixa</button>
+    </div>
+    <div class="hint">Tudo em <b>mm</b>. Cadastre aqui só as caixas que você realmente tem em estoque.</div>
   </div>
-  <div class="mgrid">
-    <div class="mcell"><div class="l">Peso total</div><div class="v" id="mPeso">—</div></div>
-    <div class="mcell"><div class="l">Volume produtos</div><div class="v" id="mVolP">—</div></div>
-    <div class="mcell"><div class="l">Volume caixa</div><div class="v" id="mVolB">—</div></div>
-    <div class="mcell"><div class="l">Aproveitamento</div><div class="v" id="mFill">—</div></div>
-  </div>
-  <div class="viz"><div id="viz3d" style="width:360px;max-width:100%;height:300px;"></div></div>
-  <div id="vizHint" style="font-size:11px;color:#52525b;text-align:center;margin-top:6px;"></div>
-  <div class="legend" id="legend"></div>
-  <div class="note" id="mNote"></div>
 </div>
 </div>
 
 <script>
-  /* COLE AQUI a config do seu projeto Firebase (Console > Configurações > Apps Web).
-     A apiKey web é pública por design; a segurança vem das Regras do Firestore.
-     Deixe {} para rodar só com localStorage (offline/local). */
+  /* Config Firebase (Console > Configurações > Apps Web). A apiKey web é pública por
+     design; a segurança vem das Regras do Firestore. Deixe {} para usar só localStorage. */
   window.FIREBASE_CONFIG = {
     apiKey: "AIzaSyADBo2Ft7VEPwRsqBDveVOByOE99CnWj-w",
     authDomain: "b3ops-ab662.firebaseapp.com",
@@ -163,15 +219,15 @@ const $=id=>document.getElementById(id);
 
 /* ============================================================
    DADOS — Firestore (com config) OU localStorage (fallback).
-   Produto: { nome, comprimentoMm, larguraMm, alturaMm, pesoGramas }
+   Produto: { nome, comprimentoMm, larguraMm, alturaMm, pesoGramas, aproveitamento, orientacao }
    Caixa:   { comprimentoMm, larguraMm, alturaMm }
-   Firestore: documentos 'b3_config/produtos' e 'b3_config/caixas_mestre'
-   com campo { lista: [...] }. MIGRAÇÃO: viram coleções próprias no b3 flow.
+   Firestore: docs 'b3_config/produtos' e 'b3_config/caixas_mestre' (campo lista[]).
+   MIGRAÇÃO b3 flow: viram coleções próprias; o resto do código não muda.
    ============================================================ */
 const SEED_PROD=[
-  {nome:'Porta Joia',                    comprimentoMm:90, larguraMm:90, alturaMm:45, pesoGramas:110, aproveitamento:0.66},
-  {nome:'Caixa de Som Altomex AL 6888',  comprimentoMm:72, larguraMm:73, alturaMm:80, pesoGramas:183, aproveitamento:0.92},
-  {nome:'Fone de Ouvido i9s',            comprimentoMm:78, larguraMm:78, alturaMm:57, pesoGramas:75,  aproveitamento:0.85}
+  {nome:'Porta Joia',                   comprimentoMm:90, larguraMm:90, alturaMm:45, pesoGramas:110, aproveitamento:0.89, orientacao:'livre'},
+  {nome:'Caixa de Som Altomex AL 6888', comprimentoMm:72, larguraMm:73, alturaMm:80, pesoGramas:183, aproveitamento:1.00, orientacao:'fixa'},
+  {nome:'Fone de Ouvido i9s',           comprimentoMm:78, larguraMm:78, alturaMm:57, pesoGramas:75,  aproveitamento:1.00, orientacao:'livre'}
 ];
 const SEED_BOX=[
   {comprimentoMm:620,larguraMm:510,alturaMm:420},
@@ -188,8 +244,8 @@ if(CFG && CFG.projectId){
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
     const { getFirestore, doc, getDoc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
     const app=initializeApp(CFG); FS={ db:getFirestore(app), doc, getDoc, setDoc };
-    console.log('[Rosa Baby] Firestore ligado.');
-  }catch(e){ console.warn('[Rosa Baby] Firebase não carregou, usando localStorage:', e); }
+    console.log('[B3 Ops] Firestore ligado.');
+  }catch(e){ console.warn('[B3 Ops] Firebase não carregou, usando localStorage:', e); }
 }
 const Store={
   async list(key, seed){
@@ -197,13 +253,13 @@ const Store={
       const snap=await FS.getDoc(FS.doc(FS.db,'b3_config',key));
       if(snap.exists() && Array.isArray(snap.data().lista)) return snap.data().lista;
       await FS.setDoc(FS.doc(FS.db,'b3_config',key),{lista:seed}); return seed.slice();
-    }catch(e){ console.warn('[Rosa Baby] Firestore list falhou:', e); } }
+    }catch(e){ console.warn('[B3 Ops] Firestore list falhou:', e); } }
     try{ const d=localStorage.getItem('b3_'+key); if(d){ const l=JSON.parse(d); if(Array.isArray(l)&&l.length) return l; } }catch(e){}
     try{ localStorage.setItem('b3_'+key, JSON.stringify(seed)); }catch(e){}
     return seed.slice();
   },
   async save(key, arr){
-    if(FS){ try{ await FS.setDoc(FS.doc(FS.db,'b3_config',key),{lista:arr}); return; }catch(e){ console.warn('[Rosa Baby] Firestore save falhou:', e); } }
+    if(FS){ try{ await FS.setDoc(FS.doc(FS.db,'b3_config',key),{lista:arr}); return; }catch(e){ console.warn('[B3 Ops] Firestore save falhou:', e); } }
     try{ localStorage.setItem('b3_'+key, JSON.stringify(arr)); }catch(e){}
   }
 };
@@ -214,36 +270,162 @@ let registry=await Store.list('produtos', SEED_PROD);
 let boxes=await Store.list('caixas_mestre', SEED_BOX);
 let order=[];
 
-/* merge: garante que os produtos/caixas reais existam mesmo que o Firestore
-   já tivesse o seed antigo (não apaga nada que você cadastrou). */
+/* merge: garante seeds e campos novos (orientacao) sem apagar nada cadastrado */
 (function mergeSeeds(){
   let chg=false;
   SEED_PROD.forEach(sp=>{ const ex=registry.find(p=>p.nome===sp.nome);
     if(!ex){ registry.push({...sp}); chg=true; }
-    else if(ex.aproveitamento==null){ ex.aproveitamento=sp.aproveitamento; chg=true; } });
+    else {
+      if(ex.aproveitamento==null){ ex.aproveitamento=sp.aproveitamento; chg=true; }
+      if(ex.orientacao==null){ ex.orientacao=sp.orientacao; chg=true; }
+      /* migração v1→v2: corrige aproveitamentos do modelo antigo (volume) p/ o de grade.
+         Só toca se ainda estiver no valor antigo conhecido — não mexe no que você calibrou. */
+      if(ex.aproveitamento===0.66 || ex.aproveitamento===0.92 || ex.aproveitamento===0.90 || ex.aproveitamento===0.85){
+        if(Math.abs(ex.aproveitamento-sp.aproveitamento)>0.001){ ex.aproveitamento=sp.aproveitamento; chg=true; }
+        if(ex.orientacao!==sp.orientacao){ ex.orientacao=sp.orientacao; chg=true; }
+      }
+    } });
+  registry.forEach(p=>{ if(p.orientacao==null){ p.orientacao='livre'; chg=true; } });
   if(chg) saveProds();
   let chb=false;
   SEED_BOX.forEach(sb=>{ if(!boxes.some(b=>b.comprimentoMm===sb.comprimentoMm&&b.larguraMm===sb.larguraMm&&b.alturaMm===sb.alturaMm)){ boxes.push({...sb}); chb=true; } });
   if(chb) saveBoxes();
 })();
-const PALETTE=['#a78bfa','#06b6d4','#22c55e','#f59e0b','#ef4444','#ec4899','#7c3aed','#14b8a6','#f472b6','#84cc16'];
 
+$('dataBadge').textContent = FS ? 'Firestore' : 'local';
+
+const PALETTE=['#a78bfa','#06b6d4','#22c55e','#f59e0b','#ef4444','#ec4899','#7c3aed','#14b8a6','#f472b6','#84cc16'];
 function num(x){ if(typeof x==='string'&&x.includes(','))x=x.replace(',','.'); const v=parseFloat(x); return isFinite(v)?v:0; }
 function rd(v,d){ const f=Math.pow(10,d||0); return Math.round(v*f)/f; }
 function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function dims(b){ return {l:b.comprimentoMm, w:b.larguraMm, h:b.alturaMm}; }
 
-/* ---- UI: cadastro/pedido ---- */
+/* ============================================================
+   MOTOR DE GRADE — escolhe a MENOR caixa do estoque que comporta o pedido.
+   Para cada caixa, calcula quantas unidades cabem em grade (col×lin×cam),
+   testando orientações permitidas, e aplica o aproveitamento como folga real.
+   Determinístico, sem dependência externa.
+   ============================================================ */
+
+/* orientações: trios [dim no eixo C, dim no eixo L, dim no eixo A].
+   'fixa' = sempre em pé: a altura do produto fica no eixo vertical; só gira a base. */
+function orientacoesProduto(p){
+  const c=p.comprimentoMm, l=p.larguraMm, a=p.alturaMm;
+  if(p.orientacao==='fixa'){
+    return [[c,l,a],[l,c,a]]; // base pode girar 90°, altura travada em pé
+  }
+  return [[c,l,a],[c,a,l],[l,c,a],[l,a,c],[a,c,l],[a,l,c]]; // todas as 6
+}
+
+/* quantas unidades de UM produto cabem numa caixa, na melhor orientação (grade pura) */
+function capacidadeGrade(p, box){
+  let best=0, info=null;
+  for(const o of orientacoesProduto(p)){
+    const col=Math.floor(box.comprimentoMm/o[0]);
+    const lin=Math.floor(box.larguraMm/o[1]);
+    const cam=Math.floor(box.alturaMm/o[2]);
+    const n=col*lin*cam;
+    if(n>best){ best=n; info={col,lin,cam,ori:o}; }
+  }
+  return {n:best, info};
+}
+
+/* pedido com 1 produto: grade real + aproveitamento. Retorna caixa escolhida + posições */
+function escolherCaixaUmProduto(o, totUn){
+  const p={comprimentoMm:o.l, larguraMm:o.w, alturaMm:o.h, orientacao:o.orientacao};
+  const sorted=boxes.map(b=>({b,vol:b.comprimentoMm*b.larguraMm*b.alturaMm})).sort((x,y)=>x.vol-y.vol);
+  for(const {b} of sorted){
+    const {n,info}=capacidadeGrade(p,b);
+    if(n<=0) continue;
+    const capacReal=Math.round(n*o.apr); // aproveitamento reduz a contagem teórica (round preserva encaixe exato)
+    if(capacReal>=totUn){
+      return {box:b, info, capacBruta:n, capacReal};
+    }
+  }
+  return null; // não coube em nenhuma
+}
+
+/* monta as posições (placed) de uma grade preenchida de verdade, p/ o 3D */
+function montarPlaced(box, info, qtd, cor){
+  const placed=[]; const o=info.ori;
+  let i=0;
+  for(let z=0; z<info.cam && i<qtd; z++){
+    for(let y=0; y<info.lin && i<qtd; y++){
+      for(let x=0; x<info.col && i<qtd; x++){
+        placed.push({x:x*o[0], y:y*o[1], z:z*o[2], l:o[0], w:o[1], h:o[2], c:cor});
+        i++;
+      }
+    }
+  }
+  return placed;
+}
+
+/* pedido com vários produtos: empilha por camadas (cada produto ocupa faixas de altura).
+   Simplificação fiel ao uso real: empacota cada produto em sua grade, soma as alturas. */
+function escolherCaixaMulti(order, totUn){
+  const sorted=boxes.map(b=>({b,vol:b.comprimentoMm*b.larguraMm*b.alturaMm})).sort((x,y)=>x.vol-y.vol);
+  for(const {b} of sorted){
+    let alturaUsada=0, ok=true, placedAll=[];
+    // tenta empilhar cada produto como um bloco de camadas na base da caixa
+    for(const o of order){
+      const p={comprimentoMm:o.l, larguraMm:o.w, alturaMm:o.h, orientacao:o.orientacao};
+      // capacidade por camada (col×lin) na melhor orientação que caiba na base
+      let melhor=null;
+      for(const ori of orientacoesProduto(p)){
+        if(ori[0]>b.comprimentoMm || ori[1]>b.larguraMm) continue;
+        const col=Math.floor(b.comprimentoMm/ori[0]);
+        const lin=Math.floor(b.larguraMm/ori[1]);
+        const porCamada=Math.floor(col*lin*o.apr);
+        if(porCamada<=0) continue;
+        if(!melhor || porCamada>melhor.porCamada) melhor={col,lin,ori,porCamada};
+      }
+      if(!melhor){ ok=false; break; }
+      const camadas=Math.ceil(o.qtd/melhor.porCamada);
+      const altBloco=camadas*melhor.ori[2];
+      if(alturaUsada+altBloco>b.alturaMm){ ok=false; break; }
+      // posiciona
+      let i=0;
+      for(let z=0; z<camadas && i<o.qtd; z++){
+        for(let y=0; y<melhor.lin && i<o.qtd; y++){
+          for(let x=0; x<melhor.col && i<o.qtd; x++){
+            placedAll.push({x:x*melhor.ori[0], y:y*melhor.ori[1], z:alturaUsada+z*melhor.ori[2], l:melhor.ori[0], w:melhor.ori[1], h:melhor.ori[2], c:o.c});
+            i++;
+          }
+        }
+      }
+      alturaUsada+=altBloco;
+    }
+    if(ok) return {box:b, placed:placedAll};
+  }
+  return null;
+}
+
+/* ============================================================
+   UI — abas
+   ============================================================ */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    $('panel-'+t.dataset.panel).classList.add('on');
+    if(t.dataset.panel==='caixa' && window.__pack){ try{ window.render3D(window.__pack.box, window.__pack.placed); }catch(e){} }
+  };
+});
+
+/* ---- seletor de produto + pedido ---- */
 function fillSelect(){
   if(!registry.length){ $('prodSel').innerHTML='<option value="">(cadastro vazio)</option>'; return; }
+  const cur=$('prodSel').value;
   $('prodSel').innerHTML=registry.map((p,i)=>`<option value="${i}">${esc(p.nome)} — ${p.comprimentoMm}×${p.larguraMm}×${p.alturaMm} mm</option>`).join('');
+  if(cur && registry[cur]) $('prodSel').value=cur;
 }
 function addItem(){
   const i=parseInt($('prodSel').value); if(isNaN(i)||!registry[i]) return;
   const p=registry[i], qtd=Math.max(1,Math.floor(num($('qtd').value))||1);
   const ex=order.find(o=>o.nome===p.nome);
-  if(ex){ ex.qtd+=qtd; } else { order.push({nome:p.nome,l:p.comprimentoMm,w:p.larguraMm,h:p.alturaMm,pesoG:p.pesoGramas,apr:(p.aproveitamento||0),qtd,c:PALETTE[order.length%PALETTE.length]}); }
-  renderOrder();
+  if(ex){ ex.qtd+=qtd; }
+  else { order.push({nome:p.nome,l:p.comprimentoMm,w:p.larguraMm,h:p.alturaMm,pesoG:p.pesoGramas,apr:(p.aproveitamento||0.85),orientacao:p.orientacao||'livre',qtd,c:PALETTE[order.length%PALETTE.length]}); }
+  renderOrder(); calcular();
 }
 function renderOrder(){
   const c=$('orderList');
@@ -251,10 +433,12 @@ function renderOrder(){
   c.innerHTML=order.map((o,i)=>`<div class="item"><span class="dot" style="background:${o.c}"></span>
     <div><div class="nm">${esc(o.nome)}</div><div class="dm">${o.l}×${o.w}×${o.h} mm · ${o.pesoG} g</div></div>
     <div class="qt">${o.qtd}×</div><button class="rm" data-i="${i}">×</button></div>`).join('');
-  c.querySelectorAll('.rm').forEach(b=> b.onclick=()=>{ order.splice(+b.dataset.i,1); order.forEach((o,k)=>o.c=PALETTE[k%PALETTE.length]); renderOrder(); });
+  c.querySelectorAll('.rm').forEach(b=> b.onclick=()=>{ order.splice(+b.dataset.i,1); order.forEach((o,k)=>o.c=PALETTE[k%PALETTE.length]); renderOrder(); calcular(); });
   const totUn=order.reduce((a,b)=>a+b.qtd,0);
   $('cnt').textContent=order.length+' produto(s) · '+totUn+' un';
 }
+
+/* ---- caixas mestre ---- */
 function renderBoxes(){
   $('boxList').innerHTML=boxes.map((b,i)=>`<div class="box-row">
     <input type="number" data-bi="${i}" data-f="comprimentoMm" value="${b.comprimentoMm}"><input type="number" data-bi="${i}" data-f="larguraMm" value="${b.larguraMm}"><input type="number" data-bi="${i}" data-f="alturaMm" value="${b.alturaMm}">
@@ -264,78 +448,154 @@ function renderBoxes(){
 }
 $('addBox').onclick=()=>{ const comprimentoMm=num($('nbC').value),larguraMm=num($('nbL').value),alturaMm=num($('nbA').value); if(comprimentoMm<=0||larguraMm<=0||alturaMm<=0)return; boxes.push({comprimentoMm,larguraMm,alturaMm}); saveBoxes(); renderBoxes(); $('nbC').value='';$('nbL').value='';$('nbA').value=''; };
 
+/* ---- produtos (cards) ---- */
+let npOri='livre';
 function renderProds(){
-  $('prodList').innerHTML=registry.map((p,i)=>`<div class="prod-row">
-    <input class="nm" data-pi="${i}" data-f="nome" value="${esc(p.nome)}">
-    <input type="number" data-pi="${i}" data-f="comprimentoMm" value="${p.comprimentoMm}">
-    <input type="number" data-pi="${i}" data-f="larguraMm" value="${p.larguraMm}">
-    <input type="number" data-pi="${i}" data-f="alturaMm" value="${p.alturaMm}">
-    <input type="number" data-pi="${i}" data-f="pesoGramas" value="${p.pesoGramas}">
-    <input type="number" data-pi="${i}" data-f="aprPct" value="${Math.round((p.aproveitamento||0.66)*100)}">
-    <button class="rm" data-rmp="${i}">×</button></div>`).join('');
+  $('prodList').innerHTML=registry.map((p,i)=>`<div class="prod-card">
+    <div class="ph"><input class="nm" data-pi="${i}" data-f="nome" value="${esc(p.nome)}"><button class="rm" data-rmp="${i}">×</button></div>
+    <div class="pgrid">
+      <div class="f"><label>Comp. mm</label><input type="number" data-pi="${i}" data-f="comprimentoMm" value="${p.comprimentoMm}"></div>
+      <div class="f"><label>Larg. mm</label><input type="number" data-pi="${i}" data-f="larguraMm" value="${p.larguraMm}"></div>
+      <div class="f"><label>Alt. mm</label><input type="number" data-pi="${i}" data-f="alturaMm" value="${p.alturaMm}"></div>
+      <div class="f"><label>Peso g</label><input type="number" data-pi="${i}" data-f="pesoGramas" value="${p.pesoGramas}"></div>
+    </div>
+    <div class="prow2">
+      <div class="f"><label>Aproveitamento %</label><input type="number" data-pi="${i}" data-f="aprPct" value="${Math.round((p.aproveitamento||0.85)*100)}"></div>
+      <div class="f"><label>Orientação</label>
+        <div class="orient-seg" data-ori-pi="${i}">
+          <button data-o="livre" class="${p.orientacao!=='fixa'?'on':''}">Pode girar</button>
+          <button data-o="fixa" class="${p.orientacao==='fixa'?'on':''}">Sempre em pé</button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('');
   $('prodList').querySelectorAll('input').forEach(inp=>{ inp.oninput=()=>{
     const p=registry[+inp.dataset.pi], f=inp.dataset.f;
     if(f==='nome') p.nome=inp.value;
-    else if(f==='aprPct') p.aproveitamento=Math.max(.1,Math.min(.99,(num(inp.value)||66)/100));
+    else if(f==='aprPct') p.aproveitamento=Math.max(.3,Math.min(1,(num(inp.value)||85)/100));
     else p[f]=num(inp.value);
     saveProds(); fillSelect();
   }; });
+  $('prodList').querySelectorAll('[data-ori-pi]').forEach(seg=>{
+    seg.querySelectorAll('button').forEach(btn=>{ btn.onclick=()=>{
+      const p=registry[+seg.dataset.oriPi];
+      p.orientacao=btn.dataset.o;
+      seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===btn));
+      saveProds();
+    }; });
+  });
   $('prodList').querySelectorAll('[data-rmp]').forEach(b=>{ b.onclick=()=>{ registry.splice(+b.dataset.rmp,1); saveProds(); renderProds(); fillSelect(); }; });
 }
+$('npOri').querySelectorAll('button').forEach(btn=>{ btn.onclick=()=>{ npOri=btn.dataset.o; $('npOri').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===btn)); }; });
 $('addProd').onclick=()=>{
   const nome=$('npNome').value.trim();
   const c=num($('npC').value),l=num($('npL').value),a=num($('npA').value),pg=num($('npP').value);
-  const ap=Math.max(.1,Math.min(.99,(num($('npAp').value)||80)/100));
+  const ap=Math.max(.3,Math.min(1,(num($('npAp').value)||85)/100));
   if(!nome||c<=0||l<=0||a<=0) return;
-  registry.push({nome,comprimentoMm:c,larguraMm:l,alturaMm:a,pesoGramas:pg,aproveitamento:ap});
+  registry.push({nome,comprimentoMm:c,larguraMm:l,alturaMm:a,pesoGramas:pg,aproveitamento:ap,orientacao:npOri});
   saveProds(); renderProds(); fillSelect();
-  ['npNome','npC','npL','npA','npP'].forEach(id=>$(id).value=''); $('npAp').value='80';
+  ['npNome','npC','npL','npA','npP'].forEach(id=>$(id).value=''); $('npAp').value='85';
+  npOri='livre'; $('npOri').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.o==='livre'));
 };
 
 /* ============================================================
-   EMPACOTADOR 3D — heurística de pontos-extremos (canto fundo-baixo-esquerda).
-   Coloca cada peça na melhor orientação permitida, do fundo pra cima. Determinístico.
+   CÁLCULO PRINCIPAL — recalcula ao vivo a cada mudança no pedido
    ============================================================ */
-function orientations(d,rot){
-  if(!rot) return [[d[0],d[1],d[2]]];
-  return [[d[0],d[1],d[2]],[d[0],d[2],d[1]],[d[1],d[0],d[2]],[d[1],d[2],d[0]],[d[2],d[0],d[1]],[d[2],d[1],d[0]]];
-}
-function fitsBox(d,b){ const s=d.slice().sort((x,y)=>x-y),bs=[b.l,b.w,b.h].sort((x,y)=>x-y); return s[0]<=bs[0]&&s[1]<=bs[1]&&s[2]<=bs[2]; }
-function pack(units, box, rot){
-  const placed=[]; let eps=[[0,0,0]]; const E=1e-6;
-  for(const u of units){
-    eps.sort((a,b)=> a[2]-b[2]||a[1]-b[1]||a[0]-b[0]);
-    const oris=orientations([u.l,u.w,u.h],rot);
-    let done=false;
-    for(const e of eps){
-      for(const o of oris){
-        if(e[0]+o[0]<=box.l+E && e[1]+o[1]<=box.w+E && e[2]+o[2]<=box.h+E){
-          let ok=true;
-          for(const q of placed){
-            if(e[0]<q.x+q.l-E && e[0]+o[0]>q.x+E && e[1]<q.y+q.w-E && e[1]+o[1]>q.y+E && e[2]<q.z+q.h-E && e[2]+o[2]>q.z+E){ ok=false; break; }
-          }
-          if(ok){
-            const pb={x:e[0],y:e[1],z:e[2],l:o[0],w:o[1],h:o[2],c:u.c};
-            placed.push(pb);
-            eps=eps.filter(p=>!(p[0]===e[0]&&p[1]===e[1]&&p[2]===e[2]));
-            const cand=[[pb.x+pb.l,pb.y,pb.z],[pb.x,pb.y+pb.w,pb.z],[pb.x,pb.y,pb.z+pb.h]];
-            cand.forEach(c=>{ if(!eps.some(p=>p[0]===c[0]&&p[1]===c[1]&&p[2]===c[2])) eps.push(c); });
-            done=true; break;
-          }
-        }
-      }
-      if(done) break;
-    }
-    if(!done) return {ok:false, placed};
+function calcular(){
+  const master=$('master'), mgrid=$('mgrid'), vizWrap=$('vizWrap'), note=$('mNote'), calib=$('calibBox');
+  if(!order.length){
+    master.className='master empty-state';
+    $('mT').textContent='Aguardando o pedido';
+    $('mDims').textContent='—';
+    $('mSub').textContent='Adicione produtos acima para montar a caixa.';
+    mgrid.style.display='none'; vizWrap.style.display='none'; note.style.display='none'; calib.style.display='none';
+    $('legend').innerHTML=''; $('vizHint').textContent='';
+    if(window.clear3D)window.clear3D(); window.__pack=null;
+    return;
   }
-  return {ok:true, placed};
+
+  const totUn=order.reduce((a,b)=>a+b.qtd,0);
+  const totalVol=order.reduce((a,o)=>a+o.l*o.w*o.h*o.qtd,0);
+  const totalPesoG=order.reduce((a,o)=>a+o.pesoG*o.qtd,0);
+
+  let chosen=null, placed=[], detalhe='';
+
+  if(order.length===1){
+    const o=order[0];
+    const r=escolherCaixaUmProduto(o, totUn);
+    if(r){
+      chosen=r.box;
+      placed=montarPlaced(r.box, r.info, totUn, o.c);
+      detalhe=`Grade ${r.info.col}×${r.info.lin}×${r.info.cam} (cabem ${r.capacBruta} no teórico; com aproveitamento de ${Math.round(o.apr*100)}%, ${r.capacReal}). `+(o.orientacao==='fixa'?'Peça travada em pé.':'Peça girando para a melhor posição.');
+    }
+  } else {
+    const r=escolherCaixaMulti(order, totUn);
+    if(r){ chosen=r.box; placed=r.placed; detalhe='Produtos empilhados em camadas por tipo, usando o aproveitamento de cada um.'; }
+  }
+
+  if(chosen){
+    const boxVol=chosen.comprimentoMm*chosen.larguraMm*chosen.alturaMm;
+    master.className='master';
+    $('mT').textContent='Caixa mestre recomendada';
+    $('mDims').innerHTML=chosen.comprimentoMm+' × '+chosen.larguraMm+' × '+chosen.alturaMm+' <small>mm</small>';
+    $('mSub').textContent='comporta as '+totUn+' un do pedido';
+    mgrid.style.display='grid';
+    $('mPeso').innerHTML=rd(totalPesoG/1000,2)+'<small> kg</small>';
+    $('mVolP').innerHTML=rd(totalVol/1e6,2)+'<small> L</small>';
+    $('mVolB').innerHTML=rd(boxVol/1e6,2)+'<small> L</small>';
+    $('mFill').innerHTML=rd(totalVol/boxVol*100,0)+'<small>%</small>';
+    vizWrap.style.display='flex';
+    const truncated=renderViz(dimsBox(chosen), placed);
+    $('legend').innerHTML=order.map(o=>`<div class="lg"><span class="dot" style="background:${o.c}"></span>${esc(o.nome)} (${o.qtd})</div>`).join('');
+    note.style.display='block';
+    note.innerHTML='<b>Empacotamento em grade.</b> '+detalhe+(truncated?' Desenho mostrando parte das peças.':'');
+    renderCalib();
+    calib.style.display='block';
+  } else {
+    master.className='master warn';
+    $('mT').textContent='Não coube em nenhuma caixa';
+    $('mDims').textContent='—';
+    $('mSub').textContent='aumente uma caixa no estoque ou divida o pedido';
+    mgrid.style.display='none'; vizWrap.style.display='none'; calib.style.display='none';
+    $('legend').innerHTML='';
+    note.style.display='block';
+    note.innerHTML='Nenhuma caixa mestre do estoque comporta esse pedido inteiro. Cadastre uma caixa maior na aba <b>Caixas mestre</b>, ou reduza a quantidade.';
+    if(window.clear3D)window.clear3D(); window.__pack=null;
+  }
+}
+function dimsBox(b){ return {l:b.comprimentoMm, w:b.larguraMm, h:b.alturaMm}; }
+
+/* ---- calibração ao vivo: um slider de aproveitamento por produto do pedido ---- */
+function renderCalib(){
+  const rows=$('calibRows');
+  rows.innerHTML=order.map((o,i)=>{
+    const pct=Math.round(o.apr*100);
+    return `<div class="crow">
+      <label><span class="dot" style="display:inline-block;background:${o.c};vertical-align:middle;margin-right:6px"></span>${esc(o.nome)}</label>
+      <input type="range" min="40" max="100" value="${pct}" data-cal="${i}">
+      <span class="val" id="calval-${i}">${pct}%</span>
+    </div>`;
+  }).join('');
+  rows.querySelectorAll('[data-cal]').forEach(sl=>{
+    sl.oninput=()=>{
+      const i=+sl.dataset.cal, v=num(sl.value);
+      order[i].apr=v/100;
+      $('calval-'+i).textContent=v+'%';
+      // grava no cadastro do produto
+      const p=registry.find(p=>p.nome===order[i].nome);
+      if(p){ p.aproveitamento=v/100; saveProds(); renderProds(); }
+      calcular();
+    };
+  });
 }
 
-/* ---- fallback estático (SVG) ---- */
+/* ============================================================
+   VISUALIZAÇÃO — SVG fallback (o 3D interativo está no módulo abaixo)
+   ============================================================ */
 function shade(hex,amt){ let c=hex.replace('#',''); let r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16); r=Math.max(0,Math.min(255,r+amt));g=Math.max(0,Math.min(255,g+amt));b=Math.max(0,Math.min(255,b+amt)); return 'rgb('+r+','+g+','+b+')'; }
 function drawPackSVG(box, placed){
-  const VW=360,VH=280;
-  const s=200/Math.max(box.l,box.w,box.h), kx=0.5, ky=0.28;
+  const VW=380,VH=300;
+  const s=210/Math.max(box.l,box.w,box.h), kx=0.5, ky=0.28;
   function pr(x,y,z){ return [x*s+y*s*kx, -z*s-y*s*ky]; }
   const allX=[], allY=[];
   [[0,0,0],[box.l,0,0],[0,box.w,0],[0,0,box.h],[box.l,box.w,box.h],[box.l,box.w,0],[box.l,0,box.h],[0,box.w,box.h]].forEach(p=>{ const q=pr(p[0],p[1],p[2]); allX.push(q[0]); allY.push(q[1]); });
@@ -354,97 +614,28 @@ function drawPackSVG(box, placed){
   const cage='<polygon points="'+[P(0,0,0),P(box.l,0,0),P(box.l,0,box.h),P(0,0,box.h)].join(' ')+'" fill="none" stroke="#3f3f46" stroke-width="1"/>'
     +'<polygon points="'+[P(0,0,box.h),P(box.l,0,box.h),P(box.l,box.w,box.h),P(0,box.w,box.h)].join(' ')+'" fill="none" stroke="#3f3f46" stroke-width="1"/>'
     +'<polygon points="'+[P(box.l,0,0),P(box.l,box.w,0),P(box.l,box.w,box.h),P(box.l,0,box.h)].join(' ')+'" fill="none" stroke="#3f3f46" stroke-width="1"/>';
-  const cap=180;
-  const sorted=placed.slice().sort((a,b)=> (a.x+a.y+a.z)-(b.x+b.y+b.z)).slice(0,cap);
+  const cap=400;
+  const sorted=placed.slice().sort((a,b)=> (a.z-b.z)||((a.x+a.y)-(b.x+b.y))).slice(0,cap);
   let body=''; sorted.forEach(b=> body+=faces(b,b.c));
-  $('viz3d').innerHTML='<svg width="100%" height="300" viewBox="0 0 360 280" style="display:block;margin:auto">'+cage+body+'</svg>';
+  $('viz3d').innerHTML='<svg width="100%" height="320" viewBox="0 0 380 300" style="display:block;margin:auto">'+cage+body+'</svg>';
   const vh=$('vizHint'); if(vh) vh.textContent='visual estático (o 3D interativo carrega quando online)';
   return placed.length>cap;
 }
 function renderViz(box, placed){
   window.__pack={box, placed};
-  if(window.render3D){ try{ window.render3D(box, placed); return false; }catch(e){ console.warn('3D falhou, usando SVG:', e); } }
+  if(window.render3D){ try{ window.render3D(box, placed); return placed.length>2000; }catch(e){ console.warn('3D falhou, usando SVG:', e); } }
   return drawPackSVG(box, placed);
 }
 
-/* ---- cálculo principal ---- */
-function calcular(){
-  if(!order.length){ return; }
-  const rot=$('rotate').checked;
-  const eff=Math.max(0.1,Math.min(0.99,(num($('eff').value)||66)/100));
-  let units=[], totalVol=0, totalPesoG=0, totalEffVol=0;
-  order.forEach(o=>{ for(let i=0;i<o.qtd;i++) units.push({l:o.l,w:o.w,h:o.h,c:o.c}); const v=o.l*o.w*o.h*o.qtd; totalVol+=v; totalPesoG+=o.pesoG*o.qtd; const apr=(o.apr&&o.apr>0)?o.apr:eff; totalEffVol+=v/apr; });
-  units.sort((a,b)=> (b.l*b.w*b.h)-(a.l*a.w*a.h));
-  const totUn=units.length;
-
-  const sortedBoxes=boxes.map(b=>({b,d:dims(b),vol:b.comprimentoMm*b.larguraMm*b.alturaMm})).sort((a,b)=>a.vol-b.vol);
-  const tooMany = totUn>700;
-
-  let chosen=null, chosenDims=null, packed=null;
-  for(const {b,d,vol} of sortedBoxes){
-    if(totalEffVol > vol) continue;
-    if(!order.every(o=>fitsBox([o.l,o.w,o.h],d))) continue;
-    if(tooMany){ chosen=b; chosenDims=d; packed={ok:true,placed:[],approx:true}; break; }
-    const res=pack(units,d,rot);
-    if(res.ok){ chosen=b; chosenDims=d; packed=res; break; }
-  }
-
-  const master=$('master');
-  if(chosen){
-    master.className='master';
-    $('mT').textContent='Caixa mestre recomendada';
-    $('mDims').innerHTML=chosen.comprimentoMm+' × '+chosen.larguraMm+' × '+chosen.alturaMm+' <small>mm</small>';
-    $('mSub').textContent='comporta as '+totUn+' un do pedido, embaladas juntas';
-    const boxVol=chosen.comprimentoMm*chosen.larguraMm*chosen.alturaMm;
-    $('mPeso').innerHTML=rd(totalPesoG/1000,2)+'<small> kg</small>';
-    $('mVolP').innerHTML=rd(totalVol/1e6,2)+'<small> L</small>';
-    $('mVolB').innerHTML=rd(boxVol/1e6,2)+'<small> L</small>';
-    $('mFill').innerHTML=rd(totalVol/boxVol*100,0)+'<small>%</small>';
-    let truncated=false;
-    if(packed.placed && packed.placed.length){ truncated=renderViz(chosenDims,packed.placed); }
-    else { if(window.clear3D)window.clear3D(); $('viz3d').innerHTML=''; window.__pack=null; }
-    $('legend').innerHTML=order.map(o=>`<div class="lg"><span class="dot" style="background:${o.c}"></span>${esc(o.nome)} (${o.qtd})</div>`).join('');
-    $('mNote').innerHTML='<b>Empacotamento 3D.</b> As peças foram encaixadas peça por peça, '+(rot?'girando para a melhor posição':'sem girar')+', usando o <b>aproveitamento de cada produto</b> (cadastro).'
-      +(packed.approx?' Pedido grande ('+totUn+' un): validado por volume (sem desenho detalhado).':'')
-      +(truncated?' Desenho mostrando parte das peças para não poluir.':'');
-  } else {
-    const big=sortedBoxes[sortedBoxes.length-1];
-    master.className='master warn';
-    if(big && order.every(o=>fitsBox([o.l,o.w,o.h],big.d))){
-      const n=Math.ceil(totalEffVol/big.vol);
-      $('mT').textContent='Precisa de mais de uma caixa';
-      $('mDims').innerHTML=n+' × ('+big.b.comprimentoMm+'×'+big.b.larguraMm+'×'+big.b.alturaMm+') <small>mm</small>';
-      $('mSub').textContent='o pedido não cabe numa caixa só do estoque';
-      $('mPeso').innerHTML=rd(totalPesoG/1000,2)+'<small> kg</small>';
-      $('mVolP').innerHTML=rd(totalVol/1e6,2)+'<small> L</small>';
-      $('mVolB').innerHTML=rd(big.vol/1e6,2)+'<small> L</small>';
-      $('mFill').innerHTML='—';
-      if(window.clear3D)window.clear3D(); $('viz3d').innerHTML=''; window.__pack=null; $('legend').innerHTML='';
-      $('mNote').innerHTML='<b>Divisão em '+n+' caixas.</b> Estimativa por volume usando o aproveitamento de cada produto. Cadastre uma caixa maior se quiser tudo num volume só.';
-    } else {
-      $('mT').textContent='Não coube';
-      $('mDims').textContent='—';
-      $('mSub').textContent='algum produto é maior que todas as caixas cadastradas';
-      ['mPeso','mVolP','mVolB','mFill'].forEach(id=>$(id).textContent='—');
-      if(window.clear3D)window.clear3D(); $('viz3d').innerHTML=''; window.__pack=null; $('legend').innerHTML='';
-      $('mNote').innerHTML='Cadastre uma caixa que comporte o maior produto do pedido.';
-    }
-  }
-  $('result').classList.add('show');
-  $('result').scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-/* ---- eventos ---- */
+/* ---- eventos + boot ---- */
 $('btnAdd').onclick=addItem;
 $('qtd').addEventListener('keydown',e=>{ if(e.key==='Enter') addItem(); });
-$('btnCalc').onclick=()=>{ $('btnCalc').innerHTML='<span class="spinner"></span>Calculando...'; setTimeout(()=>{ try{ calcular(); } finally { $('btnCalc').textContent='Calcular caixa mestre'; } },30); };
-$('btnClear').onclick=()=>{ order=[]; renderOrder(); $('result').classList.remove('show'); if(window.clear3D)window.clear3D(); };
+$('btnClear').onclick=()=>{ order=[]; renderOrder(); calcular(); };
 
-fillSelect(); renderOrder(); renderBoxes(); renderProds();
+fillSelect(); renderOrder(); renderBoxes(); renderProds(); calcular();
 </script>
 
-<!-- 3D interativo (gira com o mouse, igual fatiador). Carrega Three.js da CDN;
-     se estiver offline, cai no desenho estático automaticamente. -->
+<!-- 3D interativo (gira com o mouse). Carrega Three.js da CDN; offline cai no SVG. -->
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -467,7 +658,7 @@ window.render3D=function(box, placed){
   const cont=document.getElementById('viz3d'); if(!cont) return;
   window.clear3D();
   cont.innerHTML='';
-  const W=cont.clientWidth||360, H=cont.clientHeight||300;
+  const W=cont.clientWidth||380, H=cont.clientHeight||320;
   const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0f0f11);
   const cam=new THREE.PerspectiveCamera(45, W/H, 0.1, 1000000);
   const renderer=new THREE.WebGLRenderer({antialias:true});
@@ -475,33 +666,35 @@ window.render3D=function(box, placed){
   cont.appendChild(renderer.domElement);
   const controls=new OrbitControls(cam, renderer.domElement);
   controls.enableDamping=true; controls.dampingFactor=0.08;
-  scene.add(new THREE.AmbientLight(0xffffff,0.7));
-  const dir=new THREE.DirectionalLight(0xffffff,0.75); dir.position.set(1,2,1.4); scene.add(dir);
+  scene.add(new THREE.AmbientLight(0xffffff,0.75));
+  const dir=new THREE.DirectionalLight(0xffffff,0.7); dir.position.set(1,2,1.4); scene.add(dir);
   const g=new THREE.Group();
+  // gaiola da caixa mestre
   const boxGeo=new THREE.BoxGeometry(box.l, box.h, box.w);
-  const cage=new THREE.LineSegments(new THREE.EdgesGeometry(boxGeo), new THREE.LineBasicMaterial({color:0x71717a}));
+  const cage=new THREE.LineSegments(new THREE.EdgesGeometry(boxGeo), new THREE.LineBasicMaterial({color:0x8b8b94}));
   cage.position.set(box.l/2, box.h/2, box.w/2); g.add(cage);
-  const cap=Math.min(placed.length, 1500);
-  const drawEdges=cap<=350;
+  // peças (grade preenchida de verdade)
+  const cap=Math.min(placed.length, 2200);
+  const drawEdges=cap<=600;
   for(let i=0;i<cap;i++){
     const p=placed[i];
-    const geo=new THREE.BoxGeometry(p.l, p.h, p.w);
+    const geo=new THREE.BoxGeometry(p.l*0.96, p.h*0.96, p.w*0.96); // leve folga visual entre peças
     const mesh=new THREE.Mesh(geo, new THREE.MeshLambertMaterial({color:new THREE.Color(p.c)}));
     mesh.position.set(p.x+p.l/2, p.z+p.h/2, p.y+p.w/2);
     g.add(mesh);
     if(drawEdges){
-      const ed=new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({color:0x000000, transparent:true, opacity:0.22}));
+      const ed=new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({color:0x000000, transparent:true, opacity:0.25}));
       ed.position.copy(mesh.position); g.add(ed);
     }
   }
   g.position.set(-box.l/2, -box.h/2, -box.w/2);
   scene.add(g);
   const maxd=Math.max(box.l,box.w,box.h);
-  cam.position.set(maxd*1.3, maxd*1.05, maxd*1.7);
+  cam.position.set(maxd*1.25, maxd*1.0, maxd*1.6);
   controls.target.set(0,0,0); controls.update();
   st={renderer,controls,raf:0};
   (function loop(){ st.raf=requestAnimationFrame(loop); controls.update(); renderer.render(scene,cam); })();
-  const hint=document.getElementById('vizHint'); if(hint) hint.textContent='arraste para girar · scroll para aproximar · botão direito move';
+  const hint=document.getElementById('vizHint'); if(hint) hint.textContent='arraste para girar · scroll aproxima · botão direito move';
 };
 if(window.__pack){ try{ window.render3D(window.__pack.box, window.__pack.placed); }catch(e){} }
 </script>
