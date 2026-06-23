@@ -78,6 +78,22 @@ input[type=number]{-moz-appearance:textfield;}
 .master .sub2{font-size:12px;color:rgba(255,255,255,.92);}
 .master.empty-state .sub2{color:#52525b;}
 .mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px;}
+.frete{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:11px 14px;margin-bottom:12px;}
+.frete-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.frete-txt{font-size:13px;color:#e4e4e7;line-height:1.5;}
+.frete-txt b{color:#c4b5fd;}
+.frete-txt .cobra{color:#f59e0b;font-weight:700;}
+.frete-fator{font-size:11px;color:#71717a;white-space:nowrap;}
+.frete-fator input{width:56px;padding:5px 7px;font-size:12px;text-align:center;display:inline-block;}
+.sobras{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:11px 14px;margin-top:12px;}
+.sobras-t{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#a78bfa;font-weight:600;margin-bottom:8px;}
+.sobras-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.sobras-cell{background:#18181b;border:1px solid #27272a;border-radius:8px;padding:9px 10px;text-align:center;}
+.sobras-cell .sl{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;}
+.sobras-cell .sv{font-size:16px;font-weight:700;margin-top:2px;}
+.sobras-cell .sv.ok{color:#22c55e;}
+.sobras-cell .sv.warn{color:#f59e0b;}
+.sobras-hint{font-size:11.5px;color:#71717a;margin-top:9px;line-height:1.5;}
 .mcell{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px;text-align:center;}
 .mcell .l{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:#a1a1aa;}
 .mcell .v{font-size:18px;font-weight:700;margin-top:3px;}.mcell .v small{font-size:10px;color:#a1a1aa;font-weight:500;}
@@ -89,6 +105,18 @@ input[type=number]{-moz-appearance:textfield;}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(124,58,237,.3);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .orient3d{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px 14px;margin-top:12px;}
+.pack-add{background:#0f0f11;border:1px dashed #3f3f46;border-radius:12px;padding:14px;margin-top:6px;}
+.pa-grid{display:grid;grid-template-columns:1.4fr 1.4fr 1fr 1fr;gap:8px;}
+.pa-grid .f label{font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;display:block;margin-bottom:3px;}
+.pa-grid .f input,.pa-grid .f select{padding:7px 8px;font-size:13px;}
+.pa-foot{display:flex;align-items:center;gap:12px;margin-top:12px;}
+.pa-prev{font-size:13px;color:#c4b5fd;font-weight:600;}
+.pack-row{display:grid;grid-template-columns:1.4fr 1.2fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #27272a;font-size:13px;}
+.pack-row:last-child{border-bottom:none;}
+.pack-row .pk-nm{font-weight:600;}
+.pack-row .pk-dm{color:#a1a1aa;font-size:12px;}
+.pack-row .pk-cap{color:#c4b5fd;font-weight:700;white-space:nowrap;}
+.pack-row .rm{background:none;border:none;color:#52525b;font-size:17px;cursor:pointer;}.pack-row .rm:hover{color:#ef4444;}
 .o3-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
 .o3-label{font-size:12px;color:#a1a1aa;}
 .o3-row select{width:auto;flex:1;min-width:140px;padding:7px 10px;font-size:13px;}
@@ -145,10 +173,21 @@ input[type=number]{-moz-appearance:textfield;}
       <div class="sub2" id="mSub">Adicione produtos acima para montar a caixa.</div>
     </div>
     <div class="mgrid" id="mgrid" style="display:none">
-      <div class="mcell"><div class="l">Peso total</div><div class="v" id="mPeso">—</div></div>
-      <div class="mcell"><div class="l">Volume produtos</div><div class="v" id="mVolP">—</div></div>
-      <div class="mcell"><div class="l">Volume caixa</div><div class="v" id="mVolB">—</div></div>
-      <div class="mcell"><div class="l">Ocupação</div><div class="v" id="mFill">—</div></div>
+      <div class="mcell"><div class="l">Peso real</div><div class="v" id="mPeso">—</div></div>
+      <div class="mcell"><div class="l">Cubagem (caixa)</div><div class="v" id="mCub">—</div></div>
+      <div class="mcell" id="mCubadoCell"><div class="l">Peso cubado</div><div class="v" id="mCubado">—</div></div>
+      <div class="mcell"><div class="l" id="mFillLabel">Ocupação</div><div class="v" id="mFill">—</div></div>
+    </div>
+    <div class="frete" id="freteBox" style="display:none">
+      <div class="frete-row">
+        <span class="frete-txt" id="freteTxt"></span>
+        <label class="frete-fator">fator <input type="number" id="fatorCub" value="300"> kg/m³</label>
+      </div>
+    </div>
+    <div class="sobras" id="sobrasBox" style="display:none">
+      <div class="sobras-t">Sobra na caixa</div>
+      <div class="sobras-grid" id="sobrasGrid"></div>
+      <div class="sobras-hint" id="sobrasHint"></div>
     </div>
     <div class="viz" id="vizWrap" style="display:none"><div id="viz3d" style="width:380px;max-width:100%;height:320px;"></div></div>
     <div id="vizHint" style="font-size:11px;color:#52525b;text-align:center;margin-top:6px;"></div>
@@ -214,6 +253,25 @@ input[type=number]{-moz-appearance:textfield;}
     </div>
     <div class="hint">Tudo em <b>mm</b>. Cadastre aqui só as caixas que você realmente tem em estoque.</div>
   </div>
+
+  <div class="card">
+    <h2><span>🧱</span> Empilhamentos configurados</h2>
+    <div class="sub">Como cada produto fecha em cada caixa, na prática (a foto, a contagem real). Tem prioridade sobre o cálculo automático.</div>
+    <div id="packList"></div>
+    <div class="pack-add">
+      <div class="pa-grid">
+        <div class="f"><label>Produto</label><select id="npkProd"></select></div>
+        <div class="f"><label>Caixa</label><select id="npkBox"></select></div>
+        <div class="f"><label>Por camada</label><input type="number" id="npkPC" placeholder="ex: 60"></div>
+        <div class="f"><label>Camadas</label><input type="number" id="npkCam" placeholder="ex: 4"></div>
+      </div>
+      <div class="pa-foot">
+        <span class="pa-prev" id="npkPrev">capacidade —</span>
+        <button class="mini-btn" id="addPack">+ empilhamento</button>
+      </div>
+    </div>
+    <div class="hint">Exemplo do porta-joia: na 620×510×420 são <b>60 por camada × 4 camadas = 240</b>. O app escolhe a menor caixa cuja capacidade configurada comporta o pedido.</div>
+  </div>
 </div>
 </div>
 
@@ -237,7 +295,9 @@ const $=id=>document.getElementById(id);
    DADOS — Firestore (com config) OU localStorage (fallback).
    Produto: { nome, comprimentoMm, larguraMm, alturaMm, pesoGramas, aproveitamento, orientacao }
    Caixa:   { comprimentoMm, larguraMm, alturaMm }
-   Firestore: docs 'b3_config/produtos' e 'b3_config/caixas_mestre' (campo lista[]).
+   Empilhamento (produto+caixa): { produto, caixa:"CxLxA", porCamada, camadas, orientacao }
+     -> capacidade = porCamada × camadas (verdade validada na prática; tem prioridade sobre o cálculo)
+   Firestore: docs 'b3_config/produtos', 'b3_config/caixas_mestre', 'b3_config/empilhamentos' (campo lista[]).
    MIGRAÇÃO b3 flow: viram coleções próprias; o resto do código não muda.
    ============================================================ */
 const SEED_PROD=[
@@ -251,6 +311,12 @@ const SEED_BOX=[
   {comprimentoMm:520,larguraMm:270,alturaMm:410},
   {comprimentoMm:420,larguraMm:330,alturaMm:295},
   {comprimentoMm:375,larguraMm:375,alturaMm:332}
+];
+/* empilhamentos reais validados (foto/medição). orientacao = índice da rotação. */
+const SEED_PACK=[
+  {produto:'Porta Joia', caixa:'620x510x420', porCamada:60, camadas:4, orientacao:'auto'}, // 240
+  {produto:'Porta Joia', caixa:'540x510x410', porCamada:50, camadas:4, orientacao:'auto'}, // 200
+  {produto:'Porta Joia', caixa:'520x270x410', porCamada:25, camadas:4, orientacao:'auto'}  // 100
 ];
 
 let FS=null;
@@ -281,10 +347,18 @@ const Store={
 };
 function saveBoxes(){ Store.save('caixas_mestre', boxes); }
 function saveProds(){ Store.save('produtos', registry); }
+function savePacks(){ Store.save('empilhamentos', packings); }
 
 let registry=await Store.list('produtos', SEED_PROD);
 let boxes=await Store.list('caixas_mestre', SEED_BOX);
+let packings=await Store.list('empilhamentos', SEED_PACK);
 let order=[];
+
+/* chave de caixa por dimensões (estável, serve de id sem mexer no esquema) */
+function boxKey(b){ return b.comprimentoMm+'x'+b.larguraMm+'x'+b.alturaMm; }
+/* registro de empilhamento para um produto numa caixa específica (ou null) */
+function findPack(produto, box){ return packings.find(p=>p.produto===produto && p.caixa===boxKey(box)) || null; }
+function packCapacidade(pk){ return (pk.porCamada||0)*(pk.camadas||0); }
 
 /* merge: garante seeds e campos novos (orientacao) sem apagar nada cadastrado */
 (function mergeSeeds(){
@@ -306,6 +380,9 @@ let order=[];
   let chb=false;
   SEED_BOX.forEach(sb=>{ if(!boxes.some(b=>b.comprimentoMm===sb.comprimentoMm&&b.larguraMm===sb.larguraMm&&b.alturaMm===sb.alturaMm)){ boxes.push({...sb}); chb=true; } });
   if(chb) saveBoxes();
+  let chp=false;
+  SEED_PACK.forEach(sp=>{ if(!packings.some(p=>p.produto===sp.produto && p.caixa===sp.caixa)){ packings.push({...sp}); chp=true; } });
+  if(chp) savePacks();
 })();
 
 $('dataBadge').textContent = FS ? 'Firestore' : 'local';
@@ -367,30 +444,99 @@ function capacidadeGrade(p, box){
   return {n:best, info};
 }
 
-/* pedido com 1 produto: grade real + aproveitamento. Retorna caixa escolhida + posições */
+/* pedido com 1 produto.
+   1) Se houver EMPILHAMENTO REGISTRADO (produto+caixa), usa a capacidade validada (verdade).
+      Escolhe a menor caixa registrada cuja capacidade ≥ pedido.
+   2) Senão, cai no cálculo de grade + aproveitamento. */
 function escolherCaixaUmProduto(o, totUn){
   const p={comprimentoMm:o.l, larguraMm:o.w, alturaMm:o.h, orientacao:o.orientacao};
   const sorted=boxes.map(b=>({b,vol:b.comprimentoMm*b.larguraMm*b.alturaMm})).sort((x,y)=>x.vol-y.vol);
+
+  // 1) caixas com empilhamento registrado para este produto
+  const registradas=[];
+  for(const {b,vol} of sorted){
+    const pk=findPack(o.nome, b);
+    if(pk){ registradas.push({b,vol,pk,cap:packCapacidade(pk)}); }
+  }
+  for(const r of registradas.sort((a,c)=>a.cap-c.cap)){ // menor capacidade que comporta
+    if(r.cap>=totUn){
+      const info=infoDeEmpilhamento(p, r.b, r.pk);
+      return {box:r.b, info, capacBruta:r.cap, capacReal:r.cap, fonte:'registro', pk:r.pk};
+    }
+  }
+
+  // 2) cálculo automático de grade
   for(const {b} of sorted){
     const {n,info}=capacidadeGrade(p,b);
     if(n<=0) continue;
-    const capacReal=Math.round(n*o.apr); // aproveitamento reduz a contagem teórica (round preserva encaixe exato)
+    const capacReal=Math.round(n*o.apr);
     if(capacReal>=totUn){
-      return {box:b, info, capacBruta:n, capacReal};
+      return {box:b, info, capacBruta:n, capacReal, fonte:'calculo'};
     }
   }
   return null; // não coube em nenhuma
 }
 
-/* monta as posições (placed) de uma grade preenchida de verdade, p/ o 3D */
-function montarPlaced(box, info, qtd, cor){
+/* converte um empilhamento registrado (porCamada × camadas) numa grade col×lin×cam para o 3D.
+   Procura a orientação + arranjo retangular que: caiba na base da caixa E comporte porCamada.
+   Se a orientação do registro não comporta, testa as outras (a CAPACIDADE registrada manda;
+   o 3D é só ilustração coerente). */
+function infoDeEmpilhamento(p, box, pk){
+  const todas=todasRotacoes(p.comprimentoMm,p.larguraMm,p.alturaMm);
+  const pc=pk.porCamada;
+  // candidatas: orientação do registro primeiro (se numérica), depois todas
+  const ordem=[];
+  if(typeof pk.orientacao==='number' && todas[pk.orientacao]) ordem.push(todas[pk.orientacao]);
+  todas.forEach(o=>{ if(!ordem.includes(o)) ordem.push(o); });
+
+  let melhor=null;
+  for(const o of ordem){
+    const colMax=Math.floor(box.comprimentoMm/o[0]);
+    const linMax=Math.floor(box.larguraMm/o[1]);
+    if(colMax<1||linMax<1) continue;
+    if(colMax*linMax < pc) continue; // essa orientação não comporta porCamada na base
+    // acha col×lin retangular que dê >=pc, o mais "cheio" possível, dentro dos limites
+    let bestArr=null;
+    for(let col=Math.min(colMax,pc); col>=1; col--){
+      const lin=Math.ceil(pc/col);
+      if(lin<=linMax){
+        const sobra=col*lin-pc;
+        if(!bestArr || sobra<bestArr.sobra){ bestArr={col,lin,sobra}; }
+      }
+    }
+    if(bestArr){ melhor={col:bestArr.col, lin:bestArr.lin, cam:pk.camadas, ori:o, porCamada:pc}; break; }
+  }
+  if(melhor) return melhor;
+  // fallback: usa orientação 0 mesmo que estoure (raro) — capacidade ainda vale
+  const o=todas[0];
+  const col=Math.max(1,Math.floor(box.comprimentoMm/o[0]));
+  const lin=Math.max(1,Math.ceil(pc/col));
+  return {col, lin, cam:pk.camadas, ori:o, porCamada:pc};
+}
+
+/* monta as posições (placed) para o 3D. Respeita porCamada do registro, se houver.
+   fillBox=true (empilhamento configurado): distribui as peças para ocupar a caixa inteira,
+   sem deixar espaço vazio visível — a caixa registrada É o tamanho certo. */
+function montarPlaced(box, info, qtd, cor, fillBox){
   const placed=[]; const o=info.ori;
+  const porCamada = info.porCamada || (info.col*info.lin);
+  const col=info.col, lin=info.lin, cam=info.cam;
+  // tamanho de célula: no modo fillBox, cada peça "ocupa" sua fatia da caixa (com folga distribuída)
+  let cellX=o[0], cellY=o[1], cellZ=o[2], pieceL=o[0], pieceW=o[1], pieceH=o[2];
+  if(fillBox){
+    cellX = box.comprimentoMm/col;
+    cellY = box.larguraMm/lin;
+    cellZ = box.alturaMm/cam;
+    // a peça desenhada cresce até quase a célula (deixa fresta mínima entre peças)
+    pieceL = cellX; pieceW = cellY; pieceH = cellZ;
+  }
   let i=0;
-  for(let z=0; z<info.cam && i<qtd; z++){
-    for(let y=0; y<info.lin && i<qtd; y++){
-      for(let x=0; x<info.col && i<qtd; x++){
-        placed.push({x:x*o[0], y:y*o[1], z:z*o[2], l:o[0], w:o[1], h:o[2], c:cor});
-        i++;
+  for(let z=0; z<cam && i<qtd; z++){
+    let naCamada=0;
+    for(let y=0; y<lin && i<qtd && naCamada<porCamada; y++){
+      for(let x=0; x<col && i<qtd && naCamada<porCamada; x++){
+        placed.push({x:x*cellX, y:y*cellY, z:z*cellZ, l:pieceL, w:pieceW, h:pieceH, c:cor});
+        i++; naCamada++;
       }
     }
   }
@@ -446,7 +592,7 @@ document.querySelectorAll('.tab').forEach(t=>{
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
     t.classList.add('on');
     $('panel-'+t.dataset.panel).classList.add('on');
-    if(t.dataset.panel==='caixa' && window.__pack){ try{ window.render3D(window.__pack.box, window.__pack.placed); }catch(e){} }
+    if(t.dataset.panel==='caixa' && window.__pack){ try{ window.render3D(window.__pack.box, window.__pack.placed, window.__pack.extent); }catch(e){} }
   };
 });
 
@@ -484,7 +630,39 @@ function renderBoxes(){
   $('boxList').querySelectorAll('input').forEach(inp=>{ inp.oninput=()=>{ boxes[+inp.dataset.bi][inp.dataset.f]=num(inp.value); saveBoxes(); }; });
   $('boxList').querySelectorAll('[data-rmb]').forEach(b=>{ b.onclick=()=>{ boxes.splice(+b.dataset.rmb,1); saveBoxes(); renderBoxes(); }; });
 }
-$('addBox').onclick=()=>{ const comprimentoMm=num($('nbC').value),larguraMm=num($('nbL').value),alturaMm=num($('nbA').value); if(comprimentoMm<=0||larguraMm<=0||alturaMm<=0)return; boxes.push({comprimentoMm,larguraMm,alturaMm}); saveBoxes(); renderBoxes(); $('nbC').value='';$('nbL').value='';$('nbA').value=''; };
+$('addBox').onclick=()=>{ const comprimentoMm=num($('nbC').value),larguraMm=num($('nbL').value),alturaMm=num($('nbA').value); if(comprimentoMm<=0||larguraMm<=0||alturaMm<=0)return; boxes.push({comprimentoMm,larguraMm,alturaMm}); saveBoxes(); renderBoxes(); fillPackSelects(); $('nbC').value='';$('nbL').value='';$('nbA').value=''; };
+
+/* ---- empilhamentos (produto + caixa) ---- */
+function renderPacks(){
+  const c=$('packList');
+  if(!packings.length){ c.innerHTML='<div class="empty">Nenhum empilhamento configurado. O app usa o cálculo automático.</div>'; return; }
+  c.innerHTML=packings.map((pk,i)=>`<div class="pack-row">
+    <div><div class="pk-nm">${esc(pk.produto)}</div><div class="pk-dm">caixa ${esc(pk.caixa)} mm</div></div>
+    <div class="pk-dm">${pk.porCamada} por camada × ${pk.camadas} camadas</div>
+    <div class="pk-cap">= ${packCapacidade(pk)} un</div>
+    <button class="rm" data-rmpk="${i}">×</button>
+  </div>`).join('');
+  c.querySelectorAll('[data-rmpk]').forEach(b=>{ b.onclick=()=>{ packings.splice(+b.dataset.rmpk,1); savePacks(); renderPacks(); calcular(); }; });
+}
+function fillPackSelects(){
+  $('npkProd').innerHTML=registry.map(p=>`<option value="${esc(p.nome)}">${esc(p.nome)}</option>`).join('');
+  $('npkBox').innerHTML=boxes.map(b=>`<option value="${boxKey(b)}">${b.comprimentoMm}×${b.larguraMm}×${b.alturaMm} mm</option>`).join('');
+}
+function updatePackPrev(){
+  const pc=num($('npkPC').value), cam=num($('npkCam').value);
+  $('npkPrev').textContent = (pc>0&&cam>0) ? ('capacidade '+(pc*cam)+' un') : 'capacidade —';
+}
+$('npkPC').oninput=updatePackPrev; $('npkCam').oninput=updatePackPrev;
+$('addPack').onclick=()=>{
+  const produto=$('npkProd').value, caixa=$('npkBox').value;
+  const porCamada=Math.floor(num($('npkPC').value)), camadas=Math.floor(num($('npkCam').value));
+  if(!produto||!caixa||porCamada<=0||camadas<=0) return;
+  const ex=packings.find(p=>p.produto===produto&&p.caixa===caixa);
+  if(ex){ ex.porCamada=porCamada; ex.camadas=camadas; } // atualiza se já existir
+  else { packings.push({produto,caixa,porCamada,camadas,orientacao:'auto'}); }
+  savePacks(); renderPacks(); calcular();
+  $('npkPC').value=''; $('npkCam').value=''; updatePackPrev();
+};
 
 /* ---- produtos (cards) ---- */
 let npOri='auto';
@@ -523,7 +701,7 @@ function renderProds(){
       const oi=order.find(o=>o.nome===p.nome); if(oi){ oi.orientacao=p.orientacao; calcular(); }
     }; });
   });
-  $('prodList').querySelectorAll('[data-rmp]').forEach(b=>{ b.onclick=()=>{ registry.splice(+b.dataset.rmp,1); saveProds(); renderProds(); fillSelect(); }; });
+  $('prodList').querySelectorAll('[data-rmp]').forEach(b=>{ b.onclick=()=>{ registry.splice(+b.dataset.rmp,1); saveProds(); renderProds(); fillSelect(); fillPackSelects(); }; });
 }
 /* monta os botões de orientação de um produto: Automática + cada orientação distinta */
 function orientOptionsHTML(p){
@@ -543,7 +721,7 @@ $('addProd').onclick=()=>{
   const ap=Math.max(.3,Math.min(1,(num($('npAp').value)||85)/100));
   if(!nome||c<=0||l<=0||a<=0) return;
   registry.push({nome,comprimentoMm:c,larguraMm:l,alturaMm:a,pesoGramas:pg,aproveitamento:ap,orientacao:npOri});
-  saveProds(); renderProds(); fillSelect();
+  saveProds(); renderProds(); fillSelect(); fillPackSelects();
   ['npNome','npC','npL','npA','npP'].forEach(id=>$(id).value=''); $('npAp').value='85';
   npOri='auto'; $('npOri').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.o==='auto'));
 };
@@ -559,7 +737,7 @@ function calcular(){
     $('mDims').textContent='—';
     $('mSub').textContent='Adicione produtos acima para montar a caixa.';
     mgrid.style.display='none'; vizWrap.style.display='none'; note.style.display='none'; calib.style.display='none';
-    $('orient3d').style.display='none';
+    $('orient3d').style.display='none'; $('freteBox').style.display='none'; $('sobrasBox').style.display='none';
     $('legend').innerHTML=''; $('vizHint').textContent='';
     if(window.clear3D)window.clear3D(); window.__pack=null;
     return;
@@ -569,17 +747,23 @@ function calcular(){
   const totalVol=order.reduce((a,o)=>a+o.l*o.w*o.h*o.qtd,0);
   const totalPesoG=order.reduce((a,o)=>a+o.pesoG*o.qtd,0);
 
-  let chosen=null, placed=[], detalhe='';
+  let chosen=null, placed=[], detalhe='', fromRegistro=false, capRegistro=0;
 
   if(order.length===1){
     const o=order[0];
     const r=escolherCaixaUmProduto(o, totUn);
     if(r){
       chosen=r.box;
-      placed=montarPlaced(r.box, r.info, totUn, o.c);
-      const ori=order[0].orientacao;
-      const oriTxt = (typeof ori==='number') ? 'Orientação travada por você.' : 'Orientação automática (melhor encaixe).';
-      detalhe=`Grade ${r.info.col}×${r.info.lin}×${r.info.cam} (cabem ${r.capacBruta} no teórico; com aproveitamento de ${Math.round(o.apr*100)}%, ${r.capacReal}). `+oriTxt;
+      const ehRegistro = (r.fonte==='registro');
+      placed=montarPlaced(r.box, r.info, totUn, o.c, ehRegistro);
+      if(r.fonte==='registro'){
+        fromRegistro=true; capRegistro=r.capacReal;
+        detalhe=`<b>Empilhamento configurado por você:</b> ${r.pk.porCamada} por camada × ${r.pk.camadas} camadas = ${r.capacReal} un por caixa. Essa é a caixa certa para ${totUn} un.`;
+      } else {
+        const ori=o.orientacao;
+        const oriTxt = (typeof ori==='number') ? 'Orientação travada por você.' : 'Orientação automática (melhor encaixe).';
+        detalhe=`Cálculo automático — grade ${r.info.col}×${r.info.lin}×${r.info.cam} (cabem ${r.capacBruta} no teórico; com aproveitamento de ${Math.round(o.apr*100)}%, ${r.capacReal}). `+oriTxt+` <span style="color:#71717a">Configure o empilhamento real na aba Caixas mestre para mais precisão.</span>`;
+      }
     }
   } else {
     const r=escolherCaixaMulti(order, totUn);
@@ -588,17 +772,59 @@ function calcular(){
 
   if(chosen){
     const boxVol=chosen.comprimentoMm*chosen.larguraMm*chosen.alturaMm;
+    const boxVolM3=boxVol/1e9; // mm³ → m³
+    const fator=Math.max(1, num($('fatorCub').value)||300);
+    const pesoRealKg=totalPesoG/1000;
+    const pesoCubadoKg=boxVolM3*fator;
+    const cobra=Math.max(pesoRealKg, pesoCubadoKg);
+    const cobraTipo = pesoCubadoKg>=pesoRealKg ? 'cubado' : 'real';
+
+    // extensão real do conteúdo (bounding box das peças) p/ mostrar sobra
+    let cx=0, cy=0, cz=0;
+    placed.forEach(b=>{ cx=Math.max(cx,b.x+b.l); cy=Math.max(cy,b.y+b.w); cz=Math.max(cz,b.z+b.h); });
+    const sobraC=chosen.comprimentoMm-cx, sobraL=chosen.larguraMm-cy, sobraA=chosen.alturaMm-cz;
+
     master.className='master';
     $('mT').textContent='Caixa mestre recomendada';
     $('mDims').innerHTML=chosen.comprimentoMm+' × '+chosen.larguraMm+' × '+chosen.alturaMm+' <small>mm</small>';
     $('mSub').textContent='comporta as '+totUn+' un do pedido';
     mgrid.style.display='grid';
-    $('mPeso').innerHTML=rd(totalPesoG/1000,2)+'<small> kg</small>';
-    $('mVolP').innerHTML=rd(totalVol/1e6,2)+'<small> L</small>';
-    $('mVolB').innerHTML=rd(boxVol/1e6,2)+'<small> L</small>';
-    $('mFill').innerHTML=rd(totalVol/boxVol*100,0)+'<small>%</small>';
+    $('mPeso').innerHTML=rd(pesoRealKg,2)+'<small> kg</small>';
+    $('mCub').innerHTML=rd(boxVolM3,4)+'<small> m³</small>';
+    $('mCubado').innerHTML=rd(pesoCubadoKg,2)+'<small> kg</small>';
+    if(fromRegistro){
+      // ocupação = quanto do que a caixa comporta (pela sua config) está sendo usado
+      $('mFillLabel').textContent='Uso da caixa';
+      $('mFill').innerHTML=rd(totUn/capRegistro*100,0)+'<small>%</small>';
+    } else {
+      $('mFillLabel').textContent='Ocupação';
+      $('mFill').innerHTML=rd(totalVol/boxVol*100,0)+'<small>%</small>';
+    }
+    // destaca a célula do peso cubado se ele for o cobrado
+    $('mCubadoCell').style.outline = (cobraTipo==='cubado') ? '2px solid #f59e0b' : 'none';
+
+    // frete: qual peso a transportadora cobra
+    $('freteBox').style.display='block';
+    $('freteTxt').innerHTML = `Peso real <b>${rd(pesoRealKg,2)} kg</b> · peso cubado <b>${rd(pesoCubadoKg,2)} kg</b> → a transportadora cobra pelo <span class="cobra">${cobraTipo} (${rd(cobra,2)} kg)</span>`;
+
+    // sobras — só fazem sentido no cálculo automático. No empilhamento configurado,
+    // a caixa registrada É o tamanho certo: nada de sobra, caixa aparece cheia.
+    if(fromRegistro){
+      $('sobrasBox').style.display='none';
+    } else {
+      $('sobrasBox').style.display='block';
+      const cell=(label,v)=>{ const ok=v<=15; return `<div class="sobras-cell"><div class="sl">${label}</div><div class="sv ${ok?'ok':'warn'}">${Math.max(0,Math.round(v))} <span style="font-size:10px;font-weight:500;color:#71717a">mm</span></div></div>`; };
+      $('sobrasGrid').innerHTML = cell('Comprimento',sobraC)+cell('Largura',sobraL)+cell('Altura',sobraA);
+      const maxSobra=Math.max(sobraC,sobraL,sobraA);
+      $('sobrasHint').innerHTML = maxSobra>15
+        ? `O conteúdo ocupa <b>${Math.round(cx)}×${Math.round(cy)}×${Math.round(cz)} mm</b>. A caixa é maior de propósito (folga para fechar e proteger) — o espaço vazio é real, não cabe mais produto nessa configuração.`
+        : `O conteúdo preenche a caixa quase inteira. Encaixe apertado.`;
+    }
+
     vizWrap.style.display='flex';
-    const truncated=renderViz(dimsBox(chosen), placed);
+    // no empilhamento configurado, não passa extent → 3D sem linha de nível nem caixa-fantasma
+    const extent = fromRegistro ? null : {cx,cy,cz};
+    const truncated=renderViz(dimsBox(chosen), placed, extent);
     $('legend').innerHTML=order.map(o=>`<div class="lg"><span class="dot" style="background:${o.c}"></span>${esc(o.nome)} (${o.qtd})</div>`).join('');
     note.style.display='block';
     note.innerHTML='<b>Empacotamento em grade.</b> '+detalhe+(truncated?' Desenho mostrando parte das peças.':'');
@@ -611,13 +837,15 @@ function calcular(){
     $('mDims').textContent='—';
     $('mSub').textContent='aumente uma caixa no estoque ou divida o pedido';
     mgrid.style.display='none'; vizWrap.style.display='none'; calib.style.display='none';
-    $('orient3d').style.display='none';
+    $('orient3d').style.display='none'; $('freteBox').style.display='none'; $('sobrasBox').style.display='none';
     $('legend').innerHTML='';
     note.style.display='block';
     note.innerHTML='Nenhuma caixa mestre do estoque comporta esse pedido inteiro. Cadastre uma caixa maior na aba <b>Caixas mestre</b>, ou reduza a quantidade.';
     if(window.clear3D)window.clear3D(); window.__pack=null;
   }
 }
+/* recalcula quando muda o fator de cubagem */
+document.getElementById('fatorCub').addEventListener('input', ()=>{ if(order.length) calcular(); });
 function dimsBox(b){ return {l:b.comprimentoMm, w:b.larguraMm, h:b.alturaMm}; }
 
 /* ---- calibração ao vivo: um slider de aproveitamento por produto do pedido ---- */
@@ -686,7 +914,7 @@ $('o3Auto').onclick=()=>{
   calcular();
 };
 function shade(hex,amt){ let c=hex.replace('#',''); let r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16); r=Math.max(0,Math.min(255,r+amt));g=Math.max(0,Math.min(255,g+amt));b=Math.max(0,Math.min(255,b+amt)); return 'rgb('+r+','+g+','+b+')'; }
-function drawPackSVG(box, placed){
+function drawPackSVG(box, placed, extent){
   const VW=380,VH=300;
   const s=210/Math.max(box.l,box.w,box.h), kx=0.5, ky=0.28;
   function pr(x,y,z){ return [x*s+y*s*kx, -z*s-y*s*ky]; }
@@ -710,14 +938,21 @@ function drawPackSVG(box, placed){
   const cap=400;
   const sorted=placed.slice().sort((a,b)=> (a.z-b.z)||((a.x+a.y)-(b.x+b.y))).slice(0,cap);
   let body=''; sorted.forEach(b=> body+=faces(b,b.c));
-  $('viz3d').innerHTML='<svg width="100%" height="320" viewBox="0 0 380 300" style="display:block;margin:auto">'+cage+body+'</svg>';
-  const vh=$('vizHint'); if(vh) vh.textContent='visual estático (o 3D interativo carrega quando online)';
+  // linha de nível do produto (topo do conteúdo) se sobrar altura
+  let nivel='';
+  if(extent && box.h-extent.cz>12){
+    const cz=extent.cz, ex=extent.cx, ey=extent.cy;
+    const quad=[P(0,0,cz),P(ex,0,cz),P(ex,ey,cz),P(0,ey,cz)].join(' ');
+    nivel='<polygon points="'+quad+'" fill="rgba(245,158,11,.15)" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3"/>';
+  }
+  $('viz3d').innerHTML='<svg width="100%" height="320" viewBox="0 0 380 300" style="display:block;margin:auto">'+cage+body+nivel+'</svg>';
+  const vh=$('vizHint'); if(vh) vh.textContent='visual estático · linha laranja = nível do produto';
   return placed.length>cap;
 }
-function renderViz(box, placed){
-  window.__pack={box, placed};
-  if(window.render3D){ try{ window.render3D(box, placed); return placed.length>2000; }catch(e){ console.warn('3D falhou, usando SVG:', e); } }
-  return drawPackSVG(box, placed);
+function renderViz(box, placed, extent){
+  window.__pack={box, placed, extent};
+  if(window.render3D){ try{ window.render3D(box, placed, extent); return placed.length>2000; }catch(e){ console.warn('3D falhou, usando SVG:', e); } }
+  return drawPackSVG(box, placed, extent);
 }
 
 /* ---- eventos + boot ---- */
@@ -725,7 +960,7 @@ $('btnAdd').onclick=addItem;
 $('qtd').addEventListener('keydown',e=>{ if(e.key==='Enter') addItem(); });
 $('btnClear').onclick=()=>{ order=[]; renderOrder(); calcular(); };
 
-fillSelect(); renderOrder(); renderBoxes(); renderProds(); calcular();
+fillSelect(); renderOrder(); renderBoxes(); renderProds(); renderPacks(); fillPackSelects(); updatePackPrev(); calcular();
 </script>
 
 <!-- 3D interativo (gira com o mouse). Carrega Three.js da CDN; offline cai no SVG. -->
@@ -747,7 +982,7 @@ window.clear3D=function(){
   if(st.renderer.domElement.parentNode) st.renderer.domElement.parentNode.removeChild(st.renderer.domElement);
   st=null;
 };
-window.render3D=function(box, placed){
+window.render3D=function(box, placed, extent){
   const cont=document.getElementById('viz3d'); if(!cont) return;
   window.clear3D();
   cont.innerHTML='';
@@ -780,6 +1015,35 @@ window.render3D=function(box, placed){
       ed.position.copy(mesh.position); g.add(ed);
     }
   }
+  // NÍVEL DO PRODUTO + espaço vazio: se sobra altura/comprimento/largura, mostra o vazio
+  if(extent){
+    const {cx,cy,cz}=extent;
+    const folga=12; // mm — abaixo disso considera "cheio"
+    // plano translúcido no topo do conteúdo (nível que o produto atinge)
+    if(box.h-cz>folga){
+      const plane=new THREE.Mesh(
+        new THREE.PlaneGeometry(cx, cy),
+        new THREE.MeshBasicMaterial({color:0xf59e0b, transparent:true, opacity:0.18, side:THREE.DoubleSide, depthWrite:false})
+      );
+      plane.rotation.x=-Math.PI/2;
+      plane.position.set(cx/2, cz, cy/2);
+      g.add(plane);
+      // borda do nível
+      const edge=new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.PlaneGeometry(cx, cy)),
+        new THREE.LineBasicMaterial({color:0xf59e0b, transparent:true, opacity:0.6})
+      );
+      edge.rotation.x=-Math.PI/2; edge.position.set(cx/2, cz, cy/2); g.add(edge);
+    }
+    // caixa-fantasma do espaço vazio (contorno do volume não usado acima do conteúdo)
+    if(box.h-cz>folga){
+      const vazioH=box.h-cz;
+      const vg=new THREE.BoxGeometry(box.l, vazioH, box.w);
+      const vazio=new THREE.LineSegments(new THREE.EdgesGeometry(vg),
+        new THREE.LineBasicMaterial({color:0xf59e0b, transparent:true, opacity:0.25}));
+      vazio.position.set(box.l/2, cz+vazioH/2, box.w/2); g.add(vazio);
+    }
+  }
   g.position.set(-box.l/2, -box.h/2, -box.w/2);
   scene.add(g);
   const maxd=Math.max(box.l,box.w,box.h);
@@ -787,9 +1051,9 @@ window.render3D=function(box, placed){
   controls.target.set(0,0,0); controls.update();
   st={renderer,controls,raf:0};
   (function loop(){ st.raf=requestAnimationFrame(loop); controls.update(); renderer.render(scene,cam); })();
-  const hint=document.getElementById('vizHint'); if(hint) hint.textContent='arraste para girar · scroll aproxima · botão direito move';
+  const hint=document.getElementById('vizHint'); if(hint) hint.textContent='arraste para girar · scroll aproxima · a linha laranja marca o nível do produto';
 };
-if(window.__pack){ try{ window.render3D(window.__pack.box, window.__pack.placed); }catch(e){} }
+if(window.__pack){ try{ window.render3D(window.__pack.box, window.__pack.placed, window.__pack.extent); }catch(e){} }
 </script>
 </body>
 </html>
