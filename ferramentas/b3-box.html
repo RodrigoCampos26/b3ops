@@ -159,6 +159,7 @@ input[type=number]{-moz-appearance:textfield;}
 
 /* visualização 3D */
 .viz{background:#0a0a0c;border:1px solid #24242b;border-radius:12px;padding:10px;display:flex;justify-content:center;}
+#viz3d canvas{display:block;width:100%!important;height:100%!important;}
 .legend{display:flex;flex-wrap:wrap;gap:9px 16px;margin-top:12px;}
 .legend .lg{display:flex;align-items:center;gap:7px;font-size:12px;color:#b8b8bd;}
 .note{font-size:12px;color:#8a8a93;background:#131316;border:1px solid #26262d;border-radius:10px;padding:11px 13px;margin-top:13px;line-height:1.55;}
@@ -690,7 +691,7 @@ document.querySelectorAll('.tab').forEach(t=>{
 function fillSelect(){
   if(!registry.length){ $('prodSel').innerHTML='<option value="">(cadastro vazio)</option>'; return; }
   const cur=$('prodSel').value;
-  $('prodSel').innerHTML=registry.map((p,i)=>`<option value="${i}">${esc(p.nome)} — ${p.comprimentoMm}×${p.larguraMm}×${p.alturaMm} mm</option>`).join('');
+  $('prodSel').innerHTML=registry.map((p,i)=>`<option value="${i}">${esc(p.nome)}</option>`).join('');
   if(cur && registry[cur]) $('prodSel').value=cur;
 }
 function addItem(){
@@ -813,7 +814,6 @@ function renderProds(){
     const head=`<div class="row-head" data-toggleprod="${i}">
       <span class="chev">▶</span>
       <span class="r-nm">${esc(p.nome)}</span>
-      <span class="r-meta">${p.comprimentoMm}×${p.larguraMm}×${p.alturaMm} · ${p.pesoGramas}g</span>
       <button class="r-rm" data-rmp="${i}" title="remover produto">×</button>
     </div>`;
     let body='';
@@ -1197,6 +1197,8 @@ let st=null;
 window.clear3D=function(){
   if(!st) return;
   cancelAnimationFrame(st.raf);
+  try{ if(st.ro) st.ro.disconnect(); }catch(e){}
+  try{ if(st.onWinResize) window.removeEventListener('resize', st.onWinResize); }catch(e){}
   try{ st.controls.dispose(); st.renderer.dispose(); }catch(e){}
   if(st.renderer.domElement.parentNode) st.renderer.domElement.parentNode.removeChild(st.renderer.domElement);
   st=null;
@@ -1208,16 +1210,20 @@ window.render3D=function(box, placed, extent){
   const W=cont.clientWidth||380, H=cont.clientHeight||320;
   const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0a0a0c);
   const maxd0=Math.max(box.l,box.w,box.h);
-  // near/far proporcionais ao tamanho (cena em mm): evita clipping ao aproximar o zoom
-  const cam=new THREE.PerspectiveCamera(45, W/H, Math.max(1, maxd0*0.05), maxd0*100);
+  // meia-diagonal da caixa: distância do centro até o canto mais distante.
+  // a câmera NUNCA pode chegar mais perto que isso, senão entra na caixa e "estoura".
+  const halfDiag=0.5*Math.sqrt(box.l*box.l+box.w*box.w+box.h*box.h);
+  // near pequeno o suficiente para não cortar ao aproximar; far bem amplo
+  const cam=new THREE.PerspectiveCamera(45, W/H, Math.max(0.5, maxd0*0.01), maxd0*100);
   const renderer=new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(W,H); renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
   cont.appendChild(renderer.domElement);
   const controls=new OrbitControls(cam, renderer.domElement);
   controls.enableDamping=true; controls.dampingFactor=0.08;
-  // limita o zoom: não deixa a câmera atravessar a caixa (some/vira do avesso) nem afastar demais
-  controls.minDistance=maxd0*0.6;
-  controls.maxDistance=maxd0*4;
+  controls.zoomSpeed=0.8;
+  // aproxima até um pouco fora da caixa (1.15× a meia-diagonal) e afasta bastante
+  controls.minDistance=halfDiag*1.15;
+  controls.maxDistance=halfDiag*9;
   scene.add(new THREE.AmbientLight(0xffffff,0.75));
   const dir=new THREE.DirectionalLight(0xffffff,0.7); dir.position.set(1,2,1.4); scene.add(dir);
   const g=new THREE.Group();
@@ -1270,10 +1276,27 @@ window.render3D=function(box, placed, extent){
   }
   g.position.set(-box.l/2, -box.h/2, -box.w/2);
   scene.add(g);
-  const maxd=Math.max(box.l,box.w,box.h);
-  cam.position.set(maxd*1.25, maxd*1.0, maxd*1.6);
+  // posição inicial: a ~2.2× a meia-diagonal, num ângulo que mostra 3 faces
+  const d=halfDiag*2.2;
+  cam.position.set(d*0.62, d*0.5, d*0.78);
   controls.target.set(0,0,0); controls.update();
   st={renderer,controls,raf:0};
+  // RESIZE AUTOMÁTICO — corrige o "estouro" quando muda o zoom do navegador,
+  // o tamanho da janela, ou a orientação do celular. Reajusta câmera + canvas.
+  function resize(){
+    const w=cont.clientWidth||W, h=cont.clientHeight||H;
+    if(w<2||h<2) return;
+    cam.aspect=w/h; cam.updateProjectionMatrix();
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    renderer.setSize(w,h,false); // false = não força o style do canvas (deixa o CSS mandar)
+  }
+  try{
+    st.ro=new ResizeObserver(()=>resize());
+    st.ro.observe(cont);
+  }catch(e){}
+  st.onWinResize=()=>resize();
+  window.addEventListener('resize', st.onWinResize);
+  resize(); // ajuste inicial
   (function loop(){ st.raf=requestAnimationFrame(loop); controls.update(); renderer.render(scene,cam); })();
   const hint=document.getElementById('vizHint'); if(hint) hint.textContent='arraste para girar · scroll aproxima · a linha laranja marca o nível do produto';
 };
