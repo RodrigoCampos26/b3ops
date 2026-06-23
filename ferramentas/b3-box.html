@@ -5,138 +5,200 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>B3 Box</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#0a0a0b;color:#f1f5f9;min-height:100vh;padding:24px;}
-.wrap{max-width:840px;margin:0 auto;}
-.top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;}
-h1{font-size:24px;font-weight:700;background:linear-gradient(135deg,#a78bfa,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.badge{background:#27272a;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;color:#a1a1aa;border:1px solid #3f3f46;}
-.lead{color:#a1a1aa;font-size:13px;margin:2px 0 18px;}
-.tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid #27272a;}
-.tab{background:none;border:none;border-bottom:2px solid transparent;color:#a1a1aa;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:10px 14px;cursor:pointer;transition:all .15s;margin-bottom:-1px;}
-.tab:hover{color:#e4e4e7;}
-.tab.on{color:#c4b5fd;border-bottom-color:#7c3aed;}
-.panel{display:none;}.panel.on{display:block;animation:fade .2s;}
-@keyframes fade{from{opacity:0;transform:translateY(5px);}to{opacity:1;}}
-.card{background:#18181b;border:1px solid #27272a;border-radius:16px;padding:22px;margin-bottom:20px;}
-.card h2{font-size:16px;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:4px;}
-.card .sub{color:#a1a1aa;font-size:13px;margin-bottom:16px;}
-.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#a1a1aa;margin-bottom:7px;}
-label.fl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;color:#a1a1aa;display:block;margin-bottom:5px;}
-input,select{background:#0f0f11;border:1px solid #27272a;border-radius:8px;padding:10px 12px;color:#f1f5f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color .2s;}
-input:focus,select:focus{border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.2);}
+body{font-family:'Inter',sans-serif;background:#0e0e10;color:#d8d8dc;min-height:100vh;padding:24px;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:860px;margin:0 auto;}
+::selection{background:#f59e0b;color:#16161a;}
+
+/* cabeçalho */
+.top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:4px;}
+h1{font-size:21px;font-weight:700;letter-spacing:-.01em;color:#f4f4f6;display:flex;align-items:center;gap:11px;}
+h1::before{content:"B3";display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#f59e0b,#b45309);color:#16161a;font-size:13px;font-weight:800;letter-spacing:-.02em;}
+.badge{font-family:'JetBrains Mono',monospace;background:#1a1a1f;padding:5px 11px;border-radius:6px;font-size:11px;font-weight:500;color:#8a8a93;border:1px solid #2a2a31;letter-spacing:.02em;}
+.lead{color:#7a7a82;font-size:13px;margin:3px 0 20px;}
+
+/* abas estilo terminal */
+.tabs{display:flex;gap:2px;margin-bottom:22px;background:#131316;border:1px solid #232329;border-radius:10px;padding:4px;width:fit-content;}
+.tab{background:none;border:none;color:#7a7a82;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;padding:8px 16px;border-radius:7px;cursor:pointer;transition:all .15s;letter-spacing:.01em;}
+.tab:hover{color:#c8c8cd;}
+.tab.on{background:#232329;color:#f5b342;}
+.panel{display:none;}.panel.on{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* cards e seções */
+.card{background:#16161a;border:1px solid #24242b;border-radius:14px;padding:20px;margin-bottom:18px;}
+.card h2{font-size:15px;font-weight:600;color:#e8e8ec;display:flex;align-items:center;gap:9px;margin-bottom:3px;letter-spacing:-.01em;}
+.card .sub{color:#7a7a82;font-size:12.5px;margin-bottom:16px;line-height:1.5;}
+.section-label,.eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#6a6a72;margin-bottom:9px;display:flex;align-items:center;gap:8px;}
+.section-label::before{content:"";width:14px;height:1px;background:#f59e0b;flex:none;}
+
+/* inputs */
+label.fl{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#7a7a82;display:block;margin-bottom:6px;}
+input,select{background:#0e0e10;border:1px solid #26262d;border-radius:8px;padding:10px 12px;color:#e8e8ec;font-size:14px;font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color .15s,box-shadow .15s;}
+input:focus,select:focus{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.14);}
+input[type=number]{font-family:'JetBrains Mono',monospace;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-moz-appearance:textfield;}
 .add-row{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:end;}
-.btn{padding:10px 16px;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap;}
-.btn-primary{background:#7c3aed;color:#fff;}.btn-primary:hover{background:#6d28d9;}
-.btn-cyan{background:transparent;color:#06b6d4;border:2px solid #06b6d4;}.btn-cyan:hover{background:rgba(6,182,212,.12);}
-.btn-ghost{background:transparent;color:#a1a1aa;border:1px solid #27272a;}.btn-ghost:hover{background:#27272a;color:#f1f5f9;}
-.item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #27272a;}
+
+/* botões */
+.btn{padding:10px 16px;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:#f59e0b;color:#16161a;}.btn-primary:hover{background:#fbb22e;}
+.btn-cyan{background:transparent;color:#f5b342;border:1px solid #5a4520;}.btn-cyan:hover{background:rgba(245,158,11,.1);border-color:#f59e0b;}
+.btn-ghost{background:transparent;color:#8a8a93;border:1px solid #2a2a31;}.btn-ghost:hover{background:#1f1f25;color:#e8e8ec;}
+.mini-btn{background:transparent;color:#f5b342;border:1px solid #5a4520;border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;}.mini-btn:hover{background:rgba(245,158,11,.1);border-color:#f59e0b;}
+
+/* itens do pedido */
+.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #232329;}
 .item:last-child{border-bottom:none;}
-.dot{width:12px;height:12px;border-radius:3px;flex:none;}
-.item .nm{flex:1;font-size:14px;font-weight:500;}
-.item .dm{font-size:12px;color:#a1a1aa;}
-.item .qt{font-size:13px;color:#c4b5fd;font-weight:600;white-space:nowrap;}
-.item .rm{background:none;border:none;color:#52525b;font-size:18px;cursor:pointer;}.item .rm:hover{color:#ef4444;}
-.empty{color:#52525b;font-size:13px;padding:14px 0;text-align:center;}
+.dot{width:10px;height:10px;border-radius:2px;flex:none;}
+.item .nm{flex:1;font-size:14px;font-weight:500;color:#e8e8ec;}
+.item .dm{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7a7a82;}
+.item .qt{font-family:'JetBrains Mono',monospace;font-size:13px;color:#f5b342;font-weight:600;white-space:nowrap;}
+.item .rm,.box-row .rm,.prod-card .ph .rm{background:none;border:none;color:#52525b;font-size:17px;cursor:pointer;transition:color .15s;line-height:1;}
+.item .rm:hover,.box-row .rm:hover,.prod-card .ph .rm:hover:hover{color:#ef4444;}
+.empty{color:#5a5a62;font-size:13px;padding:16px 0;text-align:center;font-family:'JetBrains Mono',monospace;}
+.foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px;}
+.cnt{font-family:'JetBrains Mono',monospace;font-size:11px;color:#6a6a72;margin-left:auto;letter-spacing:.02em;}
+
+/* caixas mestre */
 .box-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;}
-.box-row input{padding:8px 10px;text-align:center;font-size:13px;}
-.box-row .rm{background:none;border:none;color:#52525b;font-size:17px;cursor:pointer;}.box-row .rm:hover{color:#ef4444;}
-.box-head{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#52525b;margin-bottom:5px;padding:0 2px;}
-.box-add{display:flex;gap:8px;margin-top:6px;}.box-add input{flex:1;text-align:center;padding:8px;}
-.mini-btn{background:transparent;color:#06b6d4;border:1px solid #06b6d4;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}.mini-btn:hover{background:rgba(6,182,212,.12);}
-.prod-card{background:#0f0f11;border:1px solid #27272a;border-radius:12px;padding:14px;margin-bottom:10px;}
+.box-row input{padding:9px 10px;text-align:center;font-size:13px;font-family:'JetBrains Mono',monospace;}
+.box-head{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#5a5a62;margin-bottom:6px;padding:0 2px;}
+.box-add{display:flex;gap:8px;margin-top:8px;}.box-add input{flex:1;text-align:center;padding:9px;font-family:'JetBrains Mono',monospace;}
+
+/* produtos (cards recolhíveis) */
+.prod-card{background:#101013;border:1px solid #24242b;border-radius:11px;padding:14px;margin-bottom:9px;transition:border-color .15s;}
+.prod-card:hover{border-color:#2e2e36;}
 .prod-card .ph{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .prod-card .ph input.nm{font-size:14px;font-weight:600;padding:8px 10px;}
-.prod-card .ph .rm{background:none;border:none;color:#52525b;font-size:18px;cursor:pointer;flex:none;}.prod-card .ph .rm:hover{color:#ef4444;}
 .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.pgrid .f label{font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;display:block;margin-bottom:3px;}
-.pgrid .f input{padding:7px 8px;font-size:13px;text-align:center;}
+.pgrid .f label,.prow2 .f label{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#6a6a72;display:block;margin-bottom:4px;}
+.pgrid .f input{padding:8px;font-size:13px;text-align:center;font-family:'JetBrains Mono',monospace;}
 .prow2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;align-items:end;}
-.prow2 .f label{font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;display:block;margin-bottom:3px;}
 .orient-seg{display:flex;gap:4px;}
 .orient-seg.col{flex-direction:column;}
 .orient-seg.col button{flex:none;text-align:left;}
-.orient-seg button{flex:1;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;padding:7px 4px;border-radius:7px;border:1px solid #27272a;background:#0f0f11;color:#a1a1aa;transition:all .15s;}
-.orient-seg button.on{background:#7c3aed;color:#fff;border-color:#7c3aed;}
-.prod-add-card{background:#0f0f11;border:1px dashed #3f3f46;border-radius:12px;padding:14px;margin-top:4px;}
-.hint{font-size:11.5px;color:#71717a;margin-top:10px;line-height:1.5;}
-.hint b{color:#a78bfa;}
-.foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px;}
-.cnt{font-size:12px;color:#52525b;margin-left:auto;}
-.master{background:linear-gradient(135deg,#7c3aed,#5b21b6);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;}
-.master.warn{background:linear-gradient(135deg,#b45309,#92400e);}
-.master.empty-state{background:#18181b;border:1px dashed #3f3f46;}
-.master .t{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.85);}
-.master.empty-state .t{color:#71717a;}
-.master .dims{font-size:28px;font-weight:800;margin:5px 0 2px;}
-.master.empty-state .dims{color:#52525b;font-size:20px;}
-.master .dims small{font-size:14px;font-weight:600;opacity:.85;}
-.master .sub2{font-size:12px;color:rgba(255,255,255,.92);}
-.master.empty-state .sub2{color:#52525b;}
-.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px;}
-.frete{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:11px 14px;margin-bottom:12px;}
+.orient-seg button{flex:1;font-size:11px;font-weight:500;font-family:'JetBrains Mono',monospace;cursor:pointer;padding:8px 6px;border-radius:7px;border:1px solid #26262d;background:#0e0e10;color:#8a8a93;transition:all .15s;letter-spacing:.01em;}
+.orient-seg button:hover{border-color:#3a3a42;color:#c8c8cd;}
+.orient-seg button.on{background:#f59e0b;color:#16161a;border-color:#f59e0b;font-weight:600;}
+.prod-add-card,.xunused_packadd{background:#101013;border:1px dashed #34343c;border-radius:11px;padding:14px;margin-top:6px;}
+.hint{font-size:11.5px;color:#6a6a72;margin-top:11px;line-height:1.55;}
+.hint b{color:#f5b342;font-weight:600;}
+.row{background:#101013;border:1px solid #24242b;border-radius:11px;margin-bottom:8px;overflow:hidden;transition:border-color .15s;}
+.row:hover{border-color:#2e2e36;}
+.row.open{border-color:#3a3a42;}
+.row-head{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;user-select:none;}
+.row-head .chev{color:#5a5a62;font-size:11px;transition:transform .2s;flex:none;font-family:'JetBrains Mono',monospace;}
+.row.open .row-head .chev{transform:rotate(90deg);color:#f5b342;}
+.row-head .dot{width:9px;height:9px;border-radius:2px;flex:none;}
+.row-head .r-nm{font-size:14px;font-weight:600;color:#e8e8ec;flex:1;}
+.row-head .r-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7a7a82;}
+.row-head .r-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:#a8842f;background:#221a0e;border:1px solid #4a3818;padding:3px 8px;border-radius:5px;white-space:nowrap;}
+.row-head .r-rm{background:none;border:none;color:#52525b;font-size:17px;cursor:pointer;line-height:1;flex:none;}.row-head .r-rm:hover{color:#ef4444;}
+.row-body{padding:0 15px 15px;border-top:1px solid #1f1f25;}
+.row-body.pad{padding-top:14px;}
+.add-trigger{width:100%;background:#101013;border:1px dashed #34343c;color:#9a9aa2;border-radius:11px;padding:13px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;margin-top:2px;}
+.add-trigger:hover{border-color:#f59e0b;color:#f5b342;}
+.add-trigger i{font-style:normal;color:#f59e0b;font-weight:700;margin-right:5px;}
+.box-packs{margin-top:14px;}
+.box-packs-label{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#a8842f;margin-bottom:9px;}
+.bp-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #1f1f25;font-size:13px;}
+.bp-row:last-child{border-bottom:none;}
+.bp-row .bp-nm{font-weight:600;color:#e8e8ec;flex:1;}
+.bp-row .bp-calc{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7a7a82;}
+.bp-row .bp-cap{font-family:'JetBrains Mono',monospace;color:#f5b342;font-weight:700;white-space:nowrap;}
+.bp-row .bp-rm{background:none;border:none;color:#52525b;font-size:16px;cursor:pointer;line-height:1;}.bp-row .bp-rm:hover{color:#ef4444;}
+.bp-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:#5a5a62;padding:8px 0;}
+.bp-add{display:grid;grid-template-columns:1.6fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:10px;padding-top:12px;border-top:1px dashed #2a2a31;}
+.bp-add .f label{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#6a6a72;display:block;margin-bottom:4px;}
+.bp-add .f input,.bp-add .f select{padding:8px;font-size:13px;}
+
+/* resultado (caixa recomendada) — a peça-chave */
+.master{background:linear-gradient(135deg,#221a0e,#191920);border:1px solid #4a3818;border-radius:13px;padding:18px;margin-bottom:14px;}
+.master.warn{background:linear-gradient(135deg,#2a1410,#191920);border-color:#5a2820;}
+.master.empty-state{background:#16161a;border:1px dashed #34343c;}
+.master .t{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#a8842f;}
+.master.warn .t{color:#d08070;}
+.master.empty-state .t{color:#6a6a72;}
+.master .dims{font-family:'JetBrains Mono',monospace;font-size:29px;font-weight:700;color:#f5b342;margin:5px 0 2px;letter-spacing:-.01em;}
+.master.warn .dims{color:#e89080;}
+.master.empty-state .dims{color:#5a5a62;font-size:20px;}
+.master .dims small{font-size:14px;font-weight:500;color:#a8842f;}
+.master .sub2{font-size:12px;color:#b8b0a0;}
+.master.empty-state .sub2{color:#6a6a72;}
+
+/* métricas */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:9px;margin-bottom:13px;}
+.mcell{background:#101013;border:1px solid #24242b;border-radius:9px;padding:12px 13px;}
+.mcell .l{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#6a6a72;}
+.mcell .v{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;color:#e8e8ec;margin-top:4px;}.mcell .v small{font-size:10px;color:#7a7a82;font-weight:500;}
+
+/* frete */
+.frete{background:#101013;border:1px solid #24242b;border-radius:10px;padding:12px 14px;margin-bottom:12px;}
 .frete-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.frete-txt{font-size:13px;color:#e4e4e7;line-height:1.5;}
-.frete-txt b{color:#c4b5fd;}
-.frete-txt .cobra{color:#f59e0b;font-weight:700;}
-.frete-fator{font-size:11px;color:#71717a;white-space:nowrap;}
-.frete-fator input{width:56px;padding:5px 7px;font-size:12px;text-align:center;display:inline-block;}
-.sobras{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:11px 14px;margin-top:12px;}
-.sobras-t{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#a78bfa;font-weight:600;margin-bottom:8px;}
+.frete-txt{font-size:13px;color:#c8c8cd;line-height:1.55;}
+.frete-txt b{color:#e8e8ec;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.frete-txt .cobra{color:#f5b342;font-weight:700;}
+.frete-fator{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6a6a72;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;}
+.frete-fator input{width:54px;padding:5px 7px;font-size:12px;text-align:center;display:inline-block;font-family:'JetBrains Mono',monospace;}
+
+/* sobras */
+.sobras{background:#101013;border:1px solid #24242b;border-radius:10px;padding:12px 14px;margin-top:12px;}
+.sobras-t{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#a8842f;font-weight:500;margin-bottom:9px;}
 .sobras-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.sobras-cell{background:#18181b;border:1px solid #27272a;border-radius:8px;padding:9px 10px;text-align:center;}
-.sobras-cell .sl{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;}
-.sobras-cell .sv{font-size:16px;font-weight:700;margin-top:2px;}
-.sobras-cell .sv.ok{color:#22c55e;}
-.sobras-cell .sv.warn{color:#f59e0b;}
-.sobras-hint{font-size:11.5px;color:#71717a;margin-top:9px;line-height:1.5;}
-.mcell{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px;text-align:center;}
-.mcell .l{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:#a1a1aa;}
-.mcell .v{font-size:18px;font-weight:700;margin-top:3px;}.mcell .v small{font-size:10px;color:#a1a1aa;font-weight:500;}
-.viz{background:#0f0f11;border:1px solid #27272a;border-radius:12px;padding:10px;display:flex;justify-content:center;}
-.legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;}
-.legend .lg{display:flex;align-items:center;gap:6px;font-size:12px;color:#d4d4d8;}
-.note{font-size:12px;color:#a1a1aa;background:#1c1c20;border:1px solid #2d2d35;border-radius:10px;padding:11px 13px;margin-top:14px;line-height:1.5;}
-.note b{color:#c4b5fd;}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(124,58,237,.3);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.orient3d{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px 14px;margin-top:12px;}
-.pack-add{background:#0f0f11;border:1px dashed #3f3f46;border-radius:12px;padding:14px;margin-top:6px;}
-.pa-grid{display:grid;grid-template-columns:1.4fr 1.4fr 1fr 1fr;gap:8px;}
-.pa-grid .f label{font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;display:block;margin-bottom:3px;}
-.pa-grid .f input,.pa-grid .f select{padding:7px 8px;font-size:13px;}
-.pa-foot{display:flex;align-items:center;gap:12px;margin-top:12px;}
-.pa-prev{font-size:13px;color:#c4b5fd;font-weight:600;}
-.pack-row{display:grid;grid-template-columns:1.4fr 1.2fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #27272a;font-size:13px;}
-.pack-row:last-child{border-bottom:none;}
-.pack-row .pk-nm{font-weight:600;}
-.pack-row .pk-dm{color:#a1a1aa;font-size:12px;}
-.pack-row .pk-cap{color:#c4b5fd;font-weight:700;white-space:nowrap;}
-.pack-row .rm{background:none;border:none;color:#52525b;font-size:17px;cursor:pointer;}.pack-row .rm:hover{color:#ef4444;}
+.sobras-cell{background:#16161a;border:1px solid #24242b;border-radius:8px;padding:10px;text-align:center;}
+.sobras-cell .sl{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#6a6a72;}
+.sobras-cell .sv{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;margin-top:3px;color:#e8e8ec;}
+.sobras-cell .sv.ok{color:#3fb950;}
+.sobras-cell .sv.warn{color:#f5b342;}
+.sobras-hint{font-size:11.5px;color:#6a6a72;margin-top:10px;line-height:1.55;}
+.sobras-hint b{color:#c8c8cd;}
+
+/* visualização 3D */
+.viz{background:#0a0a0c;border:1px solid #24242b;border-radius:12px;padding:10px;display:flex;justify-content:center;}
+.legend{display:flex;flex-wrap:wrap;gap:9px 16px;margin-top:12px;}
+.legend .lg{display:flex;align-items:center;gap:7px;font-size:12px;color:#b8b8bd;}
+.note{font-size:12px;color:#8a8a93;background:#131316;border:1px solid #26262d;border-radius:10px;padding:11px 13px;margin-top:13px;line-height:1.55;}
+.note b{color:#f5b342;}
+
+/* controle de orientação 3D */
+.orient3d{background:#101013;border:1px solid #24242b;border-radius:10px;padding:12px 14px;margin-top:12px;}
 .o3-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
-.o3-label{font-size:12px;color:#a1a1aa;}
-.o3-row select{width:auto;flex:1;min-width:140px;padding:7px 10px;font-size:13px;}
-.o3-hint{font-size:11.5px;color:#71717a;margin-top:8px;line-height:1.5;}
-.o3-hint b{color:#c4b5fd;}
-.calib{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px 14px;margin-top:14px;}
-.calib .ct{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#a78bfa;font-weight:600;margin-bottom:8px;}
-.calib .crow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.calib .crow label{font-size:12px;color:#d4d4d8;flex:1;}
-.calib .crow input[type=range]{flex:2;accent-color:#7c3aed;padding:0;}
-.calib .crow .val{font-size:13px;font-weight:700;color:#c4b5fd;width:42px;text-align:right;}
-.calib .chint{font-size:11px;color:#71717a;line-height:1.5;}
-@media(max-width:560px){.add-row{grid-template-columns:1fr 70px auto;}.pgrid{grid-template-columns:repeat(2,1fr);}}
+.o3-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7a7a82;text-transform:uppercase;letter-spacing:.04em;}
+.o3-row select{width:auto;flex:1;min-width:140px;padding:8px 10px;font-size:13px;}
+.o3-hint{font-size:11.5px;color:#6a6a72;margin-top:9px;line-height:1.55;}
+.o3-hint b{color:#f5b342;}
+
+/* empilhamentos */
+
+/* calibração */
+.calib{background:#101013;border:1px solid #24242b;border-radius:10px;padding:13px 14px;margin-top:14px;}
+.calib .ct{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#a8842f;font-weight:500;margin-bottom:10px;}
+.calib .crow{display:flex;align-items:center;gap:11px;margin-bottom:9px;}
+.calib .crow label{font-size:12.5px;color:#c8c8cd;flex:1;}
+.calib .crow input[type=range]{flex:2;accent-color:#f59e0b;padding:0;}
+.calib .crow .val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#f5b342;width:42px;text-align:right;}
+.calib .chint{font-size:11px;color:#6a6a72;line-height:1.55;}
+
+/* spinner + toast */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(245,158,11,.3);border-top-color:#f59e0b;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1f;color:#e8e8ec;padding:12px 20px;border-radius:10px;border:1px solid #2a2a31;box-shadow:0 12px 40px rgba(0,0,0,.6);font-size:13px;font-weight:500;z-index:1000;opacity:0;transition:all .3s;pointer-events:none;max-width:90%;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{border-color:#3fb950;}
+.toast.err{border-color:#ef4444;}
+
+@media(max-width:560px){.add-row{grid-template-columns:1fr 70px auto;}.pgrid{grid-template-columns:repeat(2,1fr);}.bp-add{grid-template-columns:1fr 1fr;}.row-head .r-meta{display:none;}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <div class="top">
   <div>
-    <h1>📦 B3 Box</h1>
+    <h1>B3 Box</h1>
     <p class="lead">B3 Ops · empacotador 3D — monte o pedido e veja a caixa mestre certa, em mm</p>
   </div>
   <span class="badge" id="dataBadge">carregando…</span>
@@ -151,7 +213,7 @@ input[type=number]{-moz-appearance:textfield;}
 <!-- ===================== PAINEL: CAIXA 3D (principal) ===================== -->
 <div class="panel on" id="panel-caixa">
   <div class="card">
-    <h2><span>🛒</span> Monte o pedido</h2>
+    <h2>Monte o pedido</h2>
     <div class="sub">Escolha os produtos e quantidades. A caixa se redimensiona sozinha.</div>
     <div class="add-row">
       <div><label class="fl">Produto</label><select id="prodSel"></select></div>
@@ -166,7 +228,7 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
 
   <div class="card" id="resultCard">
-    <h2><span>📐</span> Caixa mestre</h2>
+    <h2>Caixa mestre</h2>
     <div class="master empty-state" id="master">
       <div class="t" id="mT">Aguardando o pedido</div>
       <div class="dims" id="mDims">—</div>
@@ -214,11 +276,12 @@ input[type=number]{-moz-appearance:textfield;}
 <!-- ===================== PAINEL: PRODUTOS ===================== -->
 <div class="panel" id="panel-produtos">
   <div class="card">
-    <h2><span>🏷️</span> Produtos cadastrados</h2>
-    <div class="sub">Medidas em <b>mm</b>, peso em <b>g</b>. O que estiver aqui aparece no seletor da Caixa 3D.</div>
+    <h2>Produtos cadastrados</h2>
+    <div class="sub">Medidas em <b>mm</b>, peso em <b>g</b>. Clique num produto para editar.</div>
     <div id="prodList"></div>
-    <div class="prod-add-card">
-      <div class="section-label">Cadastrar novo produto</div>
+    <button class="add-trigger" id="showAddProd"><i>+</i> Cadastrar produto</button>
+    <div class="prod-add-card" id="addProdCard" style="display:none">
+      <div class="section-label">Novo produto</div>
       <div class="ph" style="margin-bottom:10px"><input class="nm" type="text" id="npNome" placeholder="nome do produto"></div>
       <div class="pgrid">
         <div class="f"><label>Comp. mm</label><input type="number" id="npC" placeholder="0"></div>
@@ -234,46 +297,28 @@ input[type=number]{-moz-appearance:textfield;}
           </div>
         </div>
       </div>
-      <div style="margin-top:12px"><button class="btn btn-primary" id="addProd">+ Cadastrar produto</button></div>
+      <div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-primary" id="addProd">Cadastrar</button><button class="btn btn-ghost" id="cancelAddProd">Cancelar</button></div>
     </div>
-    <div class="hint"><b>Aproveitamento</b> = quanto o produto enche a caixa de verdade. Rígido e empilhável (fone, caixa de som) ~90%; solto, com folga entre peças (porta-joia) ~85%. <b>Orientação</b>: cadastre primeiro e depois escolha como a peça fica na caixa — dá pra girar no 3D e travar a posição certa.</div>
+    <div class="hint"><b>Aproveitamento</b> = quanto o produto enche a caixa de verdade. Rígido e empilhável (fone, caixa de som) ~90%; solto, com folga entre peças (porta-joia) ~85%.</div>
   </div>
 </div>
 
 <!-- ===================== PAINEL: CAIXAS MESTRE ===================== -->
 <div class="panel" id="panel-caixas">
   <div class="card">
-    <h2><span>📥</span> Caixas mestre que você tem</h2>
-    <div class="sub">Os tamanhos padrão do seu estoque. O B3 Box sempre escolhe a menor que comporta o pedido.</div>
-    <div class="box-head"><span>Comp. (mm)</span><span>Larg. (mm)</span><span>Alt. (mm)</span><span></span></div>
+    <h2>Caixas mestre</h2>
+    <div class="sub">Os tamanhos do seu estoque. Clique numa caixa para editar e ver os empilhamentos dela.</div>
     <div id="boxList"></div>
-    <div class="box-add">
+    <button class="add-trigger" id="showAddBox"><i>+</i> Adicionar caixa</button>
+    <div class="box-add" id="addBoxCard" style="display:none">
       <input type="number" id="nbC" placeholder="comp"><input type="number" id="nbL" placeholder="larg"><input type="number" id="nbA" placeholder="alt">
-      <button class="mini-btn" id="addBox">+ caixa</button>
+      <button class="mini-btn" id="addBox">Adicionar</button>
     </div>
-    <div class="hint">Tudo em <b>mm</b>. Cadastre aqui só as caixas que você realmente tem em estoque.</div>
-  </div>
-
-  <div class="card">
-    <h2><span>🧱</span> Empilhamentos configurados</h2>
-    <div class="sub">Como cada produto fecha em cada caixa, na prática (a foto, a contagem real). Tem prioridade sobre o cálculo automático.</div>
-    <div id="packList"></div>
-    <div class="pack-add">
-      <div class="pa-grid">
-        <div class="f"><label>Produto</label><select id="npkProd"></select></div>
-        <div class="f"><label>Caixa</label><select id="npkBox"></select></div>
-        <div class="f"><label>Por camada</label><input type="number" id="npkPC" placeholder="ex: 60"></div>
-        <div class="f"><label>Camadas</label><input type="number" id="npkCam" placeholder="ex: 4"></div>
-      </div>
-      <div class="pa-foot">
-        <span class="pa-prev" id="npkPrev">capacidade —</span>
-        <button class="mini-btn" id="addPack">+ empilhamento</button>
-      </div>
-    </div>
-    <div class="hint">Exemplo do porta-joia: na 620×510×420 são <b>60 por camada × 4 camadas = 240</b>. O app escolhe a menor caixa cuja capacidade configurada comporta o pedido.</div>
+    <div class="hint">Tudo em <b>mm</b>. Dentro de cada caixa você configura quantas unidades de cada produto cabem nela (empilhamento real). Isso tem prioridade sobre o cálculo automático.</div>
   </div>
 </div>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
   /* Config Firebase (Console > Configurações > Apps Web). A apiKey web é pública por
@@ -387,10 +432,12 @@ function packCapacidade(pk){ return (pk.porCamada||0)*(pk.camadas||0); }
 
 $('dataBadge').textContent = FS ? 'Firestore' : 'local';
 
-const PALETTE=['#a78bfa','#06b6d4','#22c55e','#f59e0b','#ef4444','#ec4899','#7c3aed','#14b8a6','#f472b6','#84cc16'];
+const PALETTE=['#f59e0b','#06b6d4','#22c55e','#a78bfa','#ef4444','#ec4899','#fbbf24','#14b8a6','#f472b6','#84cc16'];
 function num(x){ if(typeof x==='string'&&x.includes(','))x=x.replace(',','.'); const v=parseFloat(x); return isFinite(v)?v:0; }
 function rd(v,d){ const f=Math.pow(10,d||0); return Math.round(v*f)/f; }
 function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+let _toastT=null;
+function toast(msg, tipo){ const t=$('toast'); if(!t) return; t.textContent=msg; t.className='toast show'+(tipo?' '+tipo:''); clearTimeout(_toastT); _toastT=setTimeout(()=>{ t.className='toast'+(tipo?' '+tipo:''); },2600); }
 
 /* ============================================================
    MOTOR DE GRADE — escolhe a MENOR caixa do estoque que comporta o pedido.
@@ -475,6 +522,49 @@ function escolherCaixaUmProduto(o, totUn){
     }
   }
   return null; // não coube em nenhuma
+}
+
+/* capacidade de UM produto numa caixa específica (registro tem prioridade; senão grade). */
+function capacidadeProdutoCaixa(o, box){
+  const pk=findPack(o.nome, box);
+  if(pk) return {cap:packCapacidade(pk), info:infoDeEmpilhamento({comprimentoMm:o.l,larguraMm:o.w,alturaMm:o.h,orientacao:o.orientacao}, box, pk), fonte:'registro', pk};
+  const p={comprimentoMm:o.l,larguraMm:o.w,alturaMm:o.h,orientacao:o.orientacao};
+  const {n,info}=capacidadeGrade(p,box);
+  if(n<=0) return null;
+  return {cap:Math.round(n*o.apr), info, fonte:'calculo'};
+}
+
+/* PLANEJADOR MULTI-CAIXAS (1 produto, qtd > capacidade de qualquer caixa).
+   Objetivo: poucas caixas e bem cheias, p/ economizar frete.
+   Estratégia: usar a caixa de MAIOR capacidade para o grosso (caixas cheias),
+   e escolher a MENOR caixa que comporte o resto, evitando uma caixa grande quase vazia. */
+function planejarMultiCaixas(o, totUn){
+  // capacidade de cada caixa para este produto
+  const caps=[];
+  for(const b of boxes){
+    const c=capacidadeProdutoCaixa(o, b);
+    if(c && c.cap>0) caps.push({box:b, cap:c.cap, info:c.info, fonte:c.fonte, pk:c.pk, vol:b.comprimentoMm*b.larguraMm*b.alturaMm});
+  }
+  if(!caps.length) return null;
+
+  const maiorCap=caps.reduce((a,c)=>c.cap>a.cap?c:a);     // caixa que mais cabe (p/ encher)
+  // monta: N caixas cheias da maior + 1 caixa pro resto (a menor que comporte)
+  const cheias=Math.floor(totUn/maiorCap.cap);
+  const resto=totUn - cheias*maiorCap.cap;
+
+  const grupos=[];
+  for(let i=0;i<cheias;i++) grupos.push({box:maiorCap.box, qtd:maiorCap.cap, info:maiorCap.info, cap:maiorCap.cap, fonte:maiorCap.fonte, pk:maiorCap.pk});
+
+  if(resto>0){
+    // menor caixa (por volume) cuja capacidade comporta o resto; senão a maior
+    const candidatas=caps.filter(c=>c.cap>=resto).sort((a,b)=>a.vol-b.vol);
+    const escolhida = candidatas.length ? candidatas[0] : maiorCap;
+    grupos.push({box:escolhida.box, qtd:resto, info:escolhida.info, cap:escolhida.cap, fonte:escolhida.fonte, pk:escolhida.pk});
+  }
+
+  // volume total das caixas usadas (p/ frete) e contagem
+  const volTotal=grupos.reduce((a,g)=>a+g.box.comprimentoMm*g.box.larguraMm*g.box.alturaMm,0);
+  return {grupos, nCaixas:grupos.length, volTotal};
 }
 
 /* converte um empilhamento registrado (porCamada × camadas) numa grade col×lin×cam para o 3D.
@@ -622,69 +712,140 @@ function renderOrder(){
   $('cnt').textContent=order.length+' produto(s) · '+totUn+' un';
 }
 
-/* ---- caixas mestre ---- */
+/* ---- caixas mestre (linhas recolhíveis, empilhamentos dentro) ---- */
+let openBox=new Set();
 function renderBoxes(){
-  $('boxList').innerHTML=boxes.map((b,i)=>`<div class="box-row">
-    <input type="number" data-bi="${i}" data-f="comprimentoMm" value="${b.comprimentoMm}"><input type="number" data-bi="${i}" data-f="larguraMm" value="${b.larguraMm}"><input type="number" data-bi="${i}" data-f="alturaMm" value="${b.alturaMm}">
-    <button class="rm" data-rmb="${i}">×</button></div>`).join('');
-  $('boxList').querySelectorAll('input').forEach(inp=>{ inp.oninput=()=>{ boxes[+inp.dataset.bi][inp.dataset.f]=num(inp.value); saveBoxes(); }; });
-  $('boxList').querySelectorAll('[data-rmb]').forEach(b=>{ b.onclick=()=>{ boxes.splice(+b.dataset.rmb,1); saveBoxes(); renderBoxes(); }; });
-}
-$('addBox').onclick=()=>{ const comprimentoMm=num($('nbC').value),larguraMm=num($('nbL').value),alturaMm=num($('nbA').value); if(comprimentoMm<=0||larguraMm<=0||alturaMm<=0)return; boxes.push({comprimentoMm,larguraMm,alturaMm}); saveBoxes(); renderBoxes(); fillPackSelects(); $('nbC').value='';$('nbL').value='';$('nbA').value=''; };
+  const c=$('boxList');
+  if(!boxes.length){ c.innerHTML='<div class="empty">Nenhuma caixa cadastrada.</div>'; return; }
+  c.innerHTML=boxes.map((b,i)=>{
+    const key=boxKey(b);
+    const packsDaCaixa=packings.filter(p=>p.caixa===key);
+    const isOpen=openBox.has(key);
+    const tag = packsDaCaixa.length ? `<span class="r-tag">${packsDaCaixa.length} empilhamento${packsDaCaixa.length>1?'s':''}</span>` : '';
+    const head=`<div class="row-head" data-togglebox="${i}">
+      <span class="chev">▶</span>
+      <span class="r-nm">${b.comprimentoMm} × ${b.larguraMm} × ${b.alturaMm} <span style="color:#6a6a72;font-weight:400">mm</span></span>
+      ${tag}
+      <button class="r-rm" data-rmb="${i}" title="remover caixa">×</button>
+    </div>`;
+    let body='';
+    if(isOpen){
+      const packRows = packsDaCaixa.length
+        ? packsDaCaixa.map(pk=>{
+            const gi=packings.indexOf(pk);
+            return `<div class="bp-row">
+              <span class="bp-nm">${esc(pk.produto)}</span>
+              <span class="bp-calc">${pk.porCamada} por camada × ${pk.camadas} camadas</span>
+              <span class="bp-cap">= ${packCapacidade(pk)} un</span>
+              <button class="bp-rm" data-rmpk="${gi}" title="remover">×</button>
+            </div>`;
+          }).join('')
+        : '<div class="bp-empty">Nenhum empilhamento nesta caixa. O app calcula sozinho.</div>';
+      const prodOpts=registry.map(p=>`<option value="${esc(p.nome)}">${esc(p.nome)}</option>`).join('');
+      body=`<div class="row-body pad">
+        <div class="section-label">Editar medidas (mm)</div>
+        <div class="box-row" style="margin-bottom:0">
+          <input type="number" data-bi="${i}" data-f="comprimentoMm" value="${b.comprimentoMm}">
+          <input type="number" data-bi="${i}" data-f="larguraMm" value="${b.larguraMm}">
+          <input type="number" data-bi="${i}" data-f="alturaMm" value="${b.alturaMm}">
+          <span></span>
+        </div>
+        <div class="box-packs">
+          <div class="box-packs-label">Empilhamentos nesta caixa</div>
+          ${packRows}
+          <div class="bp-add">
+            <div class="f"><label>Produto</label><select data-bpprod="${i}">${prodOpts}</select></div>
+            <div class="f"><label>Por camada</label><input type="number" data-bppc="${i}" placeholder="ex: 60"></div>
+            <div class="f"><label>Camadas</label><input type="number" data-bpcam="${i}" placeholder="ex: 4"></div>
+            <button class="mini-btn" data-bpadd="${i}">Adicionar</button>
+          </div>
+        </div>
+      </div>`;
+    }
+    return `<div class="row ${isOpen?'open':''}">${head}${body}</div>`;
+  }).join('');
 
-/* ---- empilhamentos (produto + caixa) ---- */
-function renderPacks(){
-  const c=$('packList');
-  if(!packings.length){ c.innerHTML='<div class="empty">Nenhum empilhamento configurado. O app usa o cálculo automático.</div>'; return; }
-  c.innerHTML=packings.map((pk,i)=>`<div class="pack-row">
-    <div><div class="pk-nm">${esc(pk.produto)}</div><div class="pk-dm">caixa ${esc(pk.caixa)} mm</div></div>
-    <div class="pk-dm">${pk.porCamada} por camada × ${pk.camadas} camadas</div>
-    <div class="pk-cap">= ${packCapacidade(pk)} un</div>
-    <button class="rm" data-rmpk="${i}">×</button>
-  </div>`).join('');
-  c.querySelectorAll('[data-rmpk]').forEach(b=>{ b.onclick=()=>{ packings.splice(+b.dataset.rmpk,1); savePacks(); renderPacks(); calcular(); }; });
+  // toggle abrir/fechar
+  c.querySelectorAll('[data-togglebox]').forEach(h=>{ h.onclick=(e)=>{
+    if(e.target.closest('.r-rm')) return;
+    const b=boxes[+h.dataset.togglebox], key=boxKey(b);
+    if(openBox.has(key)) openBox.delete(key); else openBox.add(key);
+    renderBoxes();
+  }; });
+  // remover caixa
+  c.querySelectorAll('[data-rmb]').forEach(b=>{ b.onclick=(e)=>{ e.stopPropagation(); boxes.splice(+b.dataset.rmb,1); saveBoxes(); renderBoxes(); calcular(); }; });
+  // editar medidas
+  c.querySelectorAll('.box-row input').forEach(inp=>{ inp.oninput=()=>{ boxes[+inp.dataset.bi][inp.dataset.f]=num(inp.value); saveBoxes(); calcular(); }; });
+  // remover empilhamento
+  c.querySelectorAll('[data-rmpk]').forEach(b=>{ b.onclick=()=>{ packings.splice(+b.dataset.rmpk,1); savePacks(); renderBoxes(); calcular(); }; });
+  // adicionar empilhamento dentro da caixa
+  c.querySelectorAll('[data-bpadd]').forEach(btn=>{ btn.onclick=()=>{
+    const i=+btn.dataset.bpadd, b=boxes[i], caixa=boxKey(b);
+    const produto=c.querySelector(`[data-bpprod="${i}"]`).value;
+    const porCamada=Math.floor(num(c.querySelector(`[data-bppc="${i}"]`).value));
+    const camadas=Math.floor(num(c.querySelector(`[data-bpcam="${i}"]`).value));
+    if(!produto){ toast('Escolha um produto','err'); return; }
+    if(porCamada<=0){ toast('Informe quantos por camada','err'); return; }
+    if(camadas<=0){ toast('Informe quantas camadas','err'); return; }
+    const ex=packings.find(p=>p.produto===produto&&p.caixa===caixa);
+    if(ex){ ex.porCamada=porCamada; ex.camadas=camadas; toast('Empilhamento atualizado: '+produto+' = '+(porCamada*camadas)+' un','ok'); }
+    else { packings.push({produto,caixa,porCamada,camadas,orientacao:'auto'}); toast('Empilhamento cadastrado: '+produto+' = '+(porCamada*camadas)+' un','ok'); }
+    savePacks(); renderBoxes(); calcular();
+  }; });
 }
-function fillPackSelects(){
-  $('npkProd').innerHTML=registry.map(p=>`<option value="${esc(p.nome)}">${esc(p.nome)}</option>`).join('');
-  $('npkBox').innerHTML=boxes.map(b=>`<option value="${boxKey(b)}">${b.comprimentoMm}×${b.larguraMm}×${b.alturaMm} mm</option>`).join('');
-}
-function updatePackPrev(){
-  const pc=num($('npkPC').value), cam=num($('npkCam').value);
-  $('npkPrev').textContent = (pc>0&&cam>0) ? ('capacidade '+(pc*cam)+' un') : 'capacidade —';
-}
-$('npkPC').oninput=updatePackPrev; $('npkCam').oninput=updatePackPrev;
-$('addPack').onclick=()=>{
-  const produto=$('npkProd').value, caixa=$('npkBox').value;
-  const porCamada=Math.floor(num($('npkPC').value)), camadas=Math.floor(num($('npkCam').value));
-  if(!produto||!caixa||porCamada<=0||camadas<=0) return;
-  const ex=packings.find(p=>p.produto===produto&&p.caixa===caixa);
-  if(ex){ ex.porCamada=porCamada; ex.camadas=camadas; } // atualiza se já existir
-  else { packings.push({produto,caixa,porCamada,camadas,orientacao:'auto'}); }
-  savePacks(); renderPacks(); calcular();
-  $('npkPC').value=''; $('npkCam').value=''; updatePackPrev();
+// botão "adicionar caixa" (mostra/esconde o form)
+$('showAddBox').onclick=()=>{ const card=$('addBoxCard'); const vis=card.style.display!=='none'; card.style.display=vis?'none':'flex'; if(!vis) $('nbC').focus(); };
+$('addBox').onclick=()=>{
+  const comprimentoMm=num($('nbC').value),larguraMm=num($('nbL').value),alturaMm=num($('nbA').value);
+  if(comprimentoMm<=0||larguraMm<=0||alturaMm<=0){ toast('Preencha as 3 medidas','err'); return; }
+  boxes.push({comprimentoMm,larguraMm,alturaMm}); saveBoxes(); renderBoxes(); calcular();
+  $('nbC').value='';$('nbL').value='';$('nbA').value=''; $('addBoxCard').style.display='none';
+  toast('Caixa adicionada: '+comprimentoMm+'×'+larguraMm+'×'+alturaMm+' mm','ok');
 };
 
-/* ---- produtos (cards) ---- */
+/* ---- produtos (linhas recolhíveis) ---- */
 let npOri='auto';
+let openProd=new Set();
 function renderProds(){
-  $('prodList').innerHTML=registry.map((p,i)=>`<div class="prod-card">
-    <div class="ph"><input class="nm" data-pi="${i}" data-f="nome" value="${esc(p.nome)}"><button class="rm" data-rmp="${i}">×</button></div>
-    <div class="pgrid">
-      <div class="f"><label>Comp. mm</label><input type="number" data-pi="${i}" data-f="comprimentoMm" value="${p.comprimentoMm}"></div>
-      <div class="f"><label>Larg. mm</label><input type="number" data-pi="${i}" data-f="larguraMm" value="${p.larguraMm}"></div>
-      <div class="f"><label>Alt. mm</label><input type="number" data-pi="${i}" data-f="alturaMm" value="${p.alturaMm}"></div>
-      <div class="f"><label>Peso g</label><input type="number" data-pi="${i}" data-f="pesoGramas" value="${p.pesoGramas}"></div>
-    </div>
-    <div class="prow2">
-      <div class="f"><label>Aproveitamento %</label><input type="number" data-pi="${i}" data-f="aprPct" value="${Math.round((p.aproveitamento||0.85)*100)}"></div>
-      <div class="f"><label>Orientação na caixa</label>
-        <div class="orient-seg col" data-ori-pi="${i}">${orientOptionsHTML(p)}</div>
-      </div>
-    </div>
-  </div>`).join('');
+  $('prodList').innerHTML=registry.map((p,i)=>{
+    const isOpen=openProd.has(p.nome);
+    const oriTxt = (typeof p.orientacao==='number') ? 'travada' : 'auto';
+    const head=`<div class="row-head" data-toggleprod="${i}">
+      <span class="chev">▶</span>
+      <span class="r-nm">${esc(p.nome)}</span>
+      <span class="r-meta">${p.comprimentoMm}×${p.larguraMm}×${p.alturaMm} · ${p.pesoGramas}g</span>
+      <button class="r-rm" data-rmp="${i}" title="remover produto">×</button>
+    </div>`;
+    let body='';
+    if(isOpen){
+      body=`<div class="row-body pad">
+        <div class="ph" style="margin-bottom:12px"><input class="nm" data-pi="${i}" data-f="nome" value="${esc(p.nome)}"></div>
+        <div class="pgrid">
+          <div class="f"><label>Comp. mm</label><input type="number" data-pi="${i}" data-f="comprimentoMm" value="${p.comprimentoMm}"></div>
+          <div class="f"><label>Larg. mm</label><input type="number" data-pi="${i}" data-f="larguraMm" value="${p.larguraMm}"></div>
+          <div class="f"><label>Alt. mm</label><input type="number" data-pi="${i}" data-f="alturaMm" value="${p.alturaMm}"></div>
+          <div class="f"><label>Peso g</label><input type="number" data-pi="${i}" data-f="pesoGramas" value="${p.pesoGramas}"></div>
+        </div>
+        <div class="prow2">
+          <div class="f"><label>Aproveitamento %</label><input type="number" data-pi="${i}" data-f="aprPct" value="${Math.round((p.aproveitamento||0.85)*100)}"></div>
+          <div class="f"><label>Orientação na caixa</label>
+            <div class="orient-seg col" data-ori-pi="${i}">${orientOptionsHTML(p)}</div>
+          </div>
+        </div>
+      </div>`;
+    }
+    return `<div class="row ${isOpen?'open':''}">${head}${body}</div>`;
+  }).join('');
+
+  $('prodList').querySelectorAll('[data-toggleprod]').forEach(h=>{ h.onclick=(e)=>{
+    if(e.target.closest('.r-rm')) return;
+    const nm=registry[+h.dataset.toggleprod].nome;
+    if(openProd.has(nm)) openProd.delete(nm); else openProd.add(nm);
+    renderProds();
+  }; });
   $('prodList').querySelectorAll('input').forEach(inp=>{ inp.oninput=()=>{
     const p=registry[+inp.dataset.pi], f=inp.dataset.f;
-    if(f==='nome') p.nome=inp.value;
+    if(f==='nome'){ openProd.delete(p.nome); p.nome=inp.value; openProd.add(p.nome); }
     else if(f==='aprPct') p.aproveitamento=Math.max(.3,Math.min(1,(num(inp.value)||85)/100));
     else p[f]=num(inp.value);
     saveProds(); fillSelect();
@@ -697,11 +858,10 @@ function renderProds(){
       p.orientacao = (v==='auto') ? 'auto' : parseInt(v);
       seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===btn));
       saveProds();
-      // se esse produto está no pedido, atualiza e recalcula
       const oi=order.find(o=>o.nome===p.nome); if(oi){ oi.orientacao=p.orientacao; calcular(); }
     }; });
   });
-  $('prodList').querySelectorAll('[data-rmp]').forEach(b=>{ b.onclick=()=>{ registry.splice(+b.dataset.rmp,1); saveProds(); renderProds(); fillSelect(); fillPackSelects(); }; });
+  $('prodList').querySelectorAll('[data-rmp]').forEach(b=>{ b.onclick=(e)=>{ e.stopPropagation(); registry.splice(+b.dataset.rmp,1); saveProds(); renderProds(); fillSelect(); renderBoxes(); }; });
 }
 /* monta os botões de orientação de um produto: Automática + cada orientação distinta */
 function orientOptionsHTML(p){
@@ -715,15 +875,20 @@ function orientOptionsHTML(p){
   return html;
 }
 $('npOri').querySelectorAll('button').forEach(btn=>{ btn.onclick=()=>{ npOri=btn.dataset.o; $('npOri').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===btn)); }; });
+$('showAddProd').onclick=()=>{ const card=$('addProdCard'); const vis=card.style.display!=='none'; card.style.display=vis?'none':'block'; if(!vis) $('npNome').focus(); };
+$('cancelAddProd').onclick=()=>{ $('addProdCard').style.display='none'; ['npNome','npC','npL','npA','npP'].forEach(id=>$(id).value=''); };
 $('addProd').onclick=()=>{
   const nome=$('npNome').value.trim();
   const c=num($('npC').value),l=num($('npL').value),a=num($('npA').value),pg=num($('npP').value);
   const ap=Math.max(.3,Math.min(1,(num($('npAp').value)||85)/100));
-  if(!nome||c<=0||l<=0||a<=0) return;
+  if(!nome){ toast('Dê um nome ao produto','err'); return; }
+  if(c<=0||l<=0||a<=0){ toast('Preencha as medidas (mm)','err'); return; }
   registry.push({nome,comprimentoMm:c,larguraMm:l,alturaMm:a,pesoGramas:pg,aproveitamento:ap,orientacao:npOri});
-  saveProds(); renderProds(); fillSelect(); fillPackSelects();
+  saveProds(); renderProds(); fillSelect(); renderBoxes();
   ['npNome','npC','npL','npA','npP'].forEach(id=>$(id).value=''); $('npAp').value='85';
   npOri='auto'; $('npOri').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.o==='auto'));
+  $('addProdCard').style.display='none';
+  toast('Produto cadastrado: '+nome,'ok');
 };
 
 /* ============================================================
@@ -813,6 +978,7 @@ function calcular(){
       $('sobrasBox').style.display='none';
     } else {
       $('sobrasBox').style.display='block';
+      $('sobrasGrid').style.gridTemplateColumns='repeat(3,1fr)';
       const cell=(label,v)=>{ const ok=v<=15; return `<div class="sobras-cell"><div class="sl">${label}</div><div class="sv ${ok?'ok':'warn'}">${Math.max(0,Math.round(v))} <span style="font-size:10px;font-weight:500;color:#71717a">mm</span></div></div>`; };
       $('sobrasGrid').innerHTML = cell('Comprimento',sobraC)+cell('Largura',sobraL)+cell('Altura',sobraA);
       const maxSobra=Math.max(sobraC,sobraL,sobraA);
@@ -832,15 +998,68 @@ function calcular(){
     renderOrient3D();
     calib.style.display='block';
   } else {
+    // não coube em uma caixa só. Tenta plano multi-caixas (1 produto) p/ economizar frete.
+    let plano=null;
+    if(order.length===1){ plano=planejarMultiCaixas(order[0], totUn); }
+    if(plano && plano.grupos.length){
+      const o=order[0];
+      const fator=Math.max(1, num($('fatorCub').value)||300);
+      const volM3=plano.volTotal/1e9;
+      const pesoRealKg=totalPesoG/1000;
+      const pesoCubadoKg=volM3*fator;
+      const cobra=Math.max(pesoRealKg,pesoCubadoKg);
+      const cobraTipo=pesoCubadoKg>=pesoRealKg?'cubado':'real';
+
+      master.className='master';
+      $('mT').textContent='Precisa de '+plano.nCaixas+' caixas';
+      // dimensão "principal" = a caixa mais usada
+      $('mDims').innerHTML=plano.nCaixas+' <small>caixas</small>';
+      $('mSub').textContent=totUn+' un não cabem em uma caixa só';
+      mgrid.style.display='grid';
+      $('mPeso').innerHTML=rd(pesoRealKg,2)+'<small> kg</small>';
+      $('mCub').innerHTML=rd(volM3,4)+'<small> m³</small>';
+      $('mCubado').innerHTML=rd(pesoCubadoKg,2)+'<small> kg</small>';
+      $('mFillLabel').textContent='Caixas';
+      $('mFill').innerHTML=plano.nCaixas+'<small> un</small>';
+      $('mCubadoCell').style.outline=(cobraTipo==='cubado')?'2px solid #f59e0b':'none';
+
+      $('freteBox').style.display='block';
+      $('freteTxt').innerHTML=`Frete somando as ${plano.nCaixas} caixas — peso real <b>${rd(pesoRealKg,2)} kg</b> · cubado <b>${rd(pesoCubadoKg,2)} kg</b> → cobra <span class="cobra">${cobraTipo} (${rd(cobra,2)} kg)</span>`;
+
+      // lista das caixas do plano (agrupa iguais)
+      const agg={};
+      plano.grupos.forEach(g=>{ const k=boxKey(g.box)+'|'+g.qtd; agg[k]=agg[k]||{box:g.box,qtd:g.qtd,n:0}; agg[k].n++; });
+      $('sobrasBox').style.display='block';
+      $('sobrasGrid').style.gridTemplateColumns='1fr';
+      $('sobrasGrid').innerHTML=Object.values(agg).map(a=>
+        `<div class="sobras-cell" style="text-align:left"><div class="sv" style="font-size:14px;color:#f5b342">${a.n}× caixa ${a.box.comprimentoMm}×${a.box.larguraMm}×${a.box.alturaMm} mm</div><div class="sl">${a.qtd} un em cada</div></div>`
+      ).join('');
+      $('sobrasHint').innerHTML=`Plano para gastar menos frete: caixas cheias da maior + a menor caixa para o resto. Total <b>${totUn} un</b> em <b>${plano.nCaixas} caixas</b>.`;
+
+      // 3D mostra a primeira caixa do plano (a cheia)
+      const g0=plano.grupos[0];
+      const placed0=montarPlaced(g0.box, g0.info, g0.qtd, o.c, g0.fonte==='registro');
+      vizWrap.style.display='flex';
+      renderViz(dimsBox(g0.box), placed0, null);
+      $('legend').innerHTML=`<div class="lg"><span class="dot" style="background:${o.c}"></span>${esc(o.nome)} — mostrando 1 caixa de ${g0.qtd} un</div>`;
+      note.style.display='block';
+      note.innerHTML='<b>Pedido dividido em várias caixas.</b> O 3D mostra a primeira. '+(plano.nCaixas>1?'As demais seguem o mesmo empacotamento.':'');
+      $('orient3d').style.display='none'; calib.style.display='none';
+      $('sobrasGrid').style.gridTemplateColumns='1fr';
+      window.__pack=null; // evita reuso indevido na troca de aba
+      window.__pack={box:dimsBox(g0.box), placed:placed0, extent:null};
+      return;
+    }
+
     master.className='master warn';
     $('mT').textContent='Não coube em nenhuma caixa';
     $('mDims').textContent='—';
-    $('mSub').textContent='aumente uma caixa no estoque ou divida o pedido';
+    $('mSub').textContent='cadastre uma caixa maior no estoque';
     mgrid.style.display='none'; vizWrap.style.display='none'; calib.style.display='none';
     $('orient3d').style.display='none'; $('freteBox').style.display='none'; $('sobrasBox').style.display='none';
     $('legend').innerHTML='';
     note.style.display='block';
-    note.innerHTML='Nenhuma caixa mestre do estoque comporta esse pedido inteiro. Cadastre uma caixa maior na aba <b>Caixas mestre</b>, ou reduza a quantidade.';
+    note.innerHTML='Nenhuma caixa mestre do estoque comporta esse produto (nem dividido). Cadastre uma caixa na aba <b>Caixas mestre</b>.';
     if(window.clear3D)window.clear3D(); window.__pack=null;
   }
 }
@@ -960,7 +1179,7 @@ $('btnAdd').onclick=addItem;
 $('qtd').addEventListener('keydown',e=>{ if(e.key==='Enter') addItem(); });
 $('btnClear').onclick=()=>{ order=[]; renderOrder(); calcular(); };
 
-fillSelect(); renderOrder(); renderBoxes(); renderProds(); renderPacks(); fillPackSelects(); updatePackPrev(); calcular();
+fillSelect(); renderOrder(); renderBoxes(); renderProds(); calcular();
 </script>
 
 <!-- 3D interativo (gira com o mouse). Carrega Three.js da CDN; offline cai no SVG. -->
@@ -987,13 +1206,18 @@ window.render3D=function(box, placed, extent){
   window.clear3D();
   cont.innerHTML='';
   const W=cont.clientWidth||380, H=cont.clientHeight||320;
-  const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0f0f11);
-  const cam=new THREE.PerspectiveCamera(45, W/H, 0.1, 1000000);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0a0a0c);
+  const maxd0=Math.max(box.l,box.w,box.h);
+  // near/far proporcionais ao tamanho (cena em mm): evita clipping ao aproximar o zoom
+  const cam=new THREE.PerspectiveCamera(45, W/H, Math.max(1, maxd0*0.05), maxd0*100);
   const renderer=new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(W,H); renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
   cont.appendChild(renderer.domElement);
   const controls=new OrbitControls(cam, renderer.domElement);
   controls.enableDamping=true; controls.dampingFactor=0.08;
+  // limita o zoom: não deixa a câmera atravessar a caixa (some/vira do avesso) nem afastar demais
+  controls.minDistance=maxd0*0.6;
+  controls.maxDistance=maxd0*4;
   scene.add(new THREE.AmbientLight(0xffffff,0.75));
   const dir=new THREE.DirectionalLight(0xffffff,0.7); dir.position.set(1,2,1.4); scene.add(dir);
   const g=new THREE.Group();
