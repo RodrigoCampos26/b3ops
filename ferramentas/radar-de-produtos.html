@@ -6,6 +6,89 @@
 <title>Radar de Produtos · Rosa Baby</title>
 </head>
 <body>
+<!-- ============================================================
+     NAVEGAÇÃO B3 OPS — cole este bloco logo depois de <body> em cada arquivo.
+     Troque data-b3-active para: "home" | "box" | "price" | "radar"
+     conforme a ferramenta da página. Os caminhos assumem /ferramentas/.
+     ============================================================ -->
+<div id="b3nav" data-b3-active="radar">
+  <!-- botão que abre a sidebar (desktop) -->
+  <button class="b3nav-trigger" aria-label="Menu" onclick="document.getElementById('b3nav').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <!-- fundo escuro ao abrir -->
+  <div class="b3nav-scrim" onclick="document.getElementById('b3nav').classList.remove('open')"></div>
+  <!-- sidebar deslizante (desktop) -->
+  <aside class="b3nav-side">
+    <div class="b3nav-brand"><span class="b3nav-logo">B3</span> <b>B3 Ops</b></div>
+    <nav class="b3nav-links">
+      <a href="/index.html"                              data-k="home"><i>⌂</i><span>Início</span></a>
+      <a href="/ferramentas/b3-box.html"                 data-k="box"><i>▣</i><span>B3 Box</span><small>empacotador 3D</small></a>
+      <a href="/ferramentas/calculadora-de-precos.html"  data-k="price"><i>$</i><span>B3 Price</span><small>precificação</small></a>
+      <a href="/ferramentas/radar-de-produtos.html"      data-k="radar"><i>◎</i><span>B3 Radar</span><small>mercado</small></a>
+    </nav>
+    <div class="b3nav-foot">Rosa Baby · ecossistema B3 Flow</div>
+  </aside>
+  <!-- rodapé fixo (celular) -->
+  <nav class="b3nav-bottom">
+    <a href="/index.html"                              data-k="home"><i>⌂</i><span>Início</span></a>
+    <a href="/ferramentas/b3-box.html"                 data-k="box"><i>▣</i><span>Box</span></a>
+    <a href="/ferramentas/calculadora-de-precos.html"  data-k="price"><i>$</i><span>Price</span></a>
+    <a href="/ferramentas/radar-de-produtos.html"      data-k="radar"><i>◎</i><span>Radar</span></a>
+  </nav>
+</div>
+<style>
+#b3nav *{box-sizing:border-box;}
+/* trigger (hambúrguer) — desktop */
+.b3nav-trigger{position:fixed;top:18px;left:18px;z-index:1200;width:42px;height:42px;border-radius:10px;background:#16161a;border:1px solid #2a2a31;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:all .15s;}
+.b3nav-trigger:hover{border-color:#f59e0b;}
+.b3nav-trigger span{width:18px;height:2px;background:#c8c8cd;border-radius:2px;transition:all .2s;}
+#b3nav.open .b3nav-trigger span:nth-child(1){transform:translateY(6px) rotate(45deg);background:#f59e0b;}
+#b3nav.open .b3nav-trigger span:nth-child(2){opacity:0;}
+#b3nav.open .b3nav-trigger span:nth-child(3){transform:translateY(-6px) rotate(-45deg);background:#f59e0b;}
+/* scrim */
+.b3nav-scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:1150;}
+#b3nav.open .b3nav-scrim{opacity:1;pointer-events:auto;}
+/* sidebar */
+.b3nav-side{position:fixed;top:0;left:0;height:100vh;width:260px;background:#101013;border-right:1px solid #24242b;z-index:1200;padding:20px 16px;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+#b3nav.open .b3nav-side{transform:translateX(0);}
+.b3nav-brand{display:flex;align-items:center;gap:10px;font-size:16px;color:#e8e8ec;margin:6px 4px 22px;font-family:'Inter',sans-serif;}
+.b3nav-brand b{font-weight:700;}
+.b3nav-logo{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#f59e0b,#b45309);color:#16161a;font-size:13px;font-weight:800;}
+.b3nav-links{display:flex;flex-direction:column;gap:4px;flex:1;}
+.b3nav-links a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;color:#a8a8b0;text-decoration:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;transition:all .15s;position:relative;}
+.b3nav-links a i{font-style:normal;width:22px;text-align:center;font-size:16px;color:#7a7a82;flex:none;}
+.b3nav-links a small{position:absolute;right:12px;font-size:10px;color:#5a5a62;font-weight:400;}
+.b3nav-links a:hover{background:#1a1a1f;color:#e8e8ec;}
+.b3nav-links a:hover i{color:#c8c8cd;}
+.b3nav-foot{font-size:11px;color:#5a5a62;text-align:center;padding-top:14px;border-top:1px solid #1f1f25;font-family:'Inter',sans-serif;}
+/* item ativo */
+#b3nav[data-b3-active="home"]  .b3nav-links a[data-k="home"],
+#b3nav[data-b3-active="radar"]   .b3nav-links a[data-k="box"],
+#b3nav[data-b3-active="price"] .b3nav-links a[data-k="price"],
+#b3nav[data-b3-active="radar"] .b3nav-links a[data-k="radar"]{background:#221a0e;color:#f5b342;}
+#b3nav[data-b3-active="home"]  .b3nav-links a[data-k="home"] i,
+#b3nav[data-b3-active="radar"]   .b3nav-links a[data-k="box"] i,
+#b3nav[data-b3-active="price"] .b3nav-links a[data-k="price"] i,
+#b3nav[data-b3-active="radar"] .b3nav-links a[data-k="radar"] i{color:#f59e0b;}
+/* rodapé mobile — escondido no desktop */
+.b3nav-bottom{display:none;}
+@media(max-width:760px){
+  .b3nav-trigger,.b3nav-side,.b3nav-scrim{display:none!important;}
+  .b3nav-bottom{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1200;background:#101013;border-top:1px solid #24242b;padding:6px 4px;padding-bottom:max(6px,env(safe-area-inset-bottom));justify-content:space-around;}
+  .b3nav-bottom a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 10px;border-radius:9px;color:#7a7a82;text-decoration:none;font-family:'Inter',sans-serif;font-size:10px;font-weight:500;min-width:56px;}
+  .b3nav-bottom a i{font-style:normal;font-size:18px;line-height:1;}
+  #b3nav[data-b3-active="home"]  .b3nav-bottom a[data-k="home"],
+  #b3nav[data-b3-active="radar"]   .b3nav-bottom a[data-k="box"],
+  #b3nav[data-b3-active="price"] .b3nav-bottom a[data-k="price"],
+  #b3nav[data-b3-active="radar"] .b3nav-bottom a[data-k="radar"]{color:#f5b342;}
+  /* espaço pra não cobrir conteúdo com o rodapé */
+  body{padding-bottom:72px!important;}
+}
+/* no desktop, empurra o conteúdo um tico pra direita pra não colar no trigger */
+@media(min-width:761px){ body{padding-left:76px;} }
+</style>
+
 <div id="app"></div>
 
 <style>
