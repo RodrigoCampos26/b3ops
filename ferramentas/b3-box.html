@@ -58,6 +58,8 @@ input[type=number]{-moz-appearance:textfield;}
 .prow2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;align-items:end;}
 .prow2 .f label{font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:#71717a;display:block;margin-bottom:3px;}
 .orient-seg{display:flex;gap:4px;}
+.orient-seg.col{flex-direction:column;}
+.orient-seg.col button{flex:none;text-align:left;}
 .orient-seg button{flex:1;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;padding:7px 4px;border-radius:7px;border:1px solid #27272a;background:#0f0f11;color:#a1a1aa;transition:all .15s;}
 .orient-seg button.on{background:#7c3aed;color:#fff;border-color:#7c3aed;}
 .prod-add-card{background:#0f0f11;border:1px dashed #3f3f46;border-radius:12px;padding:14px;margin-top:4px;}
@@ -86,6 +88,12 @@ input[type=number]{-moz-appearance:textfield;}
 .note b{color:#c4b5fd;}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(124,58,237,.3);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes spin{to{transform:rotate(360deg);}}
+.orient3d{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px 14px;margin-top:12px;}
+.o3-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.o3-label{font-size:12px;color:#a1a1aa;}
+.o3-row select{width:auto;flex:1;min-width:140px;padding:7px 10px;font-size:13px;}
+.o3-hint{font-size:11.5px;color:#71717a;margin-top:8px;line-height:1.5;}
+.o3-hint b{color:#c4b5fd;}
 .calib{background:#0f0f11;border:1px solid #27272a;border-radius:10px;padding:12px 14px;margin-top:14px;}
 .calib .ct{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#a78bfa;font-weight:600;margin-bottom:8px;}
 .calib .crow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
@@ -144,6 +152,15 @@ input[type=number]{-moz-appearance:textfield;}
     </div>
     <div class="viz" id="vizWrap" style="display:none"><div id="viz3d" style="width:380px;max-width:100%;height:320px;"></div></div>
     <div id="vizHint" style="font-size:11px;color:#52525b;text-align:center;margin-top:6px;"></div>
+    <div class="orient3d" id="orient3d" style="display:none">
+      <div class="o3-row">
+        <span class="o3-label">Orientação de</span>
+        <select id="o3Prod"></select>
+        <button class="mini-btn" id="o3Rotate">↻ Girar 90°</button>
+        <button class="mini-btn" id="o3Auto">Automática</button>
+      </div>
+      <div class="o3-hint" id="o3Hint"></div>
+    </div>
     <div class="legend" id="legend"></div>
     <div class="note" id="mNote" style="display:none"></div>
 
@@ -174,14 +191,13 @@ input[type=number]{-moz-appearance:textfield;}
         <div class="f"><label>Aproveitamento %</label><input type="number" id="npAp" value="85"></div>
         <div class="f"><label>Orientação</label>
           <div class="orient-seg" id="npOri">
-            <button data-o="livre" class="on">Pode girar</button>
-            <button data-o="fixa">Sempre em pé</button>
+            <button data-o="auto" class="on">Automática</button>
           </div>
         </div>
       </div>
       <div style="margin-top:12px"><button class="btn btn-primary" id="addProd">+ Cadastrar produto</button></div>
     </div>
-    <div class="hint"><b>Aproveitamento</b> = quanto o produto enche a caixa de verdade. Rígido e empilhável (fone, caixa de som) ~90%; solto, com folga entre peças (porta-joia) ~85%. <b>Sempre em pé</b> trava a peça na vertical (não deita) — use quando o produto só pode ir numa posição.</div>
+    <div class="hint"><b>Aproveitamento</b> = quanto o produto enche a caixa de verdade. Rígido e empilhável (fone, caixa de som) ~90%; solto, com folga entre peças (porta-joia) ~85%. <b>Orientação</b>: cadastre primeiro e depois escolha como a peça fica na caixa — dá pra girar no 3D e travar a posição certa.</div>
   </div>
 </div>
 
@@ -226,7 +242,7 @@ const $=id=>document.getElementById(id);
    ============================================================ */
 const SEED_PROD=[
   {nome:'Porta Joia',                   comprimentoMm:90, larguraMm:90, alturaMm:45, pesoGramas:110, aproveitamento:0.89, orientacao:'livre'},
-  {nome:'Caixa de Som Altomex AL 6888', comprimentoMm:72, larguraMm:73, alturaMm:80, pesoGramas:183, aproveitamento:1.00, orientacao:'fixa'},
+  {nome:'Caixa de Som Altomex AL 6888', comprimentoMm:72, larguraMm:73, alturaMm:80, pesoGramas:183, aproveitamento:1.00, orientacao:0},
   {nome:'Fone de Ouvido i9s',           comprimentoMm:78, larguraMm:78, alturaMm:57, pesoGramas:75,  aproveitamento:1.00, orientacao:'livre'}
 ];
 const SEED_BOX=[
@@ -306,17 +322,39 @@ function esc(s){ const d=document.createElement('div'); d.textContent=s; return 
    Determinístico, sem dependência externa.
    ============================================================ */
 
-/* orientações: trios [dim no eixo C, dim no eixo L, dim no eixo A].
-   'fixa' = sempre em pé: a altura do produto fica no eixo vertical; só gira a base. */
+/* As 6 rotações ortogonais de um bloco: trios [dim no eixo C, dim no eixo L, dim no eixo A].
+   A 3ª dimensão (índice 2) é sempre a ALTURA de empilhamento na caixa. */
+function todasRotacoes(c,l,a){
+  return [[c,l,a],[l,c,a],[c,a,l],[a,c,l],[l,a,c],[a,l,c]];
+}
+/* Só as orientações VISUALMENTE distintas (produtos com lados iguais geram repetições). */
+function orientacoesDistintas(c,l,a){
+  const todas=todasRotacoes(c,l,a), vistas=new Set(), out=[];
+  todas.forEach((d,idx)=>{
+    const key=d.join('x');
+    if(!vistas.has(key)){ vistas.add(key); out.push({idx, d}); }
+  });
+  return out;
+}
+/* Nome amigável de uma orientação pela base e altura de empilhamento. */
+function nomeOrientacao(d){
+  return 'base '+d[0]+'×'+d[1]+' · altura '+d[2]+' mm';
+}
+/* Orientações que o motor pode usar para um produto:
+   - 'auto'  → todas as distintas (o app escolhe a que cabe mais)
+   - número  → trava na rotação daquele índice (a que você girou e fixou) */
 function orientacoesProduto(p){
   const c=p.comprimentoMm, l=p.larguraMm, a=p.alturaMm;
-  if(p.orientacao==='fixa'){
-    return [[c,l,a],[l,c,a]]; // base pode girar 90°, altura travada em pé
+  const todas=todasRotacoes(c,l,a);
+  if(typeof p.orientacao==='number' && todas[p.orientacao]){
+    return [todas[p.orientacao]];
   }
-  return [[c,l,a],[c,a,l],[l,c,a],[l,a,c],[a,c,l],[a,l,c]]; // todas as 6
+  // compatibilidade com modelo antigo: 'fixa' = altura travada em pé
+  if(p.orientacao==='fixa'){ return [[c,l,a],[l,c,a]]; }
+  return orientacoesDistintas(c,l,a).map(o=>o.d); // 'auto' / 'livre'
 }
 
-/* quantas unidades de UM produto cabem numa caixa, na melhor orientação (grade pura) */
+/* quantas unidades de UM produto cabem numa caixa, na melhor orientação permitida (grade pura) */
 function capacidadeGrade(p, box){
   let best=0, info=null;
   for(const o of orientacoesProduto(p)){
@@ -449,7 +487,7 @@ function renderBoxes(){
 $('addBox').onclick=()=>{ const comprimentoMm=num($('nbC').value),larguraMm=num($('nbL').value),alturaMm=num($('nbA').value); if(comprimentoMm<=0||larguraMm<=0||alturaMm<=0)return; boxes.push({comprimentoMm,larguraMm,alturaMm}); saveBoxes(); renderBoxes(); $('nbC').value='';$('nbL').value='';$('nbA').value=''; };
 
 /* ---- produtos (cards) ---- */
-let npOri='livre';
+let npOri='auto';
 function renderProds(){
   $('prodList').innerHTML=registry.map((p,i)=>`<div class="prod-card">
     <div class="ph"><input class="nm" data-pi="${i}" data-f="nome" value="${esc(p.nome)}"><button class="rm" data-rmp="${i}">×</button></div>
@@ -461,11 +499,8 @@ function renderProds(){
     </div>
     <div class="prow2">
       <div class="f"><label>Aproveitamento %</label><input type="number" data-pi="${i}" data-f="aprPct" value="${Math.round((p.aproveitamento||0.85)*100)}"></div>
-      <div class="f"><label>Orientação</label>
-        <div class="orient-seg" data-ori-pi="${i}">
-          <button data-o="livre" class="${p.orientacao!=='fixa'?'on':''}">Pode girar</button>
-          <button data-o="fixa" class="${p.orientacao==='fixa'?'on':''}">Sempre em pé</button>
-        </div>
+      <div class="f"><label>Orientação na caixa</label>
+        <div class="orient-seg col" data-ori-pi="${i}">${orientOptionsHTML(p)}</div>
       </div>
     </div>
   </div>`).join('');
@@ -475,16 +510,31 @@ function renderProds(){
     else if(f==='aprPct') p.aproveitamento=Math.max(.3,Math.min(1,(num(inp.value)||85)/100));
     else p[f]=num(inp.value);
     saveProds(); fillSelect();
+    if(f==='comprimentoMm'||f==='larguraMm'||f==='alturaMm') renderProds(); // orientações mudam
   }; });
   $('prodList').querySelectorAll('[data-ori-pi]').forEach(seg=>{
     seg.querySelectorAll('button').forEach(btn=>{ btn.onclick=()=>{
       const p=registry[+seg.dataset.oriPi];
-      p.orientacao=btn.dataset.o;
+      const v=btn.dataset.o;
+      p.orientacao = (v==='auto') ? 'auto' : parseInt(v);
       seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===btn));
       saveProds();
+      // se esse produto está no pedido, atualiza e recalcula
+      const oi=order.find(o=>o.nome===p.nome); if(oi){ oi.orientacao=p.orientacao; calcular(); }
     }; });
   });
   $('prodList').querySelectorAll('[data-rmp]').forEach(b=>{ b.onclick=()=>{ registry.splice(+b.dataset.rmp,1); saveProds(); renderProds(); fillSelect(); }; });
+}
+/* monta os botões de orientação de um produto: Automática + cada orientação distinta */
+function orientOptionsHTML(p){
+  const dist=orientacoesDistintas(p.comprimentoMm,p.larguraMm,p.alturaMm);
+  const atual = (typeof p.orientacao==='number') ? p.orientacao : 'auto';
+  let html=`<button data-o="auto" class="${atual==='auto'?'on':''}">Automática (melhor encaixe)</button>`;
+  dist.forEach(o=>{
+    const on = (atual===o.idx) ? 'on' : '';
+    html+=`<button data-o="${o.idx}" class="${on}">${nomeOrientacao(o.d)}</button>`;
+  });
+  return html;
 }
 $('npOri').querySelectorAll('button').forEach(btn=>{ btn.onclick=()=>{ npOri=btn.dataset.o; $('npOri').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===btn)); }; });
 $('addProd').onclick=()=>{
@@ -495,7 +545,7 @@ $('addProd').onclick=()=>{
   registry.push({nome,comprimentoMm:c,larguraMm:l,alturaMm:a,pesoGramas:pg,aproveitamento:ap,orientacao:npOri});
   saveProds(); renderProds(); fillSelect();
   ['npNome','npC','npL','npA','npP'].forEach(id=>$(id).value=''); $('npAp').value='85';
-  npOri='livre'; $('npOri').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.o==='livre'));
+  npOri='auto'; $('npOri').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.o==='auto'));
 };
 
 /* ============================================================
@@ -509,6 +559,7 @@ function calcular(){
     $('mDims').textContent='—';
     $('mSub').textContent='Adicione produtos acima para montar a caixa.';
     mgrid.style.display='none'; vizWrap.style.display='none'; note.style.display='none'; calib.style.display='none';
+    $('orient3d').style.display='none';
     $('legend').innerHTML=''; $('vizHint').textContent='';
     if(window.clear3D)window.clear3D(); window.__pack=null;
     return;
@@ -526,7 +577,9 @@ function calcular(){
     if(r){
       chosen=r.box;
       placed=montarPlaced(r.box, r.info, totUn, o.c);
-      detalhe=`Grade ${r.info.col}×${r.info.lin}×${r.info.cam} (cabem ${r.capacBruta} no teórico; com aproveitamento de ${Math.round(o.apr*100)}%, ${r.capacReal}). `+(o.orientacao==='fixa'?'Peça travada em pé.':'Peça girando para a melhor posição.');
+      const ori=order[0].orientacao;
+      const oriTxt = (typeof ori==='number') ? 'Orientação travada por você.' : 'Orientação automática (melhor encaixe).';
+      detalhe=`Grade ${r.info.col}×${r.info.lin}×${r.info.cam} (cabem ${r.capacBruta} no teórico; com aproveitamento de ${Math.round(o.apr*100)}%, ${r.capacReal}). `+oriTxt;
     }
   } else {
     const r=escolherCaixaMulti(order, totUn);
@@ -550,6 +603,7 @@ function calcular(){
     note.style.display='block';
     note.innerHTML='<b>Empacotamento em grade.</b> '+detalhe+(truncated?' Desenho mostrando parte das peças.':'');
     renderCalib();
+    renderOrient3D();
     calib.style.display='block';
   } else {
     master.className='master warn';
@@ -557,6 +611,7 @@ function calcular(){
     $('mDims').textContent='—';
     $('mSub').textContent='aumente uma caixa no estoque ou divida o pedido';
     mgrid.style.display='none'; vizWrap.style.display='none'; calib.style.display='none';
+    $('orient3d').style.display='none';
     $('legend').innerHTML='';
     note.style.display='block';
     note.innerHTML='Nenhuma caixa mestre do estoque comporta esse pedido inteiro. Cadastre uma caixa maior na aba <b>Caixas mestre</b>, ou reduza a quantidade.';
@@ -589,9 +644,47 @@ function renderCalib(){
   });
 }
 
-/* ============================================================
-   VISUALIZAÇÃO — SVG fallback (o 3D interativo está no módulo abaixo)
-   ============================================================ */
+/* ---- controle de orientação no 3D: girar a peça e aplicar em todas as iguais ---- */
+let o3SelIdx=0; // índice do produto selecionado no pedido
+function renderOrient3D(){
+  const box=$('orient3d');
+  box.style.display='block';
+  // dropdown com os produtos do pedido
+  if(o3SelIdx>=order.length) o3SelIdx=0;
+  $('o3Prod').innerHTML=order.map((o,i)=>`<option value="${i}" ${i===o3SelIdx?'selected':''}>${esc(o.nome)}</option>`).join('');
+  atualizarO3Hint();
+}
+function atualizarO3Hint(){
+  const o=order[o3SelIdx]; if(!o){ $('o3Hint').textContent=''; return; }
+  const dist=orientacoesDistintas(o.l,o.w,o.h);
+  let txt;
+  if(typeof o.orientacao==='number'){
+    const todas=todasRotacoes(o.l,o.w,o.h); const d=todas[o.orientacao];
+    txt=`Travado: <b>${nomeOrientacao(d)}</b>. Vale para as ${o.qtd} peças.`;
+  } else {
+    txt=`<b>Automática</b> — o app escolhe o melhor encaixe. Clique em “Girar 90°” para travar você mesmo.`;
+  }
+  if(dist.length<=1) txt+=' (esse produto só tem uma orientação possível)';
+  $('o3Hint').innerHTML=txt;
+}
+$('o3Prod').onchange=()=>{ o3SelIdx=parseInt($('o3Prod').value)||0; atualizarO3Hint(); };
+$('o3Rotate').onclick=()=>{
+  const o=order[o3SelIdx]; if(!o) return;
+  const dist=orientacoesDistintas(o.l,o.w,o.h);          // orientações distintas
+  const idxList=dist.map(d=>d.idx);
+  // posição atual na lista de distintas
+  let cur = (typeof o.orientacao==='number') ? idxList.indexOf(o.orientacao) : -1;
+  const next = idxList[(cur+1) % idxList.length];        // gira para a próxima
+  o.orientacao = next;
+  const p=registry.find(p=>p.nome===o.nome); if(p){ p.orientacao=next; saveProds(); renderProds(); }
+  calcular();
+};
+$('o3Auto').onclick=()=>{
+  const o=order[o3SelIdx]; if(!o) return;
+  o.orientacao='auto';
+  const p=registry.find(p=>p.nome===o.nome); if(p){ p.orientacao='auto'; saveProds(); renderProds(); }
+  calcular();
+};
 function shade(hex,amt){ let c=hex.replace('#',''); let r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16); r=Math.max(0,Math.min(255,r+amt));g=Math.max(0,Math.min(255,g+amt));b=Math.max(0,Math.min(255,b+amt)); return 'rgb('+r+','+g+','+b+')'; }
 function drawPackSVG(box, placed){
   const VW=380,VH=300;
