@@ -246,6 +246,9 @@
   .hist-empty{text-align:center;color:var(--txt-faint);padding:40px 16px}
 </style>
 <script src="/b3-vitrine.js"></script>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
 </head>
 <body>
 <script>window.B3Vitrine && B3Vitrine.guardAsync("flex");</script>
@@ -352,15 +355,29 @@
     </div>
     <div class="card-b">
       <div class="field">
+        <label>Marketplace</label>
+        <div style="display:flex;gap:8px">
+          <select id="marketplace" style="flex:1"></select>
+          <button class="btn ghost sm" id="addMarketplace" title="Adicionar marketplace">+ novo</button>
+        </div>
+      </div>
+      <div class="field">
         <label>Transportadora</label>
         <div style="display:flex;gap:8px">
           <select id="transp" style="flex:1"></select>
           <button class="btn ghost sm" id="addTransp" title="Adicionar transportadora">+ nova</button>
         </div>
       </div>
+      <div class="field">
+        <label>Responsável pela entrega (Rosa Baby)</label>
+        <div style="display:flex;gap:8px">
+          <select id="responsavel" style="flex:1"></select>
+          <button class="btn ghost sm" id="addResponsavel" title="Adicionar responsável">+ novo</button>
+        </div>
+      </div>
       <div class="row2">
         <div class="field">
-          <label>Motorista</label>
+          <label>Motorista (quem recebe)</label>
           <input type="text" id="motorista" placeholder="Nome do motorista">
         </div>
         <div class="field">
@@ -451,8 +468,11 @@
 /* ================= ESTADO DA SESSÃO ================= */
 const state = {
   pacotes: [],            // { code, hora, foto, ordem }
-  transportadoras: ['Transportadora A', 'Transportadora B'],
+  transportadoras: [],    // cadastradas pelo usuário
+  responsaveis: [],       // responsável pela entrega (Rosa Baby)
+  marketplaces: [],       // marketplaces (ML Flex, Shopee...)
   coletaId: null,         // ID único da coleta atual (gerado ao iniciar)
+  assinatura: null,       // dataURL da assinatura do motorista (salva na nuvem)
 };
 const codigosBipados = new Set(); // anti-duplicidade rápido (sessão)
 
@@ -503,7 +523,12 @@ function salvarLocal(){
       coletaId: state.coletaId,
       pacotes: state.pacotes,
       transportadoras: state.transportadoras,
+      responsaveis: state.responsaveis,
+      marketplaces: state.marketplaces,
+      assinatura: state.assinatura,
       transp: $('transp') ? $('transp').value : '',
+      responsavel: $('responsavel') ? $('responsavel').value : '',
+      marketplace: $('marketplace') ? $('marketplace').value : '',
       motorista: $('motorista') ? $('motorista').value : '',
     }));
   }catch(e){ /* localStorage cheio ou indisponível */ }
@@ -514,7 +539,10 @@ function restaurarLocal(){
     if(!raw) return;
     const d = JSON.parse(raw);
     if(d.coletaId) state.coletaId = d.coletaId;
-    if(Array.isArray(d.transportadoras) && d.transportadoras.length) state.transportadoras = d.transportadoras;
+    if(Array.isArray(d.transportadoras)) state.transportadoras = d.transportadoras;
+    if(Array.isArray(d.responsaveis)) state.responsaveis = d.responsaveis;
+    if(Array.isArray(d.marketplaces)) state.marketplaces = d.marketplaces;
+    if(d.assinatura) state.assinatura = d.assinatura;
     if(Array.isArray(d.pacotes)){
       state.pacotes = d.pacotes;
       state.pacotes.forEach(p=> codigosBipados.add(p.code));
@@ -560,22 +588,44 @@ $('photoInput').addEventListener('change', async e=>{
   alvoFoto = null;
 });
 
-/* ================= TRANSPORTADORAS ================= */
-function renderTransp(){
-  $('transp').innerHTML = state.transportadoras
-    .map(t=>`<option value="${t}">${t}</option>`).join('');
+/* ================= LISTAS EDITÁVEIS (transportadora, responsável, marketplace) ================= */
+// mapa: id do select -> { arrayNoState, rótulo singular }
+const LISTAS = {
+  transp:      { arr:'transportadoras', label:'transportadora', placeholder:'Cadastre uma transportadora' },
+  responsavel: { arr:'responsaveis',    label:'responsável',    placeholder:'Cadastre um responsável' },
+  marketplace: { arr:'marketplaces',    label:'marketplace',    placeholder:'Cadastre um marketplace' },
+};
+
+function renderLista(selId){
+  const conf = LISTAS[selId];
+  const arr = state[conf.arr];
+  const sel = $(selId);
+  if(arr.length === 0){
+    sel.innerHTML = `<option value="">— ${conf.placeholder} —</option>`;
+  } else {
+    sel.innerHTML = arr.map(v=>`<option value="${v}">${v}</option>`).join('');
+  }
 }
-$('addTransp').addEventListener('click', ()=>{
-  const nome = prompt('Nome da nova transportadora:');
+function renderTransp(){ renderLista('transp'); }  // compat com chamadas existentes
+function renderTodasListas(){ renderLista('transp'); renderLista('responsavel'); renderLista('marketplace'); }
+
+function addItem(selId){
+  const conf = LISTAS[selId];
+  const nome = prompt(`Nome do novo ${conf.label}:`);
   if(nome && nome.trim()){
-    state.transportadoras.push(nome.trim());
-    renderTransp();
-    $('transp').value = nome.trim();
+    const v = nome.trim();
+    if(!state[conf.arr].includes(v)) state[conf.arr].push(v);
+    renderLista(selId);
+    $(selId).value = v;
     salvarLocal();
   }
-});
-// salvar ao trocar transportadora ou digitar motorista
-$('transp').addEventListener('change', salvarLocal);
+}
+$('addTransp').addEventListener('click', ()=> addItem('transp'));
+$('addResponsavel').addEventListener('click', ()=> addItem('responsavel'));
+$('addMarketplace').addEventListener('click', ()=> addItem('marketplace'));
+
+// salvar ao trocar qualquer campo
+['transp','responsavel','marketplace'].forEach(id=> $(id).addEventListener('change', salvarLocal));
 $('motorista').addEventListener('input', salvarLocal);
 
 /* ================= BIPAGEM (núcleo anti-duplicidade) ================= */
@@ -634,16 +684,23 @@ async function syncPacote(pkg){
   };
   const r = await window.b3fx.salvarPacote(payload);
   // atualiza metadados da coleta
-  if(r === 'ok'){
-    window.b3fx.salvarColeta({
-      coletaId: state.coletaId,
-      transp: $('transp').value,
-      motorista: $('motorista').value.trim(),
-      data: hoje(),
-      total: state.pacotes.length,
-    });
-  }
+  if(r === 'ok') salvarMetaColeta();
   setSync(r === 'ok' ? 'ok' : (r === 'offline' ? 'offline' : 'erro'));
+}
+
+// grava/atualiza os metadados da coleta (inclui responsável, marketplace, assinatura)
+function salvarMetaColeta(){
+  if(!window.b3fx || !window.b3fx.online()) return;
+  window.b3fx.salvarColeta({
+    coletaId: state.coletaId,
+    marketplace: $('marketplace').value,
+    transp: $('transp').value,
+    responsavel: $('responsavel').value,
+    motorista: $('motorista').value.trim(),
+    data: hoje(),
+    total: state.pacotes.length,
+    assinatura: state.assinatura || null,
+  });
 }
 
 function setSync(estado){
@@ -731,6 +788,7 @@ $('novaColeta').addEventListener('click', ()=>{
   if(state.pacotes.length && !confirm('Iniciar uma NOVA coleta? A atual já está salva no histórico; a tela será limpa para começar do zero.')) return;
   state.coletaId = novoColetaId();
   state.pacotes = [];
+  state.assinatura = null;
   codigosBipados.clear();
   ctx && ctx.clearRect(0,0,cv.width,cv.height); temAssinatura=false;
   salvarLocal();
@@ -770,7 +828,7 @@ async function carregarHistorico(){
         <span class="hi-transp">${c.transp || '—'}</span>
         <span class="hi-total">${c.total||0} pct</span>
       </div>
-      <div class="hi-meta">${c.data||''} · ${c.motorista||'sem motorista'} · ${c.coletaId}</div>
+      <div class="hi-meta">${c.marketplace ? c.marketplace+' · ' : ''}${c.data||''} · ${c.motorista||'sem motorista'}${c.assinatura ? ' · ✍ assinado' : ''}</div>
     </div>`).join('');
   box.querySelectorAll('.hist-item').forEach(el=>{
     el.addEventListener('click', ()=> reabrirColeta(histColetas[+el.dataset.i]));
@@ -785,13 +843,27 @@ async function reabrirColeta(c){
   state.pacotes = pacotes.map(p=>({ code:p.code, hora:p.hora, foto:null, ordem:p.ordem||0 }));
   codigosBipados.clear();
   state.pacotes.forEach(p=> codigosBipados.add(p.code));
-  // aplica transportadora/motorista
-  if(c.transp && !state.transportadoras.includes(c.transp)){ state.transportadoras.push(c.transp); renderTransp(); }
-  $('transp').value = c.transp || $('transp').value;
+  // restaura listas (adiciona se não existir) e valores
+  function garantir(arr, val){ if(val && !state[arr].includes(val)) state[arr].push(val); }
+  garantir('transportadoras', c.transp);
+  garantir('responsaveis', c.responsavel);
+  garantir('marketplaces', c.marketplace);
+  renderTodasListas();
+  $('transp').value = c.transp || '';
+  $('responsavel').value = c.responsavel || '';
+  $('marketplace').value = c.marketplace || '';
   $('motorista').value = c.motorista || '';
+  // restaura assinatura salva (redesenha no canvas)
+  state.assinatura = c.assinatura || null;
+  temAssinatura = !!state.assinatura;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(state.assinatura){
+    const img = new Image();
+    img.onload = ()=>{ ctx.drawImage(img, 0, 0, cv.getBoundingClientRect().width, cv.getBoundingClientRect().height); };
+    img.src = state.assinatura;
+  }
   salvarLocal();
   renderList();
-  // volta pra aba bipar
   document.querySelector('.tab[data-view="bipar"]').click();
   feedback('ok','✓','Coleta reaberta', c.coletaId);
 }
@@ -868,16 +940,25 @@ function pos(e){
 }
 function start(e){ desenhando=true; temAssinatura=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault(); }
 function move(e){ if(!desenhando)return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault(); }
-function end(){ desenhando=false; }
+function end(){
+  if(!desenhando) return;
+  desenhando=false;
+  // captura a assinatura e salva (local + nuvem) — nunca mais se perde
+  if(temAssinatura){
+    try{ state.assinatura = cv.toDataURL('image/png'); }catch(e){}
+    salvarLocal();
+    salvarMetaColeta();
+  }
+}
 cv.addEventListener('mousedown',start); cv.addEventListener('mousemove',move); window.addEventListener('mouseup',end);
 cv.addEventListener('touchstart',start,{passive:false}); cv.addEventListener('touchmove',move,{passive:false}); cv.addEventListener('touchend',end);
-$('clearSig').addEventListener('click', ()=>{ ctx.clearRect(0,0,cv.width,cv.height); temAssinatura=false; });
+$('clearSig').addEventListener('click', ()=>{ ctx.clearRect(0,0,cv.width,cv.height); temAssinatura=false; state.assinatura=null; salvarLocal(); salvarMetaColeta(); });
 
 /* ================= PDF ================= */
 $('genPdf').addEventListener('click', ()=>{
   if(state.pacotes.length === 0){ alert('Nenhum pacote bipado.'); return; }
   if(!$('motorista').value.trim()){ alert('Informe o nome do motorista.'); return; }
-  if(!temAssinatura){ if(!confirm('Não há assinatura. Gerar mesmo assim?')) return; }
+  if(!temAssinatura && !state.assinatura){ if(!confirm('Não há assinatura. Gerar mesmo assim?')) return; }
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit:'mm', format:'a4' });
@@ -893,11 +974,16 @@ $('genPdf').addEventListener('click', ()=>{
 
   // dados
   doc.setTextColor(30,30,30); doc.setFont('helvetica','normal'); doc.setFontSize(10);
-  const transp = $('transp').value, motorista = $('motorista').value.trim();
-  doc.text(`Transportadora: ${transp}`, 14, y);
+  const transp = $('transp').value || '—';
+  const motorista = $('motorista').value.trim() || '—';
+  const responsavel = $('responsavel').value || '—';
+  const marketplace = $('marketplace').value || '—';
+  doc.text(`Marketplace: ${marketplace}`, 14, y);
   doc.text(`Data: ${hoje()}`, 140, y); y+=6;
-  doc.text(`Motorista: ${motorista}`, 14, y);
-  doc.text(`Total de pacotes: ${state.pacotes.length}`, 140, y); y+=10;
+  doc.text(`Transportadora: ${transp}`, 14, y);
+  doc.text(`Total de pacotes: ${state.pacotes.length}`, 140, y); y+=6;
+  doc.text(`Responsável (Rosa Baby): ${responsavel}`, 14, y);
+  doc.text(`Motorista: ${motorista}`, 14, y+6); y+=16;
 
   // linha
   doc.setDrawColor(220,220,220); doc.line(14, y, W-14, y); y+=8;
@@ -927,19 +1013,30 @@ $('genPdf').addEventListener('click', ()=>{
   // declaração
   doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(60,60,60);
   const decl = `Declaro ter recebido os ${state.pacotes.length} pacote(s) listados acima para entrega pela transportadora ${transp}, assumindo a responsabilidade pela custódia a partir desta coleta.`;
-  doc.text(doc.splitTextToSize(decl, W-28), 14, y); y+=18;
+  doc.text(doc.splitTextToSize(decl, W-28), 14, y); y+=16;
 
-  // assinatura
-  if(temAssinatura){
-    const img = cv.toDataURL('image/png');
-    doc.addImage(img, 'PNG', 14, y, 70, 26);
+  // duas assinaturas lado a lado: responsável (entregou) e motorista (recebeu)
+  const assinaturaImg = state.assinatura || (temAssinatura ? cv.toDataURL('image/png') : null);
+  const colL = 14, colR = 112;   // colunas
+  const yTopo = y;
+
+  // motorista (com assinatura desenhada) — coluna direita
+  if(assinaturaImg){
+    try{ doc.addImage(assinaturaImg, 'PNG', colR, y, 68, 24); }catch(e){}
   }
-  y+=28;
-  doc.setDrawColor(120,120,120); doc.line(14, y, 90, y); y+=5;
+  // responsável — coluna esquerda (linha só, assina no papel se quiser)
+  y = yTopo + 26;
+  doc.setDrawColor(120,120,120);
+  doc.line(colL, y, colL+76, y);          // linha responsável
+  doc.line(colR, y, colR+76, y);          // linha motorista
+  y+=5;
   doc.setFontSize(9); doc.setTextColor(30,30,30);
-  doc.text(motorista, 14, y); y+=5;
+  doc.text(responsavel, colL, y);
+  doc.text(motorista, colR, y);
+  y+=5;
   doc.setFontSize(8); doc.setTextColor(120,120,120);
-  doc.text('Assinatura do motorista', 14, y);
+  doc.text('Responsável pela entrega (Rosa Baby)', colL, y);
+  doc.text('Assinatura do motorista (recebeu)', colR, y);
 
   // rodapé
   doc.setFontSize(7.5); doc.setTextColor(150,150,150);
@@ -974,14 +1071,24 @@ $('genPdf').addEventListener('click', ()=>{
 restaurarLocal();               // recupera sessão salva (antes de renderizar)
 if(!state.coletaId) state.coletaId = novoColetaId();
 $('data').value = hoje();
-renderTransp();
-// aplica transportadora/motorista salvos, se houver
+renderTodasListas();
+// aplica valores salvos, se houver
 if(state._restore){
-  if(state._restore.transp) $('transp').value = state._restore.transp;
-  if(state._restore.motorista) $('motorista').value = state._restore.motorista;
+  const r = state._restore;
+  if(r.transp) $('transp').value = r.transp;
+  if(r.responsavel) $('responsavel').value = r.responsavel;
+  if(r.marketplace) $('marketplace').value = r.marketplace;
+  if(r.motorista) $('motorista').value = r.motorista;
 }
 renderList();
 fitCanvas();
+// restaura assinatura no canvas, se houver
+if(state.assinatura){
+  temAssinatura = true;
+  const img = new Image();
+  img.onload = ()=>{ const b=cv.getBoundingClientRect(); ctx.drawImage(img,0,0,b.width,b.height); };
+  img.src = state.assinatura;
+}
 window.addEventListener('resize', ()=>{ /* mantém assinatura simples: refit sem preservar */ fitCanvas(); });
 if(location.protocol === 'file:') $('warnHttps').style.display='block';
 
