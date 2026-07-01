@@ -89,13 +89,13 @@
       catch (e) { console.warn("salvarColeta falhou:", e); }
     },
 
-    // Lista todas as coletas (histórico)
+    // Lista as coletas FINALIZADAS (histórico). Rascunhos não aparecem.
     async listarColetas() {
       if (!online) return [];
       try {
         const snap = await getDocs(collection(db, COL_COL));
         const arr = [];
-        snap.forEach(d => arr.push(d.data()));
+        snap.forEach(d => { const x = d.data(); if (x.status === 'finalizada') arr.push(x); });
         return arr.sort((a, b) => (b.coletaId > a.coletaId ? 1 : -1));
       } catch (e) { console.warn("listarColetas falhou:", e); return []; }
     },
@@ -412,7 +412,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Responsável pela entrega </label>
+        <label>Responsável pela entrega (Rosa Baby)</label>
         <div style="display:flex;gap:8px">
           <select id="responsavel" style="flex:1"></select>
           <button class="btn ghost sm" id="addResponsavel" title="Adicionar responsável">+ novo</button>
@@ -479,7 +479,11 @@
     </div>
   </div>
 
-  <button class="btn" id="genPdf" style="padding:15px">📄 Gerar comprovante em PDF</button>
+  <button class="btn" id="finalizarColeta" style="padding:15px;font-size:15px">✓ Finalizar coleta</button>
+  <button class="btn ghost" id="genPdf" style="padding:12px;margin-top:8px">📄 Gerar PDF agora (opcional)</button>
+  <p style="font-size:11px;color:var(--txt-faint);text-align:center;margin-top:8px;font-family:var(--mono)">
+    Ao finalizar, a coleta vai pro histórico. O PDF pode ser gerado depois, a qualquer momento.
+  </p>
 
   </div><!-- /view-bipar -->
 
@@ -802,17 +806,30 @@ document.querySelectorAll('[data-addcad]').forEach(b=>{
 });
 
 /* ================= BIPAGEM (núcleo anti-duplicidade) ================= */
-async function bipar(code){
+// controle de releitura da câmera: ignora o mesmo código por 4s
+const ultimaLeitura = new Map(); // code -> timestamp
+const JANELA_CAMERA_MS = 4000;
+
+async function bipar(code, viaCamera){
   code = (code||'').trim();
   if(!code) return;
 
-  // 1) duplicata na sessão atual (rápido, local)
+  // 0) trava de tempo: câmera relendo a mesma etiqueta em rajada (4s)
+  if(viaCamera){
+    const agoraMs = Date.now();
+    const ultima = ultimaLeitura.get(code) || 0;
+    if(agoraMs - ultima < JANELA_CAMERA_MS){ return; } // ignora silenciosamente a rajada
+    ultimaLeitura.set(code, agoraMs);
+  }
+
+  // 1) duplicata na sessão atual — marca IMEDIATAMENTE (fecha a brecha do await)
   if(codigosBipados.has(code)){
     feedback('dup', '✕', 'JÁ BIPADO nesta coleta!', code);
     beepDup();
     navigator.vibrate && navigator.vibrate([80,50,80]);
     return;
   }
+  codigosBipados.add(code); // <<< reserva o código já, antes de qualquer await
 
   // garante que a coleta tem ID
   if(!state.coletaId) state.coletaId = novoColetaId();
@@ -821,6 +838,7 @@ async function bipar(code){
   if(window.b3fx && window.b3fx.online()){
     const existente = await window.b3fx.verificar(code);
     if(existente && existente.coletaId !== state.coletaId){
+      codigosBipados.delete(code); // desfaz a reserva — não é desta coleta
       const q = existente.transp || 'outra transportadora';
       const dia = existente.data || existente.coletaId || '';
       feedback('dup', '✕', `JÁ SAIU (${q}, ${dia})`, code);
@@ -831,7 +849,6 @@ async function bipar(code){
   }
 
   // 3) registra
-  codigosBipados.add(code);
   const pkg = { code, hora: hhmm(agora()), foto: null, ordem: state.pacotes.length };
   state.pacotes.push(pkg);
   feedback('ok', '✓', 'Registrado', code);
@@ -861,8 +878,8 @@ async function syncPacote(pkg){
   setSync(r === 'ok' ? 'ok' : (r === 'offline' ? 'offline' : 'erro'));
 }
 
-// grava/atualiza os metadados da coleta (inclui responsável, marketplace, assinatura)
-function salvarMetaColeta(){
+// grava/atualiza os metadados da coleta como RASCUNHO (não aparece no histórico)
+function salvarMetaColeta(extra){
   if(!window.b3fx || !window.b3fx.online()) return;
   window.b3fx.salvarColeta({
     coletaId: state.coletaId,
@@ -873,7 +890,44 @@ function salvarMetaColeta(){
     data: hoje(),
     total: state.pacotes.length,
     assinatura: state.assinatura || null,
+    status: 'rascunho',
+    ...(extra||{}),
   });
+}
+
+// FINALIZAR: valida tudo e marca a coleta como finalizada (aí vai pro histórico)
+async function finalizarColeta(){
+  // não deixa finalizar nada vazio — valida cada campo
+  const faltando = [];
+  if(state.pacotes.length === 0) faltando.push('nenhum pacote bipado');
+  if(!$('marketplace').value) faltando.push('marketplace');
+  if(!$('transp').value) faltando.push('transportadora');
+  if(!$('responsavel').value) faltando.push('responsável');
+  if(!$('motorista').value.trim()) faltando.push('nome do motorista');
+  if(!state.assinatura && !temAssinatura) faltando.push('assinatura do motorista');
+
+  if(faltando.length){
+    alert('Não é possível finalizar. Faltam:\n\n• ' + faltando.join('\n• '));
+    return;
+  }
+  if(!confirm(`Finalizar a coleta de ${$('transp').value} com ${state.pacotes.length} pacote(s)?\n\nDepois de finalizada, ela vai para o histórico e você pode gerar o PDF quando quiser.`)) return;
+
+  if(!window.b3fx || !window.b3fx.online()){
+    alert('Sem conexão. Conecte à internet para finalizar (os pacotes já estão salvos como rascunho).');
+    return;
+  }
+
+  // garante assinatura salva no state
+  if(!state.assinatura && temAssinatura){ try{ state.assinatura = cv.toDataURL('image/png'); }catch(e){} }
+
+  const btn = $('finalizarColeta');
+  const txt = btn.textContent; btn.textContent = 'Finalizando...'; btn.disabled = true;
+  salvarMetaColeta({ status: 'finalizada' });
+  await new Promise(r=> setTimeout(r, 600)); // dá tempo do setDoc completar
+  btn.textContent = txt; btn.disabled = false;
+
+  feedback('ok','✓','Coleta finalizada e salva no histórico', state.coletaId);
+  alert('Coleta finalizada! Ela está no histórico. Para baixar o PDF, abra-a no histórico quando quiser.');
 }
 
 function setSync(estado){
@@ -1136,19 +1190,19 @@ $('startCam').addEventListener('click', async ()=>{
     // 1ª tentativa: câmera traseira por facingMode
     try{
       await html5Qr.start({ facingMode: { exact: 'environment' } }, config,
-        (decoded)=>bipar(decoded), ()=>{});
+        (decoded)=>bipar(decoded, true), ()=>{});
     }catch(e1){
       // 2ª tentativa: environment sem "exact" (alguns iPhones recusam exact)
       try{
         await html5Qr.start({ facingMode: 'environment' }, config,
-          (decoded)=>bipar(decoded), ()=>{});
+          (decoded)=>bipar(decoded, true), ()=>{});
       }catch(e2){
         // 3ª tentativa: listar câmeras e pegar a última (costuma ser a traseira)
         const cams = await Html5Qrcode.getCameras();
         if(!cams || !cams.length) throw new Error('Nenhuma câmera encontrada');
         const cam = cams[cams.length-1];
         await html5Qr.start({ deviceId: { exact: cam.id } }, config,
-          (decoded)=>bipar(decoded), ()=>{});
+          (decoded)=>bipar(decoded, true), ()=>{});
       }
     }
 
@@ -1198,6 +1252,7 @@ cv.addEventListener('touchstart',start,{passive:false}); cv.addEventListener('to
 $('clearSig').addEventListener('click', ()=>{ ctx.clearRect(0,0,cv.width,cv.height); temAssinatura=false; state.assinatura=null; salvarLocal(); salvarMetaColeta(); });
 
 /* ================= PDF ================= */
+$('finalizarColeta').addEventListener('click', finalizarColeta);
 $('genPdf').addEventListener('click', ()=>{
   if(state.pacotes.length === 0){ alert('Nenhum pacote bipado.'); return; }
   if(!$('motorista').value.trim()){ alert('Informe o nome do motorista.'); return; }
