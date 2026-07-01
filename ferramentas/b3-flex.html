@@ -110,6 +110,25 @@
         snap.forEach(d => arr.push(d.data()));
         return arr.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
       } catch (e) { console.warn("pacotesDaColeta falhou:", e); return []; }
+    },
+
+    // Lê os cadastros (transportadoras, responsáveis, marketplaces) da nuvem
+    async lerCadastros() {
+      if (!online) return null;
+      try {
+        const ref = doc(db, "b3_config", "flex_cadastros");
+        const snap = await getDoc(ref);
+        return snap.exists() ? snap.data() : null;
+      } catch (e) { console.warn("lerCadastros falhou:", e); return null; }
+    },
+
+    // Salva os cadastros na nuvem (valem em todo aparelho)
+    async salvarCadastros(cad) {
+      if (!online) return false;
+      try {
+        await setDoc(doc(db, "b3_config", "flex_cadastros"), { ...cad, ts: serverTimestamp() }, { merge: true });
+        return true;
+      } catch (e) { console.warn("salvarCadastros falhou:", e); return false; }
     }
   };
 
@@ -244,6 +263,29 @@
   .hist-item .hi-total{font-family:var(--mono);font-size:13px;color:var(--amber);font-weight:700}
   .hist-item .hi-meta{font-size:12px;color:var(--txt-faint);font-family:var(--mono)}
   .hist-empty{text-align:center;color:var(--txt-faint);padding:40px 16px}
+
+  /* Filtros do histórico */
+  .hist-chips{display:flex;gap:6px;flex-wrap:wrap}
+  .hchip{padding:6px 12px;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--txt-dim);border-radius:20px;font-family:var(--sans);font-size:12px;
+    font-weight:600;cursor:pointer;transition:all .15s}
+  .hchip.active{background:rgba(245,158,11,.15);border-color:var(--amber);color:var(--amber)}
+  .hist-count{font-family:var(--mono);font-size:11px;color:var(--txt-faint);margin-top:12px}
+
+  /* Cadastros */
+  .cad-sec{margin-bottom:22px}
+  .cad-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;
+    padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .cad-h span{font-size:13px;font-weight:600;color:var(--amber-soft)}
+  .cad-list{display:flex;flex-direction:column;gap:6px}
+  .cad-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:8px}
+  .cad-item .cn{flex:1;font-size:13px}
+  .cad-item button{background:none;border:none;cursor:pointer;font-size:14px;padding:3px 6px;
+    color:var(--txt-faint);border-radius:5px}
+  .cad-item .edit:hover{color:var(--amber)}
+  .cad-item .del:hover{color:var(--red)}
+  .cad-vazio{font-size:12px;color:var(--txt-faint);padding:10px 4px;font-style:italic}
 </style>
 <script src="/b3-vitrine.js"></script>
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -342,6 +384,7 @@
   <div class="tabs">
     <button class="tab active" data-view="bipar">Bipar</button>
     <button class="tab" data-view="historico">Histórico</button>
+    <button class="tab" data-view="cadastros">Cadastros</button>
   </div>
 
   <!-- ========== VIEW BIPAR ========== -->
@@ -447,8 +490,62 @@
         <span class="n">◎</span><h2>Coletas anteriores</h2>
         <button class="btn ghost sm" id="reloadHist" style="margin-left:auto">↻ atualizar</button>
       </div>
-      <div class="card-b" id="histList">
+      <div class="card-b">
+        <!-- busca -->
+        <div class="field" style="margin-bottom:12px">
+          <input type="text" id="histBusca" placeholder="Buscar por transportadora, motorista, marketplace...">
+        </div>
+        <!-- atalhos de período -->
+        <div class="hist-chips">
+          <button class="hchip active" data-range="all">Tudo</button>
+          <button class="hchip" data-range="today">Hoje</button>
+          <button class="hchip" data-range="month">Este mês</button>
+          <button class="hchip" data-range="year">Este ano</button>
+          <button class="hchip" data-range="custom">Período…</button>
+        </div>
+        <!-- período customizado -->
+        <div id="histCustom" style="display:none;gap:8px;margin-top:10px">
+          <div class="field" style="flex:1;margin:0">
+            <label>De</label><input type="date" id="histDe">
+          </div>
+          <div class="field" style="flex:1;margin:0">
+            <label>Até</label><input type="date" id="histAte">
+          </div>
+        </div>
+        <div class="hist-count" id="histCount"></div>
+      </div>
+      <div class="card-b" id="histList" style="padding-top:0">
         <div class="hist-empty">Carregando…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== VIEW CADASTROS ========== -->
+  <div class="view" id="view-cadastros">
+    <div class="card">
+      <div class="card-h"><span class="n">⚙</span><h2>Cadastros</h2>
+        <span class="hint" id="cadSync" style="margin-left:auto"></span>
+      </div>
+      <div class="card-b">
+        <p style="font-size:12px;color:var(--txt-dim);margin-bottom:16px">Gerencie as listas usadas na coleta. Alterações valem em todos os aparelhos.</p>
+
+        <div class="cad-sec">
+          <div class="cad-h"><span>Transportadoras</span>
+            <button class="btn ghost sm" data-addcad="transportadoras">+ nova</button></div>
+          <div id="cadTransportadoras" class="cad-list"></div>
+        </div>
+
+        <div class="cad-sec">
+          <div class="cad-h"><span>Responsáveis (Rosa Baby)</span>
+            <button class="btn ghost sm" data-addcad="responsaveis">+ novo</button></div>
+          <div id="cadResponsaveis" class="cad-list"></div>
+        </div>
+
+        <div class="cad-sec">
+          <div class="cad-h"><span>Marketplaces</span>
+            <button class="btn ghost sm" data-addcad="marketplaces">+ novo</button></div>
+          <div id="cadMarketplaces" class="cad-list"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -588,8 +685,7 @@ $('photoInput').addEventListener('change', async e=>{
   alvoFoto = null;
 });
 
-/* ================= LISTAS EDITÁVEIS (transportadora, responsável, marketplace) ================= */
-// mapa: id do select -> { arrayNoState, rótulo singular }
+/* ================= LISTAS EDITÁVEIS + CADASTROS ================= */
 const LISTAS = {
   transp:      { arr:'transportadoras', label:'transportadora', placeholder:'Cadastre uma transportadora' },
   responsavel: { arr:'responsaveis',    label:'responsável',    placeholder:'Cadastre um responsável' },
@@ -600,14 +696,39 @@ function renderLista(selId){
   const conf = LISTAS[selId];
   const arr = state[conf.arr];
   const sel = $(selId);
+  const atual = sel.value;
   if(arr.length === 0){
     sel.innerHTML = `<option value="">— ${conf.placeholder} —</option>`;
   } else {
     sel.innerHTML = arr.map(v=>`<option value="${v}">${v}</option>`).join('');
+    if(arr.includes(atual)) sel.value = atual;
   }
 }
-function renderTransp(){ renderLista('transp'); }  // compat com chamadas existentes
+function renderTransp(){ renderLista('transp'); }
 function renderTodasListas(){ renderLista('transp'); renderLista('responsavel'); renderLista('marketplace'); }
+
+// salva as 3 listas na nuvem (e local)
+async function salvarCadastrosNuvem(){
+  salvarLocal();
+  const cad = {
+    transportadoras: state.transportadoras,
+    responsaveis: state.responsaveis,
+    marketplaces: state.marketplaces,
+  };
+  if(window.b3fx && window.b3fx.online()){
+    setCadSync('sync');
+    const ok = await window.b3fx.salvarCadastros(cad);
+    setCadSync(ok ? 'ok' : 'erro');
+  } else {
+    setCadSync('offline');
+  }
+}
+function setCadSync(estado){
+  const el = $('cadSync'); if(!el) return;
+  const map = { ok:['salvo na nuvem ✓','var(--green)'], sync:['salvando…','var(--amber)'],
+                offline:['offline (local)','var(--txt-faint)'], erro:['erro ao salvar','var(--red)'] };
+  const m = map[estado]||map.offline; el.textContent=m[0]; el.style.color=m[1];
+}
 
 function addItem(selId){
   const conf = LISTAS[selId];
@@ -617,16 +738,68 @@ function addItem(selId){
     if(!state[conf.arr].includes(v)) state[conf.arr].push(v);
     renderLista(selId);
     $(selId).value = v;
-    salvarLocal();
+    salvarCadastrosNuvem();
   }
 }
 $('addTransp').addEventListener('click', ()=> addItem('transp'));
 $('addResponsavel').addEventListener('click', ()=> addItem('responsavel'));
 $('addMarketplace').addEventListener('click', ()=> addItem('marketplace'));
 
-// salvar ao trocar qualquer campo
 ['transp','responsavel','marketplace'].forEach(id=> $(id).addEventListener('change', salvarLocal));
 $('motorista').addEventListener('input', salvarLocal);
+
+/* ---- aba Cadastros: render, editar, excluir ---- */
+const CAD_SECOES = [
+  { arr:'transportadoras', box:'cadTransportadoras', label:'transportadora' },
+  { arr:'responsaveis',    box:'cadResponsaveis',    label:'responsável' },
+  { arr:'marketplaces',    box:'cadMarketplaces',    label:'marketplace' },
+];
+function renderCadastros(){
+  CAD_SECOES.forEach(sec=>{
+    const arr = state[sec.arr];
+    const box = $(sec.box);
+    if(!arr.length){ box.innerHTML = `<div class="cad-vazio">Nenhum ${sec.label} cadastrado.</div>`; return; }
+    box.innerHTML = arr.map((v,i)=>`
+      <div class="cad-item">
+        <span class="cn">${v}</span>
+        <button class="edit" data-arr="${sec.arr}" data-i="${i}" title="Editar">✎</button>
+        <button class="del" data-arr="${sec.arr}" data-i="${i}" title="Excluir">🗑</button>
+      </div>`).join('');
+  });
+  // editar
+  document.querySelectorAll('#view-cadastros .edit').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const arr = b.dataset.arr, i = +b.dataset.i;
+      const novo = prompt('Editar nome:', state[arr][i]);
+      if(novo && novo.trim()){
+        state[arr][i] = novo.trim();
+        renderCadastros(); renderTodasListas(); salvarCadastrosNuvem();
+      }
+    });
+  });
+  // excluir
+  document.querySelectorAll('#view-cadastros .del').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const arr = b.dataset.arr, i = +b.dataset.i;
+      if(confirm(`Excluir "${state[arr][i]}"?`)){
+        state[arr].splice(i,1);
+        renderCadastros(); renderTodasListas(); salvarCadastrosNuvem();
+      }
+    });
+  });
+}
+// botões "+ nova" dentro da aba cadastros
+document.querySelectorAll('[data-addcad]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const arr = b.dataset.addcad;
+    const label = CAD_SECOES.find(s=>s.arr===arr).label;
+    const nome = prompt(`Nome do novo ${label}:`);
+    if(nome && nome.trim()){
+      if(!state[arr].includes(nome.trim())) state[arr].push(nome.trim());
+      renderCadastros(); renderTodasListas(); salvarCadastrosNuvem();
+    }
+  });
+});
 
 /* ================= BIPAGEM (núcleo anti-duplicidade) ================= */
 async function bipar(code){
@@ -805,36 +978,106 @@ document.querySelectorAll('.tab').forEach(t=>{
     t.classList.add('active');
     $('view-'+t.dataset.view).classList.add('active');
     if(t.dataset.view === 'historico') carregarHistorico();
+    if(t.dataset.view === 'cadastros') renderCadastros();
   });
 });
 
 /* ================= HISTÓRICO ================= */
 let histColetas = [];
+let histFiltroRange = 'all';
+
+// extrai 'aaaa-mm-dd' do coletaId (formato aaaa-mm-dd_hhmmss)
+function dataDaColeta(c){
+  if(c.coletaId && /^\d{4}-\d{2}-\d{2}/.test(c.coletaId)) return c.coletaId.slice(0,10);
+  // fallback: converte dd/mm/aaaa -> aaaa-mm-dd
+  if(c.data && /^\d{2}\/\d{2}\/\d{4}$/.test(c.data)){
+    const [d,m,a] = c.data.split('/'); return `${a}-${m}-${d}`;
+  }
+  return '';
+}
+
 async function carregarHistorico(){
   const box = $('histList');
   if(!window.b3fx || !window.b3fx.online()){
     box.innerHTML = '<div class="hist-empty">Histórico indisponível offline.<br>Conecte à internet e recarregue.</div>';
+    $('histCount').textContent = '';
     return;
   }
   box.innerHTML = '<div class="hist-empty">Carregando…</div>';
   histColetas = await window.b3fx.listarColetas();
-  if(!histColetas.length){
-    box.innerHTML = '<div class="hist-empty">Nenhuma coleta salva ainda.</div>';
-    return;
+  aplicarFiltrosHist();
+}
+
+function aplicarFiltrosHist(){
+  const box = $('histList');
+  const termo = ($('histBusca').value || '').trim().toLowerCase();
+
+  // determina intervalo de datas [de, ate] em 'aaaa-mm-dd'
+  let de = '', ate = '';
+  const hoje = new Date();
+  const iso = d => d.toISOString().slice(0,10);
+  if(histFiltroRange === 'today'){ de = ate = iso(hoje); }
+  else if(histFiltroRange === 'month'){
+    de = iso(new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+    ate = iso(new Date(hoje.getFullYear(), hoje.getMonth()+1, 0));
   }
-  box.innerHTML = histColetas.map((c,i)=>`
-    <div class="hist-item" data-i="${i}">
+  else if(histFiltroRange === 'year'){
+    de = `${hoje.getFullYear()}-01-01`; ate = `${hoje.getFullYear()}-12-31`;
+  }
+  else if(histFiltroRange === 'custom'){
+    de = $('histDe').value || ''; ate = $('histAte').value || '';
+  }
+
+  const filtradas = histColetas.filter(c=>{
+    // texto
+    if(termo){
+      const alvo = `${c.transp||''} ${c.motorista||''} ${c.marketplace||''} ${c.responsavel||''}`.toLowerCase();
+      if(!alvo.includes(termo)) return false;
+    }
+    // período
+    if(de || ate){
+      const d = dataDaColeta(c);
+      if(!d) return false;
+      if(de && d < de) return false;
+      if(ate && d > ate) return false;
+    }
+    return true;
+  });
+
+  $('histCount').textContent = `${filtradas.length} de ${histColetas.length} coleta(s)`;
+
+  if(!histColetas.length){ box.innerHTML = '<div class="hist-empty">Nenhuma coleta salva ainda.</div>'; return; }
+  if(!filtradas.length){ box.innerHTML = '<div class="hist-empty">Nenhuma coleta encontrada com esses filtros.</div>'; return; }
+
+  box.innerHTML = filtradas.map((c)=>{
+    const idx = histColetas.indexOf(c);
+    return `<div class="hist-item" data-i="${idx}">
       <div class="hi-top">
         <span class="hi-transp">${c.transp || '—'}</span>
         <span class="hi-total">${c.total||0} pct</span>
       </div>
       <div class="hi-meta">${c.marketplace ? c.marketplace+' · ' : ''}${c.data||''} · ${c.motorista||'sem motorista'}${c.assinatura ? ' · ✍ assinado' : ''}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   box.querySelectorAll('.hist-item').forEach(el=>{
     el.addEventListener('click', ()=> reabrirColeta(histColetas[+el.dataset.i]));
   });
 }
+
+// listeners dos filtros
 $('reloadHist').addEventListener('click', carregarHistorico);
+$('histBusca').addEventListener('input', aplicarFiltrosHist);
+$('histDe').addEventListener('change', aplicarFiltrosHist);
+$('histAte').addEventListener('change', aplicarFiltrosHist);
+document.querySelectorAll('.hchip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.hchip').forEach(x=>x.classList.remove('active'));
+    chip.classList.add('active');
+    histFiltroRange = chip.dataset.range;
+    $('histCustom').style.display = (histFiltroRange === 'custom') ? 'flex' : 'none';
+    aplicarFiltrosHist();
+  });
+});
 
 async function reabrirColeta(c){
   if(!confirm(`Reabrir a coleta de ${c.transp} (${c.data})?\nOs pacotes atuais na tela de bipagem serão substituídos.`)) return;
@@ -1093,9 +1336,25 @@ window.addEventListener('resize', ()=>{ /* mantém assinatura simples: refit sem
 if(location.protocol === 'file:') $('warnHttps').style.display='block';
 
 // quando o Firebase terminar de carregar, atualiza status e ressincroniza pendentes
-function aoFicarOnline(){
+async function aoFicarOnline(){
   if(window.b3fx && window.b3fx.online()){
     setSync('ok');
+    // carrega cadastros da nuvem (valem em todo aparelho; sobrepõe locais antigos)
+    try{
+      const cad = await window.b3fx.lerCadastros();
+      if(cad){
+        if(Array.isArray(cad.transportadoras)) state.transportadoras = cad.transportadoras;
+        if(Array.isArray(cad.responsaveis)) state.responsaveis = cad.responsaveis;
+        if(Array.isArray(cad.marketplaces)) state.marketplaces = cad.marketplaces;
+        // preserva a seleção atual dos selects
+        const selTransp=$('transp').value, selResp=$('responsavel').value, selMkt=$('marketplace').value;
+        renderTodasListas();
+        if(state.transportadoras.includes(selTransp)) $('transp').value=selTransp;
+        if(state.responsaveis.includes(selResp)) $('responsavel').value=selResp;
+        if(state.marketplaces.includes(selMkt)) $('marketplace').value=selMkt;
+        salvarLocal();
+      }
+    }catch(e){ console.warn('lerCadastros init falhou:', e); }
     // re-envia pacotes que já estão na tela (garante que tudo está no banco)
     state.pacotes.forEach(p=> syncPacote(p));
   } else {
