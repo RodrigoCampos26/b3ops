@@ -9,6 +9,113 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- ================= FIREBASE (módulo ES, expõe window.b3fx) ================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, doc, setDoc, getDoc, getDocs,
+    query, where, deleteDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyADBo2Ft7VEPwRsqBDveVOByOE99CnWj-w",
+    authDomain: "b3ops-ab662.firebaseapp.com",
+    projectId: "b3ops-ab662",
+    storageBucket: "b3ops-ab662.firebasestorage.app",
+    messagingSenderId: "695969657587",
+    appId: "1:695969657587:web:d79c4f0e6766bda0db3d86"
+  };
+
+  const COL_PAC = "b3_flex_pacotes";   // 1 doc por pacote (ID = código) → bloqueia duplicata no banco
+  const COL_COL = "b3_flex_coletas";   // 1 doc por coleta finalizada (metadados p/ histórico)
+
+  let db = null, online = false;
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    online = true;
+  } catch (e) {
+    console.warn("Firestore indisponível, usando modo local:", e);
+  }
+
+  // sanitiza código pra virar ID de documento válido (sem / . etc.)
+  const idSeguro = code => code.replace(/[\/\.\#\$\[\]]/g, "_").slice(0, 300);
+
+  window.b3fx = {
+    online: () => online,
+
+    // Verifica se o código já existe no banco (qualquer coleta anterior)
+    async verificar(code) {
+      if (!online) return null;
+      try {
+        const ref = doc(db, COL_PAC, idSeguro(code));
+        const snap = await getDoc(ref);
+        return snap.exists() ? snap.data() : null;
+      } catch (e) { console.warn("verificar falhou:", e); return null; }
+    },
+
+    // Salva 1 pacote. Retorna 'ok' | 'dup' | 'offline' | 'erro'
+    async salvarPacote(p) {
+      if (!online) return 'offline';
+      try {
+        const ref = doc(db, COL_PAC, idSeguro(p.code));
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const d = snap.data();
+          // já existe na MESMA coleta? então é só re-sync, não é duplicata real
+          if (d.coletaId === p.coletaId) {
+            await setDoc(ref, { ...d, ...p, ts: d.ts || serverTimestamp() }, { merge: true });
+            return 'ok';
+          }
+          return 'dup'; // saiu em outra coleta → duplicata cruzada
+        }
+        await setDoc(ref, { ...p, ts: serverTimestamp() });
+        return 'ok';
+      } catch (e) { console.warn("salvarPacote falhou:", e); return 'erro'; }
+    },
+
+    // Remove 1 pacote do banco (quando o usuário apaga da lista)
+    async removerPacote(code) {
+      if (!online) return;
+      try { await deleteDoc(doc(db, COL_PAC, idSeguro(code))); }
+      catch (e) { console.warn("removerPacote falhou:", e); }
+    },
+
+    // Salva/atualiza os metadados da coleta (transportadora, motorista, total…)
+    async salvarColeta(c) {
+      if (!online) return;
+      try { await setDoc(doc(db, COL_COL, c.coletaId), { ...c, ts: serverTimestamp() }, { merge: true }); }
+      catch (e) { console.warn("salvarColeta falhou:", e); }
+    },
+
+    // Lista todas as coletas (histórico)
+    async listarColetas() {
+      if (!online) return [];
+      try {
+        const snap = await getDocs(collection(db, COL_COL));
+        const arr = [];
+        snap.forEach(d => arr.push(d.data()));
+        return arr.sort((a, b) => (b.coletaId > a.coletaId ? 1 : -1));
+      } catch (e) { console.warn("listarColetas falhou:", e); return []; }
+    },
+
+    // Busca os pacotes de uma coleta específica (pra reabrir)
+    async pacotesDaColeta(coletaId) {
+      if (!online) return [];
+      try {
+        const q = query(collection(db, COL_PAC), where("coletaId", "==", coletaId));
+        const snap = await getDocs(q);
+        const arr = [];
+        snap.forEach(d => arr.push(d.data()));
+        return arr.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+      } catch (e) { console.warn("pacotesDaColeta falhou:", e); return []; }
+    }
+  };
+
+  // avisa o script clássico que o Firebase está pronto
+  window.dispatchEvent(new Event('b3fx-ready'));
+</script>
 <style>
   :root{
     --bg:#15171c;--panel:#1c1f26;--panel-2:#23272f;--line:#2e333d;--line-soft:#262b33;
@@ -115,6 +222,28 @@
     padding:10px 14px;border-radius:9px;font-size:12px;margin-bottom:14px;display:none}
   .badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 8px;
     border-radius:5px;background:rgba(245,158,11,.12);color:var(--amber);font-weight:600}
+
+  /* Abas */
+  .tabs{display:flex;gap:6px;margin-bottom:18px;background:var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:5px}
+  .tab{flex:1;padding:9px;border:none;background:none;color:var(--txt-dim);
+    font-family:var(--sans);font-size:13px;font-weight:600;border-radius:7px;cursor:pointer;transition:all .15s}
+  .tab.active{background:var(--panel-2);color:var(--amber)}
+  .view{display:none}
+  .view.active{display:block}
+
+  /* Sync indicator */
+  .sync-ind{font-family:var(--mono);font-size:11px;color:var(--txt-faint)}
+
+  /* Histórico */
+  .hist-item{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+  .hist-item:hover{border-color:var(--amber)}
+  .hist-item .hi-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+  .hist-item .hi-transp{font-weight:600;font-size:14px;color:var(--txt)}
+  .hist-item .hi-total{font-family:var(--mono);font-size:13px;color:var(--amber);font-weight:700}
+  .hist-item .hi-meta{font-size:12px;color:var(--txt-faint);font-family:var(--mono)}
+  .hist-empty{text-align:center;color:var(--txt-faint);padding:40px 16px}
 </style>
 </head>
 <body>
@@ -129,9 +258,21 @@
     ⚠ A câmera só funciona em HTTPS. Rode pelo endereço do Vercel (não pelo arquivo local). Você ainda pode digitar o código manualmente abaixo.
   </div>
 
+  <!-- ABAS -->
+  <div class="tabs">
+    <button class="tab active" data-view="bipar">Bipar</button>
+    <button class="tab" data-view="historico">Histórico</button>
+  </div>
+
+  <!-- ========== VIEW BIPAR ========== -->
+  <div class="view active" id="view-bipar">
+
   <!-- 01 SESSÃO -->
   <div class="card">
-    <div class="card-h"><span class="n">01</span><h2>Dados da coleta</h2></div>
+    <div class="card-h">
+      <span class="n">01</span><h2>Dados da coleta</h2>
+      <button class="btn ghost sm" id="novaColeta" style="margin-left:auto">＋ nova coleta</button>
+    </div>
     <div class="card-b">
       <div class="field">
         <label>Transportadora</label>
@@ -174,7 +315,7 @@
 
   <!-- Contador -->
   <div class="counter">
-    <div><div class="lbl">Pacotes bipados</div></div>
+    <div><div class="lbl">Pacotes bipados</div><div class="sync-ind" id="syncState">—</div></div>
     <div class="big" id="count">0</div>
   </div>
 
@@ -203,6 +344,21 @@
 
   <button class="btn" id="genPdf" style="padding:15px">📄 Gerar comprovante em PDF</button>
 
+  </div><!-- /view-bipar -->
+
+  <!-- ========== VIEW HISTÓRICO ========== -->
+  <div class="view" id="view-historico">
+    <div class="card">
+      <div class="card-h">
+        <span class="n">◎</span><h2>Coletas anteriores</h2>
+        <button class="btn ghost sm" id="reloadHist" style="margin-left:auto">↻ atualizar</button>
+      </div>
+      <div class="card-b" id="histList">
+        <div class="hist-empty">Carregando…</div>
+      </div>
+    </div>
+  </div>
+
   <div class="foot">B3 Flex · Oficina de Precisão · custódia de pacotes Flex</div>
 </div>
 
@@ -217,15 +373,23 @@
 <script>
 /* ================= ESTADO DA SESSÃO ================= */
 const state = {
-  pacotes: [],            // { code, hora }
+  pacotes: [],            // { code, hora, foto, ordem }
   transportadoras: ['Transportadora A', 'Transportadora B'],
+  coletaId: null,         // ID único da coleta atual (gerado ao iniciar)
 };
-const codigosBipados = new Set(); // anti-duplicidade rápido
+const codigosBipados = new Set(); // anti-duplicidade rápido (sessão)
 
 const $ = id => document.getElementById(id);
 const agora = () => new Date();
 const hhmm = d => d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 const hoje = () => agora().toLocaleDateString('pt-BR');
+
+// gera um ID de coleta legível: AAAA-MM-DD_HHMMSS
+function novoColetaId(){
+  const d = agora();
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
 
 /* ================= SOM (Web Audio, sem arquivo) ================= */
 let audioCtx = null;
@@ -259,6 +423,7 @@ const LS_KEY = 'b3flex_sessao';
 function salvarLocal(){
   try{
     localStorage.setItem(LS_KEY, JSON.stringify({
+      coletaId: state.coletaId,
       pacotes: state.pacotes,
       transportadoras: state.transportadoras,
       transp: $('transp') ? $('transp').value : '',
@@ -271,6 +436,7 @@ function restaurarLocal(){
     const raw = localStorage.getItem(LS_KEY);
     if(!raw) return;
     const d = JSON.parse(raw);
+    if(d.coletaId) state.coletaId = d.coletaId;
     if(Array.isArray(d.transportadoras) && d.transportadoras.length) state.transportadoras = d.transportadoras;
     if(Array.isArray(d.pacotes)){
       state.pacotes = d.pacotes;
@@ -336,24 +502,83 @@ $('transp').addEventListener('change', salvarLocal);
 $('motorista').addEventListener('input', salvarLocal);
 
 /* ================= BIPAGEM (núcleo anti-duplicidade) ================= */
-function bipar(code){
+async function bipar(code){
   code = (code||'').trim();
   if(!code) return;
 
+  // 1) duplicata na sessão atual (rápido, local)
   if(codigosBipados.has(code)){
-    feedback('dup', '✕', 'JÁ BIPADO — pacote duplicado!', code);
+    feedback('dup', '✕', 'JÁ BIPADO nesta coleta!', code);
     beepDup();
     navigator.vibrate && navigator.vibrate([80,50,80]);
     return;
   }
 
+  // garante que a coleta tem ID
+  if(!state.coletaId) state.coletaId = novoColetaId();
+
+  // 2) duplicata cruzada: já saiu em OUTRA coleta? (consulta o banco)
+  if(window.b3fx && window.b3fx.online()){
+    const existente = await window.b3fx.verificar(code);
+    if(existente && existente.coletaId !== state.coletaId){
+      const q = existente.transp || 'outra transportadora';
+      const dia = existente.data || existente.coletaId || '';
+      feedback('dup', '✕', `JÁ SAIU (${q}, ${dia})`, code);
+      beepDup();
+      navigator.vibrate && navigator.vibrate([120,60,120,60,120]);
+      return; // bloqueia — é o caso da cobrança dupla
+    }
+  }
+
+  // 3) registra
   codigosBipados.add(code);
-  state.pacotes.push({ code, hora: hhmm(agora()), foto: null });
+  const pkg = { code, hora: hhmm(agora()), foto: null, ordem: state.pacotes.length };
+  state.pacotes.push(pkg);
   feedback('ok', '✓', 'Registrado', code);
   beepOk();
   navigator.vibrate && navigator.vibrate(50);
   salvarLocal();
   renderList();
+
+  // 4) salva no Firestore pacote a pacote (não trava a UI)
+  syncPacote(pkg);
+}
+
+// salva 1 pacote no banco; atualiza indicador de status
+async function syncPacote(pkg){
+  if(!window.b3fx || !window.b3fx.online()){ setSync('offline'); return; }
+  setSync('sync');
+  const payload = {
+    code: pkg.code, hora: pkg.hora, ordem: pkg.ordem,
+    coletaId: state.coletaId,
+    transp: $('transp').value,
+    motorista: $('motorista').value.trim(),
+    data: hoje(),
+  };
+  const r = await window.b3fx.salvarPacote(payload);
+  // atualiza metadados da coleta
+  if(r === 'ok'){
+    window.b3fx.salvarColeta({
+      coletaId: state.coletaId,
+      transp: $('transp').value,
+      motorista: $('motorista').value.trim(),
+      data: hoje(),
+      total: state.pacotes.length,
+    });
+  }
+  setSync(r === 'ok' ? 'ok' : (r === 'offline' ? 'offline' : 'erro'));
+}
+
+function setSync(estado){
+  const el = $('syncState'); if(!el) return;
+  const map = {
+    ok:      ['nuvem ✓', 'var(--green)'],
+    sync:    ['salvando…', 'var(--amber)'],
+    offline: ['offline (local)', 'var(--txt-faint)'],
+    erro:    ['erro ao salvar', 'var(--red)'],
+  };
+  const m = map[estado] || map.offline;
+  el.textContent = m[0]; el.style.color = m[1];
 }
 
 function feedback(tipo, ic, msg, code){
@@ -390,10 +615,13 @@ function renderList(){
   list.querySelectorAll('.del').forEach(b=>{
     b.addEventListener('click', ()=>{
       const i = +b.dataset.i;
-      codigosBipados.delete(state.pacotes[i].code);
+      const code = state.pacotes[i].code;
+      codigosBipados.delete(code);
       state.pacotes.splice(i,1);
       salvarLocal();
       renderList();
+      // remove do banco também
+      if(window.b3fx && window.b3fx.online()) window.b3fx.removerPacote(code);
     });
   });
   // tirar foto
@@ -420,6 +648,76 @@ $('clearAll').addEventListener('click', ()=>{
     state.pacotes = []; codigosBipados.clear(); salvarLocal(); renderList();
   }
 });
+
+// nova coleta: fecha a atual e começa uma limpa (mantém transportadoras)
+$('novaColeta').addEventListener('click', ()=>{
+  if(state.pacotes.length && !confirm('Iniciar uma NOVA coleta? A atual já está salva no histórico; a tela será limpa para começar do zero.')) return;
+  state.coletaId = novoColetaId();
+  state.pacotes = [];
+  codigosBipados.clear();
+  ctx && ctx.clearRect(0,0,cv.width,cv.height); temAssinatura=false;
+  salvarLocal();
+  renderList();
+  setSync(window.b3fx && window.b3fx.online() ? 'ok' : 'offline');
+  feedback('ok','✓','Nova coleta iniciada', state.coletaId);
+});
+
+/* ================= ABAS ================= */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    $('view-'+t.dataset.view).classList.add('active');
+    if(t.dataset.view === 'historico') carregarHistorico();
+  });
+});
+
+/* ================= HISTÓRICO ================= */
+let histColetas = [];
+async function carregarHistorico(){
+  const box = $('histList');
+  if(!window.b3fx || !window.b3fx.online()){
+    box.innerHTML = '<div class="hist-empty">Histórico indisponível offline.<br>Conecte à internet e recarregue.</div>';
+    return;
+  }
+  box.innerHTML = '<div class="hist-empty">Carregando…</div>';
+  histColetas = await window.b3fx.listarColetas();
+  if(!histColetas.length){
+    box.innerHTML = '<div class="hist-empty">Nenhuma coleta salva ainda.</div>';
+    return;
+  }
+  box.innerHTML = histColetas.map((c,i)=>`
+    <div class="hist-item" data-i="${i}">
+      <div class="hi-top">
+        <span class="hi-transp">${c.transp || '—'}</span>
+        <span class="hi-total">${c.total||0} pct</span>
+      </div>
+      <div class="hi-meta">${c.data||''} · ${c.motorista||'sem motorista'} · ${c.coletaId}</div>
+    </div>`).join('');
+  box.querySelectorAll('.hist-item').forEach(el=>{
+    el.addEventListener('click', ()=> reabrirColeta(histColetas[+el.dataset.i]));
+  });
+}
+$('reloadHist').addEventListener('click', carregarHistorico);
+
+async function reabrirColeta(c){
+  if(!confirm(`Reabrir a coleta de ${c.transp} (${c.data})?\nOs pacotes atuais na tela de bipagem serão substituídos.`)) return;
+  const pacotes = await window.b3fx.pacotesDaColeta(c.coletaId);
+  state.coletaId = c.coletaId;
+  state.pacotes = pacotes.map(p=>({ code:p.code, hora:p.hora, foto:null, ordem:p.ordem||0 }));
+  codigosBipados.clear();
+  state.pacotes.forEach(p=> codigosBipados.add(p.code));
+  // aplica transportadora/motorista
+  if(c.transp && !state.transportadoras.includes(c.transp)){ state.transportadoras.push(c.transp); renderTransp(); }
+  $('transp').value = c.transp || $('transp').value;
+  $('motorista').value = c.motorista || '';
+  salvarLocal();
+  renderList();
+  // volta pra aba bipar
+  document.querySelector('.tab[data-view="bipar"]').click();
+  feedback('ok','✓','Coleta reaberta', c.coletaId);
+}
 
 /* ================= CÂMERA ================= */
 let html5Qr = null, camAtiva = false;
@@ -597,6 +895,7 @@ $('genPdf').addEventListener('click', ()=>{
 
 /* ================= INIT ================= */
 restaurarLocal();               // recupera sessão salva (antes de renderizar)
+if(!state.coletaId) state.coletaId = novoColetaId();
 $('data').value = hoje();
 renderTransp();
 // aplica transportadora/motorista salvos, se houver
@@ -608,6 +907,19 @@ renderList();
 fitCanvas();
 window.addEventListener('resize', ()=>{ /* mantém assinatura simples: refit sem preservar */ fitCanvas(); });
 if(location.protocol === 'file:') $('warnHttps').style.display='block';
+
+// quando o Firebase terminar de carregar, atualiza status e ressincroniza pendentes
+function aoFicarOnline(){
+  if(window.b3fx && window.b3fx.online()){
+    setSync('ok');
+    // re-envia pacotes que já estão na tela (garante que tudo está no banco)
+    state.pacotes.forEach(p=> syncPacote(p));
+  } else {
+    setSync('offline');
+  }
+}
+if(window.b3fx) aoFicarOnline();
+else window.addEventListener('b3fx-ready', aoFicarOnline);
 </script>
 </body>
 </html>
