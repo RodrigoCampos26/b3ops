@@ -99,6 +99,42 @@
 
   function cfgSync() { return _cfgCache || mesclar(lerLocal()); }
 
+  /* ---- DADOS DA EMPRESA (b3_config/empresa) ---- */
+  const LSE = 'b3ops_empresa';
+  let _empresaCache = null;
+  function empresaLocal() {
+    try { return JSON.parse(localStorage.getItem(LSE) || 'null'); } catch (e) { return null; }
+  }
+  async function carregarEmpresa() {
+    const fb = await initFirebase();
+    if (fb) {
+      try {
+        const ref = fb.doc(fb.db, 'b3_config', 'empresa');
+        const snap = await fb.getDoc(ref);
+        if (snap.exists()) {
+          _empresaCache = snap.data();
+          try { localStorage.setItem(LSE, JSON.stringify(_empresaCache)); } catch (e) {}
+          return _empresaCache;
+        }
+      } catch (e) { console.warn('[vitrine] leitura empresa falhou:', e); }
+    }
+    _empresaCache = empresaLocal() || {};
+    return _empresaCache;
+  }
+  async function salvarEmpresa(dados) {
+    _empresaCache = dados;
+    try { localStorage.setItem(LSE, JSON.stringify(dados)); } catch (e) {}
+    const fb = await initFirebase();
+    if (fb) {
+      try {
+        await fb.setDoc(fb.doc(fb.db, 'b3_config', 'empresa'), dados, { merge: true });
+        return true;
+      } catch (e) { console.warn('[vitrine] gravacao empresa falhou:', e); return false; }
+    }
+    return false;
+  }
+  function empresaSync() { return _empresaCache || empresaLocal() || {}; }
+
   function estaTravada(tool, c) {
     c = c || cfgSync();
     return c.trancadas.includes(tool) && !desbloqueadas().has(tool);
@@ -198,6 +234,7 @@
 
   global.B3Vitrine = {
     carregarConfig, salvarConfig, cfgSync,
+    carregarEmpresa, salvarEmpresa, empresaSync,
     desbloqueadas, marcarDesbloqueada, limparDesbloqueios,
     estaTravada, guardAsync,
     NOMES,

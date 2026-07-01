@@ -158,7 +158,7 @@ a.tool:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 1
       <a href="/ferramentas/radar-de-produtos.html"      data-k="radar"><i>◎</i><span>B3 Radar</span><small>mercado</small></a>
       <a href="/ferramentas/b3-flex.html"                data-k="flex"><i>⧉</i><span>B3 Flex</span><small>bipagem de saída</small></a>
     </nav>
-    <div class="b3nav-foot">Rosa Baby · ecossistema B3 Flow</div>
+    <div class="b3nav-foot"><span id="navEmpresa">Rosa Baby</span> · ecossistema B3 Flow</div>
   </aside>
   <nav class="b3nav-bottom">
     <a href="/index.html"                              data-k="home"><i>⌂</i><span>Início</span></a>
@@ -223,7 +223,7 @@ a.tool:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 1
     <div class="mark"><span>B3</span></div>
     <div>
       <h1>B3 <b>Ops</b></h1>
-      <div class="tagline">Central de operações da Rosa Baby — embalagem, preço, mercado e expedição.</div>
+      <div class="tagline">Central de operações da <span id="tagEmpresa">Rosa Baby</span> — embalagem, preço, mercado e expedição.</div>
     </div>
   </div>
   <div class="eco"><i></i>ecossistema B3 Flow</div>
@@ -271,7 +271,7 @@ a.tool:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 1
     </a>
   </div>
 
-  <div class="foot">
+  <div class="foot" style="display:none">
     Extensão de coleta da Shopee em <code>extensao-radar-shopee/</code> · deploy em <code>COMO-SUBIR.md</code>.<br>
     App à parte, no padrão do B3 Flow (Vercel + Firestore, mm e gramas) — pronto pra migrar quando validado.
   </div>
@@ -320,9 +320,37 @@ a.tool:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 1
       <button class="mbtn ghost" data-close="modalAdminPanel">Fechar</button>
       <button class="mbtn primary" id="admSalvar">Salvar</button>
     </div>
+    <button class="mbtn ghost" id="abrirEmpresa" style="width:100%;margin-top:10px">🏢 Dados da empresa</button>
     <div class="adm-note">
-      Config e liberações ficam salvas neste navegador. Numa demo, configure no aparelho que o cliente vai usar.
+      Config e liberações ficam salvas na nuvem (valem em todo aparelho).
       Cadeado é trava visual (Nível 1) — separação real de dados vem no multi-tenant.
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: dados da empresa -->
+<div class="modal" id="modalEmpresa">
+  <div class="modal-box">
+    <h3>Dados da empresa</h3>
+    <p class="mb-sub">Aparecem na home, no menu e no cabeçalho dos comprovantes (PDF).</p>
+    <label>Nome da empresa</label>
+    <input type="text" id="empNome" placeholder="Ex: Rosa Baby">
+    <label>CNPJ</label>
+    <input type="text" id="empCnpj" placeholder="00.000.000/0000-00">
+    <label>Endereço</label>
+    <input type="text" id="empEndereco" placeholder="Rua, nº, bairro, cidade/UF">
+    <label>Telefone</label>
+    <input type="text" id="empTelefone" placeholder="(00) 00000-0000">
+    <label>Logo (aparece no PDF)</label>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
+      <img id="empLogoPrev" style="width:52px;height:52px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);display:none">
+      <button class="mbtn ghost" id="empLogoBtn" style="flex:1">Escolher logo</button>
+      <button class="mbtn ghost" id="empLogoDel" style="display:none">Remover</button>
+    </div>
+    <input type="file" id="empLogoInput" accept="image/*" style="display:none">
+    <div class="modal-actions">
+      <button class="mbtn ghost" data-close="modalEmpresa">Cancelar</button>
+      <button class="mbtn primary" id="empSalvar">Salvar</button>
     </div>
   </div>
 </div>
@@ -431,8 +459,72 @@ document.querySelectorAll('.modal').forEach(m=>{
   m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('show'); });
 });
 
-/* carrega config da nuvem e aplica */
-aplicarVitrine(); // aplica o que tiver em cache local imediatamente
-V.carregarConfig().then(()=> aplicarVitrine()); // reaplica com a config da nuvem
+/* ===== DADOS DA EMPRESA ===== */
+let empLogoData = null; // base64 do logo em edição
+
+function aplicarEmpresa(){
+  const e = V.empresaSync();
+  const nome = (e && e.nome) ? e.nome : 'Rosa Baby';
+  const tag = $$('#tagEmpresa'); if(tag) tag.textContent = nome;
+  const nav = $$('#navEmpresa'); if(nav) nav.textContent = nome;
+}
+
+$$('#abrirEmpresa').addEventListener('click', ()=>{
+  const e = V.empresaSync() || {};
+  $$('#empNome').value = e.nome || '';
+  $$('#empCnpj').value = e.cnpj || '';
+  $$('#empEndereco').value = e.endereco || '';
+  $$('#empTelefone').value = e.telefone || '';
+  empLogoData = e.logo || null;
+  atualizaLogoPrev();
+  fecharModais();
+  $$('#modalEmpresa').classList.add('show');
+});
+
+function atualizaLogoPrev(){
+  const prev = $$('#empLogoPrev'), del = $$('#empLogoDel');
+  if(empLogoData){ prev.src = empLogoData; prev.style.display='block'; del.style.display='inline-block'; }
+  else { prev.style.display='none'; del.style.display='none'; }
+}
+$$('#empLogoBtn').addEventListener('click', ()=> $$('#empLogoInput').click());
+$$('#empLogoDel').addEventListener('click', ()=>{ empLogoData=null; atualizaLogoPrev(); });
+$$('#empLogoInput').addEventListener('change', e=>{
+  const file = e.target.files[0]; e.target.value='';
+  if(!file) return;
+  const img = new Image(), reader = new FileReader();
+  reader.onload = ev=>{ img.src = ev.target.result; };
+  img.onload = ()=>{
+    const max = 300, esc = Math.min(1, max/Math.max(img.width,img.height));
+    const w = Math.round(img.width*esc), h = Math.round(img.height*esc);
+    const cv = document.createElement('canvas'); cv.width=w; cv.height=h;
+    cv.getContext('2d').drawImage(img,0,0,w,h);
+    empLogoData = cv.toDataURL('image/png');
+    atualizaLogoPrev();
+  };
+  reader.readAsDataURL(file);
+});
+
+$$('#empSalvar').addEventListener('click', async ()=>{
+  const dados = {
+    nome: $$('#empNome').value.trim(),
+    cnpj: $$('#empCnpj').value.trim(),
+    endereco: $$('#empEndereco').value.trim(),
+    telefone: $$('#empTelefone').value.trim(),
+    logo: empLogoData || null,
+  };
+  const btn = $$('#empSalvar'); const t = btn.textContent;
+  btn.textContent='Salvando...'; btn.disabled=true;
+  const ok = await V.salvarEmpresa(dados);
+  btn.textContent=t; btn.disabled=false;
+  aplicarEmpresa();
+  fecharModais();
+  if(!ok) alert('Salvo neste aparelho, mas não gravou na nuvem (offline?).');
+});
+
+/* carrega config e empresa da nuvem e aplica */
+aplicarVitrine();
+aplicarEmpresa();
+V.carregarConfig().then(()=> aplicarVitrine());
+V.carregarEmpresa().then(()=> aplicarEmpresa());
 </script>
 </html>
