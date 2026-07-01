@@ -5,15 +5,25 @@ service cloud.firestore {
     // ===== MODO TESTE (rápido, para validar) =====
     // ATENÇÃO: PÚBLICO — qualquer pessoa com a URL pode ler/gravar.
     // Bom só para testar. Antes de usar pra valer, troque pelo bloco de produção abaixo.
+
     match /b3_config/{doc} {
       allow read, write: if true;
     }
 
+    // Coleções do B3 Flex (bipagem de saída)
+    match /b3_flex_pacotes/{doc} {
+      allow read, write: if true;
+    }
+    match /b3_flex_coletas/{doc} {
+      allow read, write: if true;
+    }
+
     // ===== PRODUÇÃO (recomendado) — exige login =====
-    // Comente o bloco de teste acima e use este (precisa do Firebase Auth ligado,
-    // que o b3 flow já usa).
-    // match /b3_config/{doc} {
-    //   allow read, write: if request.auth != null;
-    // }
+    // Quando ligar o Firebase Auth (que o B3 Flow já usa), comente os blocos de teste
+    // acima e use estes, trocando "if true" por "if request.auth != null":
+    //
+    // match /b3_config/{doc}        { allow read, write: if request.auth != null; }
+    // match /b3_flex_pacotes/{doc}  { allow read, write: if request.auth != null; }
+    // match /b3_flex_coletas/{doc}  { allow read, write: if request.auth != null; }
   }
 }

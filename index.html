@@ -3,67 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>b3 Ops</title>
+<title>B3 Ops</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+:root{
+  --bg:#15171c;--panel:#1c1f26;--panel-2:#23272f;--line:#2e333d;--line-soft:#262b33;
+  --txt:#e8eaed;--txt-dim:#9aa1ab;--txt-faint:#6b7280;
+  --amber:#f59e0b;--amber-soft:#fbbf24;
+  --green:#22c55e;--mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#0a0a0b;color:#f1f5f9;min-height:100vh;padding:44px 24px;}
-.wrap{max-width:920px;margin:0 auto;}
-.brand{display:flex;align-items:center;gap:14px;}
-.mark{width:48px;height:48px;border-radius:14px;flex:none;display:grid;place-items:center;
-  background:linear-gradient(135deg,#7C3AED,#2563EB 55%,#06B6D4);box-shadow:0 8px 28px rgba(37,99,235,.38);}
-.mark span{font-family:'Inter';font-weight:800;font-size:21px;color:#fff;letter-spacing:-1px;}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh;
+  padding:48px 24px;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:960px;margin:0 auto;}
+
+/* Marca */
+.brand{display:flex;align-items:center;gap:15px;}
+.mark{width:50px;height:50px;border-radius:13px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(135deg,#f59e0b,#b45309);box-shadow:0 8px 26px rgba(245,158,11,.28);}
+.mark span{font-family:var(--mono);font-weight:700;font-size:19px;color:#16161a;letter-spacing:-1px;}
 h1{font-size:32px;font-weight:800;letter-spacing:-.5px;line-height:1;}
-h1 b{background:linear-gradient(135deg,#a78bfa,#2563EB 55%,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.tagline{color:#a1a1aa;font-size:14px;margin-top:6px;}
-.eco{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#c4b5fd;background:rgba(124,58,237,.12);border:1px solid #2d2d35;border-radius:999px;padding:4px 11px;margin-top:14px;}
-.eco i{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#06B6D4);}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:30px;}
-a.tool{position:relative;display:block;text-decoration:none;background:#18181b;border:1px solid #27272a;border-radius:18px;padding:22px;transition:all .18s;}
-a.tool:hover{border-color:#2563EB;transform:translateY(-3px);box-shadow:0 14px 38px rgba(37,99,235,.18);}
-.tool .ic{font-size:28px;}
-.tool h2{font-size:18px;font-weight:700;color:#f1f5f9;margin:10px 0 4px;letter-spacing:-.3px;}
-.tool h2 b{background:linear-gradient(135deg,#a78bfa,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.tool p{font-size:12.5px;color:#a1a1aa;line-height:1.5;}
-.tool .tag{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-radius:999px;padding:3px 9px;margin-top:13px;}
-.tag.ready{color:#86efac;background:rgba(34,197,94,.12);border:1px solid #1e3a2a;}
-.tag.soon{color:#fcd34d;background:rgba(245,158,11,.1);border:1px solid #3a311a;}
-.foot{margin-top:32px;font-size:12px;color:#52525b;border-top:1px solid #27272a;padding-top:16px;line-height:1.7;}
+h1 b{color:var(--amber);}
+.tagline{color:var(--txt-dim);font-size:14px;margin-top:7px;}
+.eco{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;
+  font-weight:500;letter-spacing:.5px;color:var(--amber);background:rgba(245,158,11,.1);
+  border:1px solid var(--line);border-radius:999px;padding:4px 12px;margin-top:16px;}
+.eco i{width:6px;height:6px;border-radius:50%;background:var(--amber);}
+
+/* Destaque — ferramenta nova */
+.feature{display:block;text-decoration:none;margin-top:32px;position:relative;
+  background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(28,31,38,.4));
+  border:1px solid rgba(245,158,11,.35);border-radius:18px;padding:26px;
+  transition:all .18s;overflow:hidden;}
+.feature::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(245,158,11,.14),transparent 55%);pointer-events:none;}
+.feature:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 16px 40px rgba(245,158,11,.14);}
+.feature .newtag{position:absolute;top:20px;right:20px;font-family:var(--mono);font-size:10px;
+  font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#16161a;background:var(--amber);
+  padding:3px 10px;border-radius:6px;}
+.feature .ftop{display:flex;align-items:center;gap:14px;}
+.feature .fic{width:52px;height:52px;border-radius:12px;flex:none;display:grid;place-items:center;
+  background:var(--panel-2);border:1px solid var(--line);font-size:26px;}
+.feature h2{font-size:22px;font-weight:800;letter-spacing:-.4px;}
+.feature h2 b{color:var(--amber);}
+.feature .fdesc{color:var(--txt-dim);font-size:13.5px;line-height:1.55;margin-top:14px;max-width:640px;}
+.feature .fmeta{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.chip{font-family:var(--mono);font-size:10.5px;color:var(--txt-dim);background:var(--panel-2);
+  border:1px solid var(--line);border-radius:6px;padding:4px 9px;}
+
+/* Grid ferramentas */
+.section-label{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--txt-faint);margin:34px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px;}
+a.tool{position:relative;display:block;text-decoration:none;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;padding:22px;transition:all .18s;}
+a.tool:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.28);}
+.tool .ic{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;
+  background:var(--panel-2);border:1px solid var(--line);font-size:22px;}
+.tool h2{font-size:18px;font-weight:700;color:var(--txt);margin:14px 0 5px;letter-spacing:-.3px;}
+.tool h2 b{color:var(--amber);}
+.tool p{font-size:12.5px;color:var(--txt-dim);line-height:1.5;}
+.tool .tag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.6px;border-radius:6px;padding:3px 9px;margin-top:14px;}
+.tag.ready{color:var(--green);background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);}
+.tag.soon{color:var(--amber-soft);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);}
+
+.foot{margin-top:36px;font-size:12px;color:var(--txt-faint);border-top:1px solid var(--line);
+  padding-top:18px;line-height:1.8;font-family:var(--mono);}
+.foot code{background:var(--panel-2);padding:1px 6px;border-radius:4px;color:var(--txt-dim);}
 </style>
 </head>
 <body>
+
+<!-- ============ NAV B3 OPS (data-b3-active="home") ============ -->
+<div id="b3nav" data-b3-active="home">
+  <button class="b3nav-trigger" aria-label="Menu" onclick="document.getElementById('b3nav').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="b3nav-scrim" onclick="document.getElementById('b3nav').classList.remove('open')"></div>
+  <aside class="b3nav-side">
+    <div class="b3nav-brand"><span class="b3nav-logo">B3</span> <b>B3 Ops</b></div>
+    <nav class="b3nav-links">
+      <a href="/index.html"                              data-k="home"><i>⌂</i><span>Início</span></a>
+      <a href="/ferramentas/b3-box.html"                 data-k="box"><i>▣</i><span>B3 Box</span><small>empacotador 3D</small></a>
+      <a href="/ferramentas/calculadora-de-precos.html"  data-k="price"><i>$</i><span>B3 Price</span><small>precificação</small></a>
+      <a href="/ferramentas/radar-de-produtos.html"      data-k="radar"><i>◎</i><span>B3 Radar</span><small>mercado</small></a>
+      <a href="/ferramentas/b3-flex.html"                data-k="flex"><i>⧉</i><span>B3 Flex</span><small>bipagem de saída</small></a>
+    </nav>
+    <div class="b3nav-foot">Rosa Baby · ecossistema B3 Flow</div>
+  </aside>
+  <nav class="b3nav-bottom">
+    <a href="/index.html"                              data-k="home"><i>⌂</i><span>Início</span></a>
+    <a href="/ferramentas/b3-box.html"                 data-k="box"><i>▣</i><span>Box</span></a>
+    <a href="/ferramentas/calculadora-de-precos.html"  data-k="price"><i>$</i><span>Price</span></a>
+    <a href="/ferramentas/radar-de-produtos.html"      data-k="radar"><i>◎</i><span>Radar</span></a>
+    <a href="/ferramentas/b3-flex.html"                data-k="flex"><i>⧉</i><span>Flex</span></a>
+  </nav>
+</div>
+<style>
+#b3nav *{box-sizing:border-box;}
+.b3nav-trigger{position:fixed;top:18px;left:18px;z-index:1200;width:42px;height:42px;border-radius:10px;background:#16161a;border:1px solid #2a2a31;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:all .15s;}
+.b3nav-trigger:hover{border-color:#f59e0b;}
+.b3nav-trigger span{width:18px;height:2px;background:#c8c8cd;border-radius:2px;transition:all .2s;}
+#b3nav.open .b3nav-trigger span:nth-child(1){transform:translateY(6px) rotate(45deg);background:#f59e0b;}
+#b3nav.open .b3nav-trigger span:nth-child(2){opacity:0;}
+#b3nav.open .b3nav-trigger span:nth-child(3){transform:translateY(-6px) rotate(-45deg);background:#f59e0b;}
+.b3nav-scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:1150;}
+#b3nav.open .b3nav-scrim{opacity:1;pointer-events:auto;}
+.b3nav-side{position:fixed;top:0;left:0;height:100vh;width:260px;background:#101013;border-right:1px solid #24242b;z-index:1200;padding:20px 16px;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+#b3nav.open .b3nav-side{transform:translateX(0);}
+.b3nav-brand{display:flex;align-items:center;gap:10px;font-size:16px;color:#e8e8ec;margin:6px 4px 22px;font-family:'Inter',sans-serif;}
+.b3nav-brand b{font-weight:700;}
+.b3nav-logo{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#f59e0b,#b45309);color:#16161a;font-size:13px;font-weight:800;}
+.b3nav-links{display:flex;flex-direction:column;gap:4px;flex:1;}
+.b3nav-links a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;color:#a8a8b0;text-decoration:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;transition:all .15s;position:relative;}
+.b3nav-links a i{font-style:normal;width:22px;text-align:center;font-size:16px;color:#7a7a82;flex:none;}
+.b3nav-links a small{position:absolute;right:12px;font-size:10px;color:#5a5a62;font-weight:400;}
+.b3nav-links a:hover{background:#1a1a1f;color:#e8e8ec;}
+.b3nav-links a:hover i{color:#c8c8cd;}
+.b3nav-foot{font-size:11px;color:#5a5a62;text-align:center;padding-top:14px;border-top:1px solid #1f1f25;font-family:'Inter',sans-serif;}
+/* item ativo (corrigido: cada página acende só o seu) */
+#b3nav[data-b3-active="home"]  .b3nav-links a[data-k="home"],
+#b3nav[data-b3-active="box"]   .b3nav-links a[data-k="box"],
+#b3nav[data-b3-active="price"] .b3nav-links a[data-k="price"],
+#b3nav[data-b3-active="radar"] .b3nav-links a[data-k="radar"],
+#b3nav[data-b3-active="flex"]  .b3nav-links a[data-k="flex"]{background:#221a0e;color:#f5b342;}
+#b3nav[data-b3-active="home"]  .b3nav-links a[data-k="home"] i,
+#b3nav[data-b3-active="box"]   .b3nav-links a[data-k="box"] i,
+#b3nav[data-b3-active="price"] .b3nav-links a[data-k="price"] i,
+#b3nav[data-b3-active="radar"] .b3nav-links a[data-k="radar"] i,
+#b3nav[data-b3-active="flex"]  .b3nav-links a[data-k="flex"] i{color:#f59e0b;}
+.b3nav-bottom{display:none;}
+@media(max-width:760px){
+  .b3nav-trigger,.b3nav-side,.b3nav-scrim{display:none!important;}
+  .b3nav-bottom{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1200;background:#101013;border-top:1px solid #24242b;padding:6px 4px;padding-bottom:max(6px,env(safe-area-inset-bottom));justify-content:space-around;}
+  .b3nav-bottom a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 8px;border-radius:9px;color:#7a7a82;text-decoration:none;font-family:'Inter',sans-serif;font-size:10px;font-weight:500;min-width:52px;}
+  .b3nav-bottom a i{font-style:normal;font-size:18px;line-height:1;}
+  #b3nav[data-b3-active="home"]  .b3nav-bottom a[data-k="home"],
+  #b3nav[data-b3-active="box"]   .b3nav-bottom a[data-k="box"],
+  #b3nav[data-b3-active="price"] .b3nav-bottom a[data-k="price"],
+  #b3nav[data-b3-active="radar"] .b3nav-bottom a[data-k="radar"],
+  #b3nav[data-b3-active="flex"]  .b3nav-bottom a[data-k="flex"]{color:#f5b342;}
+  body{padding-bottom:74px!important;}
+}
+@media(min-width:761px){ body{padding-left:76px;} }
+</style>
+<!-- ============ FIM NAV ============ -->
+
 <div class="wrap">
   <div class="brand">
-    <div class="mark"><span>b3</span></div>
+    <div class="mark"><span>B3</span></div>
     <div>
-      <h1>b3 <b>Ops</b></h1>
-      <div class="tagline">Central de operações da Rosa Baby — embalagem, preço e mercado.</div>
+      <h1>B3 <b>Ops</b></h1>
+      <div class="tagline">Central de operações da Rosa Baby — embalagem, preço, mercado e expedição.</div>
     </div>
   </div>
-  <div class="eco"><i></i>ecossistema b3 flow</div>
+  <div class="eco"><i></i>ecossistema B3 Flow</div>
 
+  <!-- DESTAQUE: ferramenta nova -->
+  <a class="feature" href="ferramentas/b3-flex.html">
+    <span class="newtag">novo</span>
+    <div class="ftop">
+      <div class="fic">⧉</div>
+      <div><h2>B3 <b>Flex</b></h2></div>
+    </div>
+    <p class="fdesc">Bipagem de saída das entregas Flex: registra cada pacote por câmera, bloqueia
+    duplicidade entre transportadoras (na sessão e no histórico da nuvem), guarda foto opcional da
+    etiqueta e gera o comprovante assinado pelo motorista. Acaba com a cobrança dupla no fechamento.</p>
+    <div class="fmeta">
+      <span class="chip">câmera + som</span>
+      <span class="chip">anti-duplicidade</span>
+      <span class="chip">Firestore</span>
+      <span class="chip">PDF assinado</span>
+    </div>
+  </a>
+
+  <!-- FERRAMENTAS -->
+  <div class="section-label">Ferramentas</div>
   <div class="grid">
     <a class="tool" href="ferramentas/b3-box.html">
-      <div class="ic">📦</div><h2>b3 <b>Box</b></h2>
-      <p>Empacotador 3D: monta o pedido (1 ou vários produtos) e mostra a caixa mestre, com encaixe girável e qual caixa do estoque usar.</p>
+      <div class="ic">📦</div><h2>B3 <b>Box</b></h2>
+      <p>Empacotador 3D: monta o pedido (1 ou vários produtos) e mostra a caixa mestre certa, com encaixe girável e qual caixa do estoque usar.</p>
       <span class="tag ready">pronto</span>
     </a>
     <a class="tool" href="ferramentas/calculadora-de-precos.html">
-      <div class="ic">💰</div><h2>b3 <b>Price</b></h2>
+      <div class="ic">💰</div><h2>B3 <b>Price</b></h2>
       <p>Precificação por marketplace: margem, custos fixos, lucro líquido e ponto de equilíbrio.</p>
       <span class="tag soon">a refinar</span>
     </a>
     <a class="tool" href="ferramentas/radar-de-produtos.html">
-      <div class="ic">📈</div><h2>b3 <b>Radar</b></h2>
-      <p>Pesquisa de mercado, viabilidade, montagem de kit e importação da Shopee.</p>
+      <div class="ic">📈</div><h2>B3 <b>Radar</b></h2>
+      <p>Pesquisa de mercado e viabilidade: score contra o preço-teto do marketplace pra decidir se vale fazer o produto.</p>
       <span class="tag soon">a refinar</span>
     </a>
   </div>
 
   <div class="foot">
     Extensão de coleta da Shopee em <code>extensao-radar-shopee/</code> · deploy em <code>COMO-SUBIR.md</code>.<br>
-    App à parte, no padrão do <b>b3 flow</b> (Vercel + Firestore, mm e gramas) — pronto pra migrar quando validado.
+    App à parte, no padrão do B3 Flow (Vercel + Firestore, mm e gramas) — pronto pra migrar quando validado.
   </div>
 </div>
 </body>
