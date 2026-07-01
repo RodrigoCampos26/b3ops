@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>B3 Flex — Bipagem de Saída</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#15171c;--panel:#1c1f26;--panel-2:#23272f;--line:#2e333d;--line-soft:#262b33;
+    --txt:#e8eaed;--txt-dim:#9aa1ab;--txt-faint:#6b7280;
+    --amber:#f59e0b;--amber-soft:#fbbf24;
+    --green:#22c55e;--green-bg:rgba(34,197,94,.12);
+    --yellow:#eab308;--red:#ef4444;--red-bg:rgba(239,68,68,.14);
+    --mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px;
+    line-height:1.5;padding:18px 14px 40px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:640px;margin:0 auto}
+
+  .head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .head .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--amber)}
+  .head h1{font-size:24px;font-weight:800;letter-spacing:-.5px}
+  .sub{color:var(--txt-dim);font-size:13px;margin-bottom:20px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;margin-bottom:16px}
+  .card-h{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;
+    align-items:center;gap:9px;background:linear-gradient(180deg,var(--panel-2),var(--panel))}
+  .card-h .n{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);
+    background:rgba(245,158,11,.1);padding:2px 7px;border-radius:5px}
+  .card-h h2{font-size:14px;font-weight:600}
+  .card-h .hint{margin-left:auto;font-size:11px;color:var(--txt-faint);font-family:var(--mono)}
+  .card-b{padding:16px}
+
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--txt-dim);margin-bottom:6px}
+  input[type=text],select{width:100%;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;color:var(--txt);padding:11px;font-size:14px;font-family:var(--sans)}
+  input:focus,select:focus{outline:none;border-color:var(--amber)}
+  select{cursor:pointer;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%239aa1ab' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    background:var(--amber);color:#16161a;border:none;border-radius:9px;
+    padding:12px 18px;font-size:14px;font-weight:700;font-family:var(--sans);
+    cursor:pointer;transition:filter .15s;width:100%}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--txt-dim);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--amber);color:var(--amber)}
+  .btn.danger{background:transparent;color:var(--red);border:1px solid rgba(239,68,68,.4)}
+  .btn.sm{padding:8px 12px;font-size:12px;width:auto}
+
+  /* Scanner */
+  #reader{width:100%;border-radius:10px;overflow:hidden;background:#000;margin-bottom:12px}
+  #reader:empty{display:none}
+  .scan-manual{display:flex;gap:8px;margin-top:4px}
+  .scan-manual input{flex:1}
+
+  /* Contador */
+  .counter{display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;margin-bottom:14px}
+  .counter .big{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--amber)}
+  .counter .lbl{font-size:11px;color:var(--txt-faint);text-transform:uppercase;letter-spacing:1px}
+
+  /* Feedback bipagem */
+  .feedback{padding:12px 16px;border-radius:10px;margin-bottom:14px;font-weight:600;
+    font-size:13px;display:none;align-items:center;gap:10px}
+  .feedback.show{display:flex}
+  .feedback.ok{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+  .feedback.dup{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.4)}
+  .feedback .ic{font-family:var(--mono);font-size:18px;font-weight:700}
+  .feedback .code{font-family:var(--mono);font-size:12px;opacity:.85}
+
+  /* Lista */
+  .list{max-height:340px;overflow-y:auto}
+  .pkg{display:flex;align-items:center;gap:10px;padding:10px 12px;
+    border-bottom:1px solid var(--line-soft)}
+  .pkg:last-child{border-bottom:none}
+  .pkg .idx{font-family:var(--mono);font-size:11px;color:var(--txt-faint);min-width:26px}
+  .pkg .code{font-family:var(--mono);font-size:12.5px;flex:1;word-break:break-all}
+  .pkg .time{font-family:var(--mono);font-size:10.5px;color:var(--txt-faint)}
+  .pkg .del{background:none;border:none;color:var(--txt-faint);cursor:pointer;
+    font-size:16px;padding:2px 6px;line-height:1}
+  .pkg .del:hover{color:var(--red)}
+  .empty{text-align:center;color:var(--txt-faint);padding:30px 16px;font-size:13px}
+
+  /* Assinatura */
+  #sigpad{width:100%;height:170px;background:#fff;border-radius:9px;touch-action:none;display:block}
+  .sig-actions{display:flex;gap:8px;margin-top:10px}
+
+  .foot{margin-top:16px;font-size:11px;color:var(--txt-faint);text-align:center;font-family:var(--mono)}
+  .warn-https{background:var(--red-bg);border:1px solid rgba(239,68,68,.4);color:var(--red);
+    padding:10px 14px;border-radius:9px;font-size:12px;margin-bottom:14px;display:none}
+  .badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 8px;
+    border-radius:5px;background:rgba(245,158,11,.12);color:var(--amber);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <span class="eyebrow">B3 Flex</span>
+    <h1>Bipagem de Saída</h1>
+  </div>
+  <p class="sub">Registre cada pacote na coleta, evite duplicidade entre transportadoras e gere o comprovante assinado pelo motorista.</p>
+
+  <div class="warn-https" id="warnHttps">
+    ⚠ A câmera só funciona em HTTPS. Rode pelo endereço do Vercel (não pelo arquivo local). Você ainda pode digitar o código manualmente abaixo.
+  </div>
+
+  <!-- 01 SESSÃO -->
+  <div class="card">
+    <div class="card-h"><span class="n">01</span><h2>Dados da coleta</h2></div>
+    <div class="card-b">
+      <div class="field">
+        <label>Transportadora</label>
+        <div style="display:flex;gap:8px">
+          <select id="transp" style="flex:1"></select>
+          <button class="btn ghost sm" id="addTransp" title="Adicionar transportadora">+ nova</button>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Motorista</label>
+          <input type="text" id="motorista" placeholder="Nome do motorista">
+        </div>
+        <div class="field">
+          <label>Data</label>
+          <input type="text" id="data" readonly>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 SCANNER -->
+  <div class="card">
+    <div class="card-h">
+      <span class="n">02</span><h2>Bipar pacotes</h2>
+      <span class="hint" id="camState">câmera parada</span>
+    </div>
+    <div class="card-b">
+      <div id="reader"></div>
+      <button class="btn" id="startCam">▶ Ligar câmera</button>
+      <div class="scan-manual">
+        <input type="text" id="manualCode" placeholder="ou digite/cole o código e Enter" autocomplete="off">
+        <button class="btn ghost sm" id="addManual">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="feedback" id="feedback"><span class="ic"></span><span><span id="fbMsg"></span> <span class="code" id="fbCode"></span></span></div>
+
+  <!-- Contador -->
+  <div class="counter">
+    <div><div class="lbl">Pacotes bipados</div></div>
+    <div class="big" id="count">0</div>
+  </div>
+
+  <!-- 03 LISTA -->
+  <div class="card">
+    <div class="card-h">
+      <span class="n">03</span><h2>Pacotes da sessão</h2>
+      <button class="btn danger sm" id="clearAll" style="margin-left:auto">limpar tudo</button>
+    </div>
+    <div class="list" id="list">
+      <div class="empty">Nenhum pacote bipado ainda.</div>
+    </div>
+  </div>
+
+  <!-- 04 ASSINATURA -->
+  <div class="card">
+    <div class="card-h"><span class="n">04</span><h2>Assinatura do motorista</h2></div>
+    <div class="card-b">
+      <p style="font-size:12px;color:var(--txt-dim);margin-bottom:10px">Assine no quadro abaixo confirmando o recebimento dos pacotes listados.</p>
+      <canvas id="sigpad"></canvas>
+      <div class="sig-actions">
+        <button class="btn ghost sm" id="clearSig">limpar assinatura</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" id="genPdf" style="padding:15px">📄 Gerar comprovante em PDF</button>
+
+  <div class="foot">B3 Flex · Oficina de Precisão · custódia de pacotes Flex</div>
+</div>
+
+<script>
+/* ================= ESTADO DA SESSÃO ================= */
+const state = {
+  pacotes: [],            // { code, hora }
+  transportadoras: ['Transportadora A', 'Transportadora B'],
+};
+const codigosBipados = new Set(); // anti-duplicidade rápido
+
+const $ = id => document.getElementById(id);
+const agora = () => new Date();
+const hhmm = d => d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const hoje = () => agora().toLocaleDateString('pt-BR');
+
+/* ================= TRANSPORTADORAS ================= */
+function renderTransp(){
+  $('transp').innerHTML = state.transportadoras
+    .map(t=>`<option value="${t}">${t}</option>`).join('');
+}
+$('addTransp').addEventListener('click', ()=>{
+  const nome = prompt('Nome da nova transportadora:');
+  if(nome && nome.trim()){
+    state.transportadoras.push(nome.trim());
+    renderTransp();
+    $('transp').value = nome.trim();
+  }
+});
+
+/* ================= BIPAGEM (núcleo anti-duplicidade) ================= */
+function bipar(code){
+  code = (code||'').trim();
+  if(!code) return;
+
+  if(codigosBipados.has(code)){
+    feedback('dup', '✕', 'JÁ BIPADO — pacote duplicado!', code);
+    navigator.vibrate && navigator.vibrate([80,50,80]);
+    return;
+  }
+
+  codigosBipados.add(code);
+  state.pacotes.push({ code, hora: hhmm(agora()) });
+  feedback('ok', '✓', 'Registrado', code);
+  navigator.vibrate && navigator.vibrate(50);
+  renderList();
+}
+
+function feedback(tipo, ic, msg, code){
+  const el = $('feedback');
+  el.className = 'feedback show ' + tipo;
+  el.querySelector('.ic').textContent = ic;
+  $('fbMsg').textContent = msg;
+  $('fbCode').textContent = code;
+  clearTimeout(el._t);
+  el._t = setTimeout(()=> el.classList.remove('show'), 2500);
+}
+
+function renderList(){
+  $('count').textContent = state.pacotes.length;
+  const list = $('list');
+  if(state.pacotes.length === 0){
+    list.innerHTML = '<div class="empty">Nenhum pacote bipado ainda.</div>';
+    return;
+  }
+  list.innerHTML = state.pacotes.map((p,i)=>`
+    <div class="pkg">
+      <span class="idx">${String(i+1).padStart(2,'0')}</span>
+      <span class="code">${p.code}</span>
+      <span class="time">${p.hora}</span>
+      <button class="del" data-i="${i}" title="Remover">✕</button>
+    </div>`).join('');
+  list.querySelectorAll('.del').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const i = +b.dataset.i;
+      codigosBipados.delete(state.pacotes[i].code);
+      state.pacotes.splice(i,1);
+      renderList();
+    });
+  });
+}
+
+/* entrada manual / leitor USB (age como teclado + Enter) */
+$('manualCode').addEventListener('keydown', e=>{
+  if(e.key === 'Enter'){ bipar($('manualCode').value); $('manualCode').value=''; }
+});
+$('addManual').addEventListener('click', ()=>{ bipar($('manualCode').value); $('manualCode').value=''; $('manualCode').focus(); });
+
+$('clearAll').addEventListener('click', ()=>{
+  if(state.pacotes.length && confirm('Limpar todos os pacotes bipados desta sessão?')){
+    state.pacotes = []; codigosBipados.clear(); renderList();
+  }
+});
+
+/* ================= CÂMERA ================= */
+let html5Qr = null, camAtiva = false;
+$('startCam').addEventListener('click', async ()=>{
+  if(camAtiva){
+    await html5Qr.stop(); camAtiva=false;
+    $('startCam').textContent='▶ Ligar câmera'; $('camState').textContent='câmera parada';
+    return;
+  }
+  try{
+    html5Qr = new Html5Qrcode('reader');
+    await html5Qr.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      (decoded)=>{ bipar(decoded); },
+      ()=>{}
+    );
+    camAtiva = true;
+    $('startCam').textContent='■ Parar câmera';
+    $('camState').textContent='lendo…';
+  }catch(err){
+    alert('Não consegui abrir a câmera. Verifique a permissão e se está em HTTPS.\n\n'+err);
+  }
+});
+
+/* ================= ASSINATURA ================= */
+const cv = $('sigpad'), ctx = cv.getContext('2d');
+let desenhando=false, temAssinatura=false;
+function fitCanvas(){
+  const r = cv.getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1;
+  cv.width = r.width*dpr; cv.height = r.height*dpr;
+  ctx.scale(dpr,dpr); ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.strokeStyle='#111';
+}
+function pos(e){
+  const r = cv.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return { x: t.clientX-r.left, y: t.clientY-r.top };
+}
+function start(e){ desenhando=true; temAssinatura=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault(); }
+function move(e){ if(!desenhando)return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault(); }
+function end(){ desenhando=false; }
+cv.addEventListener('mousedown',start); cv.addEventListener('mousemove',move); window.addEventListener('mouseup',end);
+cv.addEventListener('touchstart',start,{passive:false}); cv.addEventListener('touchmove',move,{passive:false}); cv.addEventListener('touchend',end);
+$('clearSig').addEventListener('click', ()=>{ ctx.clearRect(0,0,cv.width,cv.height); temAssinatura=false; });
+
+/* ================= PDF ================= */
+$('genPdf').addEventListener('click', ()=>{
+  if(state.pacotes.length === 0){ alert('Nenhum pacote bipado.'); return; }
+  if(!$('motorista').value.trim()){ alert('Informe o nome do motorista.'); return; }
+  if(!temAssinatura){ if(!confirm('Não há assinatura. Gerar mesmo assim?')) return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const W = 210; let y = 18;
+
+  // cabeçalho
+  doc.setFillColor(26,29,35); doc.rect(0,0,W,30,'F');
+  doc.setTextColor(245,158,11); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('B3 FLEX', 14, 13);
+  doc.setTextColor(255,255,255); doc.setFontSize(15);
+  doc.text('Comprovante de Coleta — Saída Flex', 14, 22);
+  y = 40;
+
+  // dados
+  doc.setTextColor(30,30,30); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  const transp = $('transp').value, motorista = $('motorista').value.trim();
+  doc.text(`Transportadora: ${transp}`, 14, y);
+  doc.text(`Data: ${hoje()}`, 140, y); y+=6;
+  doc.text(`Motorista: ${motorista}`, 14, y);
+  doc.text(`Total de pacotes: ${state.pacotes.length}`, 140, y); y+=10;
+
+  // linha
+  doc.setDrawColor(220,220,220); doc.line(14, y, W-14, y); y+=8;
+
+  // tabela cabeçalho
+  doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('#', 14, y); doc.text('Código do pacote', 26, y); doc.text('Hora', W-30, y); y+=2;
+  doc.line(14, y, W-14, y); y+=6;
+  doc.setFont('courier','normal'); doc.setFontSize(8.5);
+
+  state.pacotes.forEach((p,i)=>{
+    if(y > 260){ doc.addPage(); y=20; }
+    doc.text(String(i+1).padStart(2,'0'), 14, y);
+    doc.text(p.code.substring(0,60), 26, y);
+    doc.text(p.hora, W-30, y);
+    y+=5.5;
+  });
+
+  y+=6;
+  if(y > 220){ doc.addPage(); y=30; }
+  doc.setDrawColor(220,220,220); doc.line(14, y, W-14, y); y+=10;
+
+  // declaração
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(60,60,60);
+  const decl = `Declaro ter recebido os ${state.pacotes.length} pacote(s) listados acima para entrega pela transportadora ${transp}, assumindo a responsabilidade pela custódia a partir desta coleta.`;
+  doc.text(doc.splitTextToSize(decl, W-28), 14, y); y+=18;
+
+  // assinatura
+  if(temAssinatura){
+    const img = cv.toDataURL('image/png');
+    doc.addImage(img, 'PNG', 14, y, 70, 26);
+  }
+  y+=28;
+  doc.setDrawColor(120,120,120); doc.line(14, y, 90, y); y+=5;
+  doc.setFontSize(9); doc.setTextColor(30,30,30);
+  doc.text(motorista, 14, y); y+=5;
+  doc.setFontSize(8); doc.setTextColor(120,120,120);
+  doc.text('Assinatura do motorista', 14, y);
+
+  // rodapé
+  doc.setFontSize(7.5); doc.setTextColor(150,150,150);
+  doc.text(`Gerado por B3 Flex em ${hoje()} ${hhmm(agora())}`, 14, 288);
+
+  const nomeArq = `coleta_${transp.replace(/\s+/g,'-')}_${hoje().replace(/\//g,'-')}.pdf`;
+  doc.save(nomeArq);
+});
+
+/* ================= INIT ================= */
+$('data').value = hoje();
+renderTransp();
+renderList();
+fitCanvas();
+window.addEventListener('resize', ()=>{ /* mantém assinatura simples: refit sem preservar */ fitCanvas(); });
+if(location.protocol === 'file:') $('warnHttps').style.display='block';
+</script>
+</body>
+</html>
