@@ -327,13 +327,14 @@ a.tool:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 1
 </body>
 <script src="/b3-vitrine.js"></script>
 <script>
-/* ===== HOME — usa B3Vitrine (lógica central em /b3-vitrine.js) ===== */
+/* ===== HOME — usa B3Vitrine v2 (config no Firestore) ===== */
 const V = window.B3Vitrine;
 const $$ = s => document.querySelector(s);
 const cards = () => [...document.querySelectorAll('[data-tool]')];
 
 function aplicarVitrine(){
-  const trancadas = new Set(V.cfg().trancadas);
+  const c = V.cfgSync();
+  const trancadas = new Set(c.trancadas);
   const livres = V.desbloqueadas();
   cards().forEach(card=>{
     const tool = card.dataset.tool;
@@ -341,7 +342,7 @@ function aplicarVitrine(){
   });
 }
 
-/* clique em card trancado → pede senha do cliente */
+/* clique em card trancado -> pede senha do cliente */
 document.addEventListener('click', e=>{
   const card = e.target.closest('[data-tool]');
   if(!card) return;
@@ -362,7 +363,7 @@ function abrirModalCliente(tool){
 $$('#clienteOk').addEventListener('click', validarCliente);
 $$('#clientePwd').addEventListener('keydown', e=>{ if(e.key==='Enter') validarCliente(); });
 function validarCliente(){
-  if($$('#clientePwd').value === V.cfg().senhaCliente){
+  if($$('#clientePwd').value === V.cfgSync().senhaCliente){
     V.marcarDesbloqueada(toolPendente);
     aplicarVitrine();
     fecharModais();
@@ -383,7 +384,7 @@ $$('#adminDot').addEventListener('click', ()=>{
 $$('#adminOk').addEventListener('click', validarAdmin);
 $$('#adminPwd').addEventListener('keydown', e=>{ if(e.key==='Enter') validarAdmin(); });
 function validarAdmin(){
-  if($$('#adminPwd').value === V.cfg().senhaAdmin){
+  if($$('#adminPwd').value === V.cfgSync().senhaAdmin){
     fecharModais();
     abrirPainelAdmin();
   } else {
@@ -392,7 +393,7 @@ function validarAdmin(){
 }
 
 function abrirPainelAdmin(){
-  const c = V.cfg();
+  const c = V.cfgSync();
   const trancadas = new Set(c.trancadas);
   $$('#admToolList').innerHTML = cards().map(card=>{
     const t = card.dataset.tool;
@@ -405,14 +406,18 @@ function abrirPainelAdmin(){
   $$('#admClientePwd').value = c.senhaCliente;
   $$('#modalAdminPanel').classList.add('show');
 }
-$$('#admSalvar').addEventListener('click', ()=>{
-  const c = V.cfg();
+$$('#admSalvar').addEventListener('click', async ()=>{
+  const c = { ...V.cfgSync() };
   c.trancadas = [...document.querySelectorAll('[data-lock]:checked')].map(x=>x.dataset.lock);
   c.senhaCliente = $$('#admClientePwd').value.trim() || c.senhaCliente;
-  V.salvarCfg(c);
+  const btn = $$('#admSalvar');
+  const txt = btn.textContent; btn.textContent = 'Salvando...'; btn.disabled = true;
+  const ok = await V.salvarConfig(c);
   V.limparDesbloqueios();
   aplicarVitrine();
+  btn.textContent = txt; btn.disabled = false;
   fecharModais();
+  if(!ok) alert('Salvo neste aparelho, mas nao consegui gravar na nuvem (offline?). Tente de novo com internet.');
 });
 
 function fecharModais(){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); }
@@ -423,6 +428,8 @@ document.querySelectorAll('.modal').forEach(m=>{
   m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('show'); });
 });
 
-aplicarVitrine();
+/* carrega config da nuvem e aplica */
+aplicarVitrine(); // aplica o que tiver em cache local imediatamente
+V.carregarConfig().then(()=> aplicarVitrine()); // reaplica com a config da nuvem
 </script>
 </html>
