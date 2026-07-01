@@ -62,8 +62,12 @@
   .btn.sm{padding:8px 12px;font-size:12px;width:auto}
 
   /* Scanner */
-  #reader{width:100%;border-radius:10px;overflow:hidden;background:#000;margin-bottom:12px}
-  #reader:empty{display:none}
+  #reader{width:100%;min-height:300px;border-radius:10px;overflow:hidden;
+    background:#000;margin-bottom:12px;position:relative}
+  #reader:empty{min-height:0}
+  #reader video{width:100%!important;height:auto!important;display:block!important;
+    object-fit:cover;border-radius:10px}
+  #reader img{display:none} /* esconde ícone de info da lib */
   .scan-manual{display:flex;gap:8px;margin-top:4px}
   .scan-manual input{flex:1}
 
@@ -291,23 +295,54 @@ $('clearAll').addEventListener('click', ()=>{
 let html5Qr = null, camAtiva = false;
 $('startCam').addEventListener('click', async ()=>{
   if(camAtiva){
-    await html5Qr.stop(); camAtiva=false;
+    try{ await html5Qr.stop(); }catch(e){}
+    camAtiva=false;
     $('startCam').textContent='▶ Ligar câmera'; $('camState').textContent='câmera parada';
     return;
   }
+  $('camState').textContent='abrindo…';
   try{
-    html5Qr = new Html5Qrcode('reader');
-    await html5Qr.start(
-      { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 240, height: 240 } },
-      (decoded)=>{ bipar(decoded); },
-      ()=>{}
-    );
+    if(!html5Qr) html5Qr = new Html5Qrcode('reader', { verbose:false });
+
+    const config = {
+      fps: 10,
+      qrbox: (vw, vh)=>{ const m = Math.floor(Math.min(vw,vh)*0.7); return {width:m,height:m}; },
+      aspectRatio: 1.0,
+      // formatos comuns em etiquetas Shopee/ML (QR + código de barras)
+      experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+    };
+
+    // 1ª tentativa: câmera traseira por facingMode
+    try{
+      await html5Qr.start({ facingMode: { exact: 'environment' } }, config,
+        (decoded)=>bipar(decoded), ()=>{});
+    }catch(e1){
+      // 2ª tentativa: environment sem "exact" (alguns iPhones recusam exact)
+      try{
+        await html5Qr.start({ facingMode: 'environment' }, config,
+          (decoded)=>bipar(decoded), ()=>{});
+      }catch(e2){
+        // 3ª tentativa: listar câmeras e pegar a última (costuma ser a traseira)
+        const cams = await Html5Qrcode.getCameras();
+        if(!cams || !cams.length) throw new Error('Nenhuma câmera encontrada');
+        const cam = cams[cams.length-1];
+        await html5Qr.start({ deviceId: { exact: cam.id } }, config,
+          (decoded)=>bipar(decoded), ()=>{});
+      }
+    }
+
+    // garante playsinline no vídeo (exigência do Safari iOS)
+    setTimeout(()=>{
+      const v = document.querySelector('#reader video');
+      if(v){ v.setAttribute('playsinline',''); v.setAttribute('muted',''); v.play&&v.play().catch(()=>{}); }
+    }, 300);
+
     camAtiva = true;
     $('startCam').textContent='■ Parar câmera';
     $('camState').textContent='lendo…';
   }catch(err){
-    alert('Não consegui abrir a câmera. Verifique a permissão e se está em HTTPS.\n\n'+err);
+    $('camState').textContent='falhou';
+    alert('Não consegui abrir a câmera.\n\nNo iPhone: toque em "aA" na barra de endereço → Configurações do site → Câmera → Permitir. E use o Safari (não modo privado).\n\nDetalhe técnico: '+err);
   }
 });
 
