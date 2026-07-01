@@ -95,6 +95,12 @@
   .pkg .idx{font-family:var(--mono);font-size:11px;color:var(--txt-faint);min-width:26px}
   .pkg .code{font-family:var(--mono);font-size:12.5px;flex:1;word-break:break-all}
   .pkg .time{font-family:var(--mono);font-size:10.5px;color:var(--txt-faint)}
+  .pkg .thumb{width:34px;height:34px;border-radius:6px;object-fit:cover;
+    border:1px solid var(--line);cursor:pointer;background:var(--panel-2)}
+  .pkg .addphoto{width:34px;height:34px;border-radius:6px;border:1px dashed var(--line);
+    background:none;color:var(--txt-faint);cursor:pointer;font-size:15px;display:flex;
+    align-items:center;justify-content:center;flex:none}
+  .pkg .addphoto:hover{border-color:var(--amber);color:var(--amber)}
   .pkg .del{background:none;border:none;color:var(--txt-faint);cursor:pointer;
     font-size:16px;padding:2px 6px;line-height:1}
   .pkg .del:hover{color:var(--red)}
@@ -200,6 +206,14 @@
   <div class="foot">B3 Flex · Oficina de Precisão · custódia de pacotes Flex</div>
 </div>
 
+<!-- input de câmera oculto (foto da etiqueta) -->
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+
+<!-- modal de visualização da foto -->
+<div id="photoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;align-items:center;justify-content:center;padding:20px" onclick="this.style.display='none'">
+  <img id="photoModalImg" style="max-width:100%;max-height:90vh;border-radius:10px">
+</div>
+
 <script>
 /* ================= ESTADO DA SESSÃO ================= */
 const state = {
@@ -240,6 +254,69 @@ function beepDup(){                                           // grave duplo = d
   setTimeout(()=>tocar(320, 0.18, 'square'), 200);
 }
 
+/* ================= PERSISTÊNCIA LOCAL (não perde ao recarregar) ================= */
+const LS_KEY = 'b3flex_sessao';
+function salvarLocal(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      pacotes: state.pacotes,
+      transportadoras: state.transportadoras,
+      transp: $('transp') ? $('transp').value : '',
+      motorista: $('motorista') ? $('motorista').value : '',
+    }));
+  }catch(e){ /* localStorage cheio ou indisponível */ }
+}
+function restaurarLocal(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(Array.isArray(d.transportadoras) && d.transportadoras.length) state.transportadoras = d.transportadoras;
+    if(Array.isArray(d.pacotes)){
+      state.pacotes = d.pacotes;
+      state.pacotes.forEach(p=> codigosBipados.add(p.code));
+    }
+    state._restore = d; // guarda transp/motorista pra aplicar após render dos selects
+  }catch(e){}
+}
+
+/* ================= FOTO DA ETIQUETA (comprimida) ================= */
+// Redimensiona pra máx 800px e comprime em JPEG ~0.6 → leve pra PDF e Firestore
+function comprimirFoto(file){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = e=>{ img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = ()=>{
+      const maxW = 800;
+      const escala = Math.min(1, maxW / img.width);
+      const w = Math.round(img.width * escala);
+      const h = Math.round(img.height * escala);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.6));
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// pacote que está aguardando foto (setado ao clicar no botão de câmera do item)
+let alvoFoto = null;
+$('photoInput').addEventListener('change', async e=>{
+  const file = e.target.files[0];
+  e.target.value = ''; // permite tirar a mesma foto de novo
+  if(!file || alvoFoto === null) return;
+  try{
+    const dataUrl = await comprimirFoto(file);
+    const pkg = state.pacotes.find(p=>p.code === alvoFoto);
+    if(pkg){ pkg.foto = dataUrl; salvarLocal(); renderList(); }
+  }catch(err){ alert('Não consegui processar a foto.'); }
+  alvoFoto = null;
+});
+
 /* ================= TRANSPORTADORAS ================= */
 function renderTransp(){
   $('transp').innerHTML = state.transportadoras
@@ -251,8 +328,12 @@ $('addTransp').addEventListener('click', ()=>{
     state.transportadoras.push(nome.trim());
     renderTransp();
     $('transp').value = nome.trim();
+    salvarLocal();
   }
 });
+// salvar ao trocar transportadora ou digitar motorista
+$('transp').addEventListener('change', salvarLocal);
+$('motorista').addEventListener('input', salvarLocal);
 
 /* ================= BIPAGEM (núcleo anti-duplicidade) ================= */
 function bipar(code){
@@ -267,10 +348,11 @@ function bipar(code){
   }
 
   codigosBipados.add(code);
-  state.pacotes.push({ code, hora: hhmm(agora()) });
+  state.pacotes.push({ code, hora: hhmm(agora()), foto: null });
   feedback('ok', '✓', 'Registrado', code);
   beepOk();
   navigator.vibrate && navigator.vibrate(50);
+  salvarLocal();
   renderList();
 }
 
@@ -291,19 +373,38 @@ function renderList(){
     list.innerHTML = '<div class="empty">Nenhum pacote bipado ainda.</div>';
     return;
   }
-  list.innerHTML = state.pacotes.map((p,i)=>`
-    <div class="pkg">
+  list.innerHTML = state.pacotes.map((p,i)=>{
+    const fotoEl = p.foto
+      ? `<img class="thumb" src="${p.foto}" data-view="${i}" title="Ver foto">`
+      : `<button class="addphoto" data-photo="${p.code}" title="Tirar foto da etiqueta">📷</button>`;
+    return `<div class="pkg">
       <span class="idx">${String(i+1).padStart(2,'0')}</span>
       <span class="code">${p.code}</span>
+      ${fotoEl}
       <span class="time">${p.hora}</span>
       <button class="del" data-i="${i}" title="Remover">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+
+  // remover
   list.querySelectorAll('.del').forEach(b=>{
     b.addEventListener('click', ()=>{
       const i = +b.dataset.i;
       codigosBipados.delete(state.pacotes[i].code);
       state.pacotes.splice(i,1);
+      salvarLocal();
       renderList();
+    });
+  });
+  // tirar foto
+  list.querySelectorAll('.addphoto').forEach(b=>{
+    b.addEventListener('click', ()=>{ alvoFoto = b.dataset.photo; $('photoInput').click(); });
+  });
+  // ver foto ampliada
+  list.querySelectorAll('.thumb').forEach(img=>{
+    img.addEventListener('click', ()=>{
+      $('photoModalImg').src = img.src;
+      $('photoModal').style.display = 'flex';
     });
   });
 }
@@ -316,7 +417,7 @@ $('addManual').addEventListener('click', ()=>{ initAudio(); bipar($('manualCode'
 
 $('clearAll').addEventListener('click', ()=>{
   if(state.pacotes.length && confirm('Limpar todos os pacotes bipados desta sessão?')){
-    state.pacotes = []; codigosBipados.clear(); renderList();
+    state.pacotes = []; codigosBipados.clear(); salvarLocal(); renderList();
   }
 });
 
@@ -428,15 +529,19 @@ $('genPdf').addEventListener('click', ()=>{
 
   // tabela cabeçalho
   doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('#', 14, y); doc.text('Código do pacote', 26, y); doc.text('Hora', W-30, y); y+=2;
+  doc.text('#', 14, y); doc.text('Código do pacote', 26, y);
+  doc.text('Foto', W-52, y); doc.text('Hora', W-30, y); y+=2;
   doc.line(14, y, W-14, y); y+=6;
   doc.setFont('courier','normal'); doc.setFontSize(8.5);
 
+  let temFotos = false;
   state.pacotes.forEach((p,i)=>{
     if(y > 260){ doc.addPage(); y=20; }
     doc.text(String(i+1).padStart(2,'0'), 14, y);
-    doc.text(p.code.substring(0,60), 26, y);
+    doc.text(p.code.substring(0,52), 26, y);
+    doc.text(p.foto ? 'sim' : '—', W-52, y);
     doc.text(p.hora, W-30, y);
+    if(p.foto) temFotos = true;
     y+=5.5;
   });
 
@@ -465,13 +570,40 @@ $('genPdf').addEventListener('click', ()=>{
   doc.setFontSize(7.5); doc.setTextColor(150,150,150);
   doc.text(`Gerado por B3 Flex em ${hoje()} ${hhmm(agora())}`, 14, 288);
 
+  // galeria de fotos das etiquetas (páginas extras)
+  if(temFotos){
+    doc.addPage();
+    let gy = 20, gx = 14;
+    doc.setTextColor(30,30,30); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.text('Fotos das etiquetas', 14, gy); gy += 8;
+    doc.setFont('courier','normal'); doc.setFontSize(7.5);
+    const fw = 58, fh = 44, gap = 6; // 3 por linha
+    let col = 0;
+    state.pacotes.forEach((p,i)=>{
+      if(!p.foto) return;
+      if(gy + fh + 8 > 285){ doc.addPage(); gy = 20; col = 0; gx = 14; }
+      try{ doc.addImage(p.foto, 'JPEG', gx, gy, fw, fh); }catch(e){}
+      doc.setTextColor(80,80,80);
+      doc.text(`#${String(i+1).padStart(2,'0')} ${p.code.substring(0,22)}`, gx, gy+fh+4);
+      col++;
+      if(col >= 3){ col = 0; gx = 14; gy += fh + 12; }
+      else { gx += fw + gap; }
+    });
+  }
+
   const nomeArq = `coleta_${transp.replace(/\s+/g,'-')}_${hoje().replace(/\//g,'-')}.pdf`;
   doc.save(nomeArq);
 });
 
 /* ================= INIT ================= */
+restaurarLocal();               // recupera sessão salva (antes de renderizar)
 $('data').value = hoje();
 renderTransp();
+// aplica transportadora/motorista salvos, se houver
+if(state._restore){
+  if(state._restore.transp) $('transp').value = state._restore.transp;
+  if(state._restore.motorista) $('motorista').value = state._restore.motorista;
+}
 renderList();
 fitCanvas();
 window.addEventListener('resize', ()=>{ /* mantém assinatura simples: refit sem preservar */ fitCanvas(); });
