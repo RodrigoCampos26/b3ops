@@ -129,6 +129,16 @@
         await setDoc(doc(db, "b3_config", "flex_cadastros"), { ...cad, ts: serverTimestamp() }, { merge: true });
         return true;
       } catch (e) { console.warn("salvarCadastros falhou:", e); return false; }
+    },
+
+    // Lê os dados da empresa (para o cabeçalho do PDF)
+    async lerEmpresa() {
+      if (!online) return null;
+      try {
+        const ref = doc(db, "b3_config", "empresa");
+        const snap = await getDoc(ref);
+        return snap.exists() ? snap.data() : null;
+      } catch (e) { console.warn("lerEmpresa falhou:", e); return null; }
     }
   };
 
@@ -576,6 +586,7 @@ const state = {
   assinatura: null,       // dataURL da assinatura do motorista (salva na nuvem)
 };
 const codigosBipados = new Set(); // anti-duplicidade rápido (sessão)
+let empresaFlex = {}; // dados da empresa (nome, cnpj, endereço, logo) p/ o PDF
 
 const $ = id => document.getElementById(id);
 const agora = () => new Date();
@@ -1262,13 +1273,32 @@ $('genPdf').addEventListener('click', ()=>{
   const doc = new jsPDF({ unit:'mm', format:'a4' });
   const W = 210; let y = 18;
 
-  // cabeçalho
+  // cabeçalho B3 Flex
   doc.setFillColor(26,29,35); doc.rect(0,0,W,30,'F');
   doc.setTextColor(245,158,11); doc.setFont('helvetica','bold'); doc.setFontSize(9);
   doc.text('B3 FLEX', 14, 13);
   doc.setTextColor(255,255,255); doc.setFontSize(15);
   doc.text('Comprovante de Coleta — Saída Flex', 14, 22);
-  y = 40;
+  y = 38;
+
+  // faixa de dados da empresa (se cadastrada)
+  const emp = empresaFlex || {};
+  if(emp.nome || emp.cnpj || emp.endereco){
+    let ex = 14;
+    // logo à esquerda
+    if(emp.logo){
+      try{ doc.addImage(emp.logo, 'PNG', 14, y-2, 16, 16); ex = 34; }catch(e){}
+    }
+    doc.setTextColor(20,20,20); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+    if(emp.nome){ doc.text(emp.nome, ex, y+3); }
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(90,90,90);
+    let linha = y+8;
+    if(emp.cnpj){ doc.text(`CNPJ: ${emp.cnpj}`, ex, linha); linha+=4; }
+    if(emp.endereco){ doc.text(emp.endereco, ex, linha); linha+=4; }
+    if(emp.telefone){ doc.text(`Tel: ${emp.telefone}`, ex, linha); linha+=4; }
+    y = Math.max(linha, y+16) + 2;
+    doc.setDrawColor(220,220,220); doc.line(14, y, W-14, y); y+=8;
+  }
 
   // dados
   doc.setTextColor(30,30,30); doc.setFont('helvetica','normal'); doc.setFontSize(10);
@@ -1410,6 +1440,9 @@ async function aoFicarOnline(){
         salvarLocal();
       }
     }catch(e){ console.warn('lerCadastros init falhou:', e); }
+    // carrega dados da empresa (para o cabeçalho do PDF)
+    try{ const emp = await window.b3fx.lerEmpresa(); if(emp) empresaFlex = emp; }
+    catch(e){ console.warn('lerEmpresa init falhou:', e); }
     // re-envia pacotes que já estão na tela (garante que tudo está no banco)
     state.pacotes.forEach(p=> syncPacote(p));
   } else {
