@@ -213,6 +213,33 @@ const agora = () => new Date();
 const hhmm = d => d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 const hoje = () => agora().toLocaleDateString('pt-BR');
 
+/* ================= SOM (Web Audio, sem arquivo) ================= */
+let audioCtx = null;
+function initAudio(){
+  // Safari iOS: só cria/destrava dentro de um gesto do usuário
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+}
+function tocar(freq, dur, tipo){
+  if(!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = tipo || 'sine';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
+function beepOk(){ tocar(1050, 0.12, 'sine'); }              // agudo curto = registrado
+function beepDup(){                                           // grave duplo = duplicado
+  tocar(320, 0.18, 'square');
+  setTimeout(()=>tocar(320, 0.18, 'square'), 200);
+}
+
 /* ================= TRANSPORTADORAS ================= */
 function renderTransp(){
   $('transp').innerHTML = state.transportadoras
@@ -234,6 +261,7 @@ function bipar(code){
 
   if(codigosBipados.has(code)){
     feedback('dup', '✕', 'JÁ BIPADO — pacote duplicado!', code);
+    beepDup();
     navigator.vibrate && navigator.vibrate([80,50,80]);
     return;
   }
@@ -241,6 +269,7 @@ function bipar(code){
   codigosBipados.add(code);
   state.pacotes.push({ code, hora: hhmm(agora()) });
   feedback('ok', '✓', 'Registrado', code);
+  beepOk();
   navigator.vibrate && navigator.vibrate(50);
   renderList();
 }
@@ -283,7 +312,7 @@ function renderList(){
 $('manualCode').addEventListener('keydown', e=>{
   if(e.key === 'Enter'){ bipar($('manualCode').value); $('manualCode').value=''; }
 });
-$('addManual').addEventListener('click', ()=>{ bipar($('manualCode').value); $('manualCode').value=''; $('manualCode').focus(); });
+$('addManual').addEventListener('click', ()=>{ initAudio(); bipar($('manualCode').value); $('manualCode').value=''; $('manualCode').focus(); });
 
 $('clearAll').addEventListener('click', ()=>{
   if(state.pacotes.length && confirm('Limpar todos os pacotes bipados desta sessão?')){
@@ -294,6 +323,7 @@ $('clearAll').addEventListener('click', ()=>{
 /* ================= CÂMERA ================= */
 let html5Qr = null, camAtiva = false;
 $('startCam').addEventListener('click', async ()=>{
+  initAudio();
   if(camAtiva){
     try{ await html5Qr.stop(); }catch(e){}
     camAtiva=false;
