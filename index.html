@@ -325,48 +325,23 @@ a.tool:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 1
 </div>
 
 </body>
+<script src="/b3-vitrine.js"></script>
 <script>
-/* ================= VITRINE B3 OPS (Nível 1 — trava visual) =================
-   Config padrão (vale em qualquer navegador enquanto o admin não configurar).
-   EDITE AQUI se quiser mudar o padrão de fábrica: */
-const VITRINE_PADRAO = {
-  senhaAdmin:   'b3admin',      // <<< TROQUE pela sua senha de admin
-  senhaCliente: 'testar',       // <<< senha padrão que o cliente usa
-  trancadas:    [],             // ferramentas trancadas por padrão. ex: ['box','price','radar']
-};
-
-const LSV = 'b3ops_vitrine';        // config salva pelo admin (neste navegador)
-const LSU = 'b3ops_desbloqueadas';  // ferramentas que o cliente já destravou
-
-function cfg(){
-  try{ return { ...VITRINE_PADRAO, ...(JSON.parse(localStorage.getItem(LSV)||'{}')) }; }
-  catch(e){ return { ...VITRINE_PADRAO }; }
-}
-function salvarCfg(c){ localStorage.setItem(LSV, JSON.stringify(c)); }
-function desbloqueadas(){
-  try{ return new Set(JSON.parse(localStorage.getItem(LSU)||'[]')); }catch(e){ return new Set(); }
-}
-function marcarDesbloqueada(tool){
-  const s = desbloqueadas(); s.add(tool);
-  localStorage.setItem(LSU, JSON.stringify([...s]));
-}
-
+/* ===== HOME — usa B3Vitrine (lógica central em /b3-vitrine.js) ===== */
+const V = window.B3Vitrine;
 const $$ = s => document.querySelector(s);
 const cards = () => [...document.querySelectorAll('[data-tool]')];
 
-// aplica o estado de trava nos cards
 function aplicarVitrine(){
-  const c = cfg();
-  const trancadas = new Set(c.trancadas);
-  const livres = desbloqueadas();
+  const trancadas = new Set(V.cfg().trancadas);
+  const livres = V.desbloqueadas();
   cards().forEach(card=>{
     const tool = card.dataset.tool;
-    const trancada = trancadas.has(tool) && !livres.has(tool);
-    card.classList.toggle('locked', trancada);
+    card.classList.toggle('locked', trancadas.has(tool) && !livres.has(tool));
   });
 }
 
-// intercepta clique nos cards trancados
+/* clique em card trancado → pede senha do cliente */
 document.addEventListener('click', e=>{
   const card = e.target.closest('[data-tool]');
   if(!card) return;
@@ -376,7 +351,6 @@ document.addEventListener('click', e=>{
   }
 });
 
-/* ---- modal senha cliente ---- */
 let toolPendente = null;
 function abrirModalCliente(tool){
   toolPendente = tool;
@@ -388,12 +362,10 @@ function abrirModalCliente(tool){
 $$('#clienteOk').addEventListener('click', validarCliente);
 $$('#clientePwd').addEventListener('keydown', e=>{ if(e.key==='Enter') validarCliente(); });
 function validarCliente(){
-  const c = cfg();
-  if($$('#clientePwd').value === c.senhaCliente){
-    marcarDesbloqueada(toolPendente);
+  if($$('#clientePwd').value === V.cfg().senhaCliente){
+    V.marcarDesbloqueada(toolPendente);
     aplicarVitrine();
     fecharModais();
-    // abre a ferramenta destravada
     const card = cards().find(x=>x.dataset.tool===toolPendente);
     if(card) window.location.href = card.getAttribute('href');
   } else {
@@ -401,7 +373,7 @@ function validarCliente(){
   }
 }
 
-/* ---- admin ---- */
+/* admin */
 $$('#adminDot').addEventListener('click', ()=>{
   $$('#adminPwd').value = '';
   $$('#adminErr').classList.remove('show');
@@ -411,7 +383,7 @@ $$('#adminDot').addEventListener('click', ()=>{
 $$('#adminOk').addEventListener('click', validarAdmin);
 $$('#adminPwd').addEventListener('keydown', e=>{ if(e.key==='Enter') validarAdmin(); });
 function validarAdmin(){
-  if($$('#adminPwd').value === cfg().senhaAdmin){
+  if($$('#adminPwd').value === V.cfg().senhaAdmin){
     fecharModais();
     abrirPainelAdmin();
   } else {
@@ -419,35 +391,30 @@ function validarAdmin(){
   }
 }
 
-const NOMES = { flex:['B3 Flex','bipagem de saída'], box:['B3 Box','empacotador 3D'],
-                price:['B3 Price','precificação'], radar:['B3 Radar','mercado'] };
 function abrirPainelAdmin(){
-  const c = cfg();
+  const c = V.cfg();
   const trancadas = new Set(c.trancadas);
-  const lista = cards().map(card=>{
+  $$('#admToolList').innerHTML = cards().map(card=>{
     const t = card.dataset.tool;
-    const nome = NOMES[t] || [t,''];
+    const nome = V.NOMES[t] || [t,''];
     return `<div class="adm-tool">
       <div><div class="an">${nome[0]}</div><div class="ad">${nome[1]}</div></div>
       <label class="sw"><input type="checkbox" data-lock="${t}" ${trancadas.has(t)?'checked':''}><span class="slider"></span></label>
     </div>`;
   }).join('');
-  $$('#admToolList').innerHTML = lista;
   $$('#admClientePwd').value = c.senhaCliente;
   $$('#modalAdminPanel').classList.add('show');
 }
 $$('#admSalvar').addEventListener('click', ()=>{
-  const c = cfg();
+  const c = V.cfg();
   c.trancadas = [...document.querySelectorAll('[data-lock]:checked')].map(x=>x.dataset.lock);
   c.senhaCliente = $$('#admClientePwd').value.trim() || c.senhaCliente;
-  salvarCfg(c);
-  // ao reconfigurar, zera desbloqueios anteriores (nova demo, novo estado)
-  localStorage.removeItem(LSU);
+  V.salvarCfg(c);
+  V.limparDesbloqueios();
   aplicarVitrine();
   fecharModais();
 });
 
-/* ---- fechar modais ---- */
 function fecharModais(){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); }
 document.querySelectorAll('[data-close]').forEach(b=>{
   b.addEventListener('click', ()=> $$('#'+b.dataset.close).classList.remove('show'));
@@ -456,7 +423,6 @@ document.querySelectorAll('.modal').forEach(m=>{
   m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('show'); });
 });
 
-/* ---- init ---- */
 aplicarVitrine();
 </script>
 </html>
